@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "start": "lerna run start",
+    "lint": "lerna run lint",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watchAll",
+    "build": "lerna run clean && tsc --build tsconfig.build.json && chmod +x packages/extension-scripts/lib/index.js",
+    "build:watch": "tsc --build tsconfig.build.json --watch ",
+    "clean": "lerna run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@npm/types": "^1.0.1",
+    "@types/jest": "^23.3.12",
+    "@types/node": "^13.5.1",
+    "jest": "^23.6.0",
+    "lerna": "^3.10.5",
+    "prettier": "^1.15.3",
+    "prettier-tslint": "^0.4.2",
+    "ts-jest": "^23.10.5",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.2.2"
+  }
+}

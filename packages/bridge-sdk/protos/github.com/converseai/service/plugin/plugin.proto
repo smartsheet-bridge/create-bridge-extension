@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package plugin;
+
+import "github.com/converseai/service/base/call.proto";
+
+enum ExecStatus {
+    SUCCESS = 0;
+    FAIL = 1;
+    RETRY = 2;
+    STOP = 3;
+    PAUSE = 4;
+    NEED_AUTH = 5;
+}
+
+enum OAuthType {
+	OAUTH_USER = 0;
+	OAUTH_PROVIDER = 1;
+}
+
+message Caller {
+	base.User invoker = 1;
+	base.Provider provider = 2;
+	int64 callTime = 3;
+	string msgid = 4;
+	string installUUID = 5;
+	string pluginUUID = 6;
+	CallToken callToken = 7; // this is set by the server
+  string revision = 8;
+}
+
+message CallToken {
+	int64  validUntil = 4;
+	string signature = 5;
+}
+
+message Webhook {
+	map<string,string> headers =1;
+	string webhookURL = 2;
+}
+
+message OAuth2Data {
+	string access_token = 1;
+	string token_type = 2;
+	string refresh_token  = 3;
+	int32  expires_in = 4;
+	string grant_type = 5;
+  map<string,string> metadata = 6;
+  string redirect_uri = 7;
+}

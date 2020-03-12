@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package base;
+
+message CallError {
+	string code = 1;
+	string description = 2;
+	int32 httpStatus = 3;
+}
+
+
+message Provider {
+	string providerUUID   = 1;
+	string workspaceUUID  = 2;
+	string providerDomain = 3;
+}
+
+message User {
+	string userUUID = 1;
+	string email = 2;
+	string firstName = 3;
+	string lastName = 4;
+	bool   admin = 5;
+	bool   systemAdmin = 6;
+	string providerUUID = 7; 
+}

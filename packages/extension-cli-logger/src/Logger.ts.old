@@ -1,0 +1,222 @@
+import { AssertionError } from 'assert';
+import Chalk from 'chalk';
+import { createWriteStream } from 'fs';
+import { EOL } from 'os';
+import { join } from 'path';
+import { createInterface } from 'readline';
+import * as Util from 'util';
+import { LoggerStream } from '../lib/LoggerStream';
+import { AbstractError } from './errors/AbstractError';
+import { LoggerFS } from './LoggerFS';
+import { LoggerOut } from './LoggerOut';
+
+export enum LogLevel {
+  SILENT = 0,
+  ERROR = 10,
+  WARN = 20,
+  INFO = 30,
+  VERBOSE = 40,
+}
+
+const indentNewLines = (replacement: string = `${EOL}${ASCII_TAB} `) => (
+  arg: any
+) => {
+  return Util.formatWithOptions(
+    { colors: true, compact: false, breakLength: Infinity, depth: 7 },
+    arg
+  ).replace(new RegExp(EOL, 'g'), replacement);
+};
+
+const awaitInput = (def: string) => {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      const rl = createInterface(process.stdin);
+      let input: string = def;
+      rl.on('line', (userInput: string) => {
+        input = userInput && userInput.length > 0 ? userInput.trim() : def;
+        rl.close();
+      });
+      rl.on('close', () => {
+        resolve(input);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const ASCII_TAB: string = '  ';
+const ASCII_ARROW: string = '➤';
+const ASCII_ERROR: string = '‼︎';
+const ASCII_WARN: string = '!';
+const ASCII_BOX_TOP: string = '┌';
+const ASCII_BOX_MIDDLE: string = '│';
+const ASCII_BOX_BOTTOM: string = '└';
+const ASCII_PROMPT: string = '?';
+const ASCII_SUCCESS: string = '✔️';
+const GOLDEN_RATIO: number = 0.618033988749895;
+const ERROR = Chalk.hex('#E57373');
+const WARN = Chalk.hex('#FFF176');
+
+export class Logger {
+  private hue: number = Math.random();
+
+  private out: LoggerStream[];
+  private err: LoggerStream[];
+  private startTime: number | undefined;
+
+  public constructor() {
+    const extensionLogLogger = new LoggerFS({
+      stream: createWriteStream(join(process.cwd(), 'extension.log')),
+      loglevel: LogLevel.VERBOSE,
+      filter: '.*',
+    });
+    this.out = [extensionLogLogger];
+    this.err = [extensionLogLogger];
+  }
+
+  public addOut(out: LoggerOut): () => void {
+    const previousOuts = this.out;
+    this.out = [...previousOuts, out];
+    return () => {
+      this.out = previousOuts;
+    };
+  }
+
+  public addErr(err: LoggerOut): () => void {
+    const previousErrs = this.err;
+    this.err = [...previousErrs, err];
+    return () => {
+      this.err = previousErrs;
+    };
+  }
+
+  public info(...args: string[]): void {
+    const msg = this.format(Chalk.blue(ASCII_ARROW), ...args);
+    this.out
+      .filter(out => out.isLoggable(LogLevel.INFO))
+      .forEach(out => out.write(msg + EOL));
+  }
+
+  public verbose(...args: string[]): void {
+    const msg = this.format(Chalk.blue(ASCII_ARROW), ...args);
+    this.out
+      .filter(out => out.isLoggable(LogLevel.VERBOSE))
+      .forEach(out => out.write(msg + EOL));
+  }
+
+  public warn(...args: string[]): void {
+    const msg = this.format(WARN(ASCII_WARN), WARN(...args));
+    this.out
+      .filter(out => out.isLoggable(LogLevel.WARN))
+      .forEach(out => out.write(msg + EOL));
+  }
+
+  public error(error: Error): void {
+    const errString =
+      error instanceof AbstractError ? error.toOut() : error.stack;
+    const msg = this.format(ERROR(ASCII_ERROR), ERROR(errString));
+    this.err
+      .filter(err => err.isLoggable(LogLevel.ERROR))
+      .forEach(err => err.write(msg));
+  }
+
+  public assert(condition: boolean, message: string): void {
+    if (!condition) {
+      throw new AssertionError({
+        message,
+        stackStartFn: this.assert,
+      });
+    }
+  }
+
+  public start(title: string): void {
+    if (this.isTiming()) {
+      this.end();
+      this.start(title);
+    } else {
+      this.startTime = Date.now();
+      this.out
+        .filter(out => out.isLoggable(LogLevel.INFO))
+        .forEach(out =>
+          out.write(
+            [Chalk.blue(ASCII_ARROW), ASCII_BOX_TOP, title, EOL].join(' ')
+          )
+        );
+    }
+  }
+
+  public end(title: string = 'Completed'): void {
+    if (this.isTiming()) {
+      const duration = new Date(Date.now() - this.startTime);
+      this.startTime = undefined;
+      this.out
+        .filter(out => out.isLoggable(LogLevel.INFO))
+        .forEach(out =>
+          out.write(
+            [
+              Chalk.blue(ASCII_ARROW),
+              ASCII_BOX_BOTTOM,
+              title,
+              `in ${duration.getUTCSeconds()}.${Math.round(
+                duration.getUTCMilliseconds() / 10
+              )}s`,
+              EOL,
+            ].join(' ')
+          )
+        );
+    }
+  }
+
+  public debug(title: string): (...args: any[]) => void {
+    this.hue += GOLDEN_RATIO;
+    this.hue %= 1;
+    const color = Chalk.hsv(this.hue * 360, 50, 95);
+    return (...args: any[]): void => {
+      const msg = this.format(color(ASCII_ARROW), color(`${title}:`), ...args);
+      this.out
+        .filter(out => out.isDebuggable(title))
+        .forEach(out => out.write(msg + EOL));
+    };
+  }
+
+  public prompt(question: string, def: string): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const msg = this.format(
+        Chalk.green(ASCII_PROMPT),
+        question,
+        Chalk.grey(`(${def ? 'Y' : 'N'})`)
+      );
+      this.out.forEach(out => out.write(msg));
+      const answer = await awaitInput(def ? 'Y' : 'N');
+      this.out.forEach(out => {
+        out.write(
+          this.format(
+            Chalk.green(ASCII_SUCCESS),
+            question,
+            Chalk.green(answer),
+            EOL
+          )
+        );
+      });
+    });
+  }
+
+  protected isTiming(): boolean {
+    return this.startTime !== undefined;
+  }
+
+  protected format(prefix: string, ...args: any[]): string {
+    if (this.isTiming()) {
+      return [
+        prefix,
+        ASCII_BOX_MIDDLE,
+        ...args.map(indentNewLines(`${EOL}${ASCII_TAB}${ASCII_TAB}`)),
+      ].join(' ');
+    } else {
+      return [prefix, ...args.map(indentNewLines(`${EOL}${ASCII_TAB}`))].join(
+        ' '
+      );
+    }
+  }
+}

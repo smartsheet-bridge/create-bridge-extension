@@ -32,19 +32,7 @@
       "path": "packages/extension-cli-logger/tsconfig.build.json"
     },
     {
-      "path": "packages/create-extension/tsconfig.build.json"
-    },
-    {
-      "path": "packages/extension-handler/tsconfig.build.json"
-    },
-    {
-      "path": "packages/extension-typed/tsconfig.build.json"
-    },
-    {
       "path": "packages/extension-scripts/tsconfig.build.json"
-    },
-    {
-      "path": "packages/extension-config-standard/tsconfig.build.json"
     }
   ]
 }

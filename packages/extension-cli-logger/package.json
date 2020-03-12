@@ -1,0 +1,19 @@
+{
+  "name": "@smartsheet-bridge/extension-cli-logger",
+  "version": "0.1.0-alpha.0",
+  "description": "",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "clean": "rm -rf lib"
+  },
+  "author": "graeme.cassels@smartsheet.com",
+  "dependencies": {
+    "inquirer": "^7.0.6",
+    "strip-ansi": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^6.5.0",
+    "@types/strip-ansi": "^5.2.1"
+  }
+}

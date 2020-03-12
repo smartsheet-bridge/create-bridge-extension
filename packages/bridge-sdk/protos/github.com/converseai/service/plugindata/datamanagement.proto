@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package plugindata;
+
+import "github.com/converseai/service/plugin/plugin.proto";
+import "github.com/converseai/service/base/call.proto";
+
+enum DataScope {
+    SCOPE_PROVIDER = 0;
+    SCOPE_USER = 1;
+    SCOPE_REQUEST = 2;
+    SCOPE_CONVERSATION = 3;
+}
+
+message OAuth2InfoRequest {
+    plugin.Caller caller = 1;
+    plugin.OAuthType oAuthType = 2;
+}
+
+message OAuth2InfoResponse {
+    plugin.OAuth2Data oAuth2Data = 1;
+    base.CallError error = 2;
+}
+
+message OAuth2CreateRequest {
+    plugin.Caller caller = 1;
+    plugin.OAuthType oAuthType = 2;
+    plugin.OAuth2Data oAuth2Data = 3;
+}
+
+message OAuth2CreateResponse {
+    base.CallError error = 1;
+    plugin.OAuth2Data oAuth2Data = 2;
+}
+
+message OAuth2UpdateRequest {
+    plugin.Caller caller = 1;
+    plugin.OAuthType oAuthType = 2;
+    plugin.OAuth2Data oAuth2Data = 3;
+}
+
+message OAuth2UpdateResponse {
+    base.CallError error = 1;
+    plugin.OAuth2Data oAuth2Data = 2;
+}
+
+message OAuth2DeleteResponse {
+    base.CallError error = 1;
+}
+
+message PluginKeysRequest {
+    plugin.Caller caller = 1;
+}
+
+message PluginKeysResponse {
+    map<string,string> keys = 1;
+    base.CallError error = 2;
+}
+
+message SetPluginKeysRequest {
+    plugin.Caller caller = 1;
+    map<string,string> keys = 2;
+}
+
+message LocalDataRequest {
+    plugin.Caller caller = 1;
+    DataScope scope = 2;
+    string key = 3;
+    bytes data = 4;
+    string scopeUUID = 5;
+}
+
+message PluginLocalDataResponse {
+    plugin.ExecStatus status = 1;
+    bytes data = 2;
+    base.CallError error = 3;
+}
+
+message PluginCodeRequest {
+    oneof codeData {
+        plugin.Caller caller = 1;
+        bytes data = 2;
+    }
+    int32 majorVersion = 3;
+}
+
+message PluginCodeResponse {
+    base.CallError error = 1;
+    plugin.ExecStatus status = 2;
+    string runtimeVersion = 3;
+}
+
+enum LogType {
+    INFO = 0;
+    DEBUG = 1;
+    ERROR = 2;
+}
+
+message PluginLogRecord {
+    int64 timestamp = 1;
+    LogType logType = 2;
+    string message = 3;
+}
+
+message AddLogRequest {
+    oneof auth {
+        plugin.Caller caller = 1;
+        string appToken = 2;
+    }
+    PluginLogRecord logRecord = 3;
+}
+
+message AddLogResponse {
+    base.CallError error = 1;
+    plugin.ExecStatus status = 2;
+    string message = 3;
+}
+
+message GetLogsRequest {
+    plugin.Caller caller = 1;
+    oneof filter {
+        int64 fromTimestamp = 2;
+        int32 noOfRecords = 3;
+    }
+}
+
+message StreamLogsResponse {
+    plugin.ExecStatus status = 1;
+    PluginLogRecord record = 2;
+    base.CallError error = 3;
+
+}
+
+service DataManagement{
+    rpc GetPluginOAuth2Info(OAuth2InfoRequest) returns (OAuth2InfoResponse){};
+    rpc CreatePluginOAuth2Info(OAuth2CreateRequest) returns (OAuth2CreateResponse){};
+    rpc UpdatePluginOAuth2Info(OAuth2UpdateRequest) returns (OAuth2UpdateResponse){};
+    rpc DeletePluginOAuth2Info(OAuth2InfoRequest) returns (OAuth2DeleteResponse){}
+    rpc GetPluginPrivateKeys(PluginKeysRequest) returns (PluginKeysResponse){};
+    rpc SetPluginPrivateKeys(SetPluginKeysRequest) returns (PluginKeysResponse){};
+    rpc GetPluginLocalData(LocalDataRequest) returns (PluginLocalDataResponse){};
+    rpc StorePluginLocalData(LocalDataRequest) returns (PluginLocalDataResponse){};
+
+    // Adds a log line into the DB logs are kept for a hour befire getting deleted
+    rpc AddLog(AddLogRequest) returns (AddLogResponse){};
+
+
+    // Upload the plugin node code on to converse
+    rpc UploadPluginCode(stream PluginCodeRequest) returns (PluginCodeResponse){};
+
+    // Streams the logs max runtime streaming is 10 mins. if there is no data for 1 min the stream is closed as well
+    // This should be only used at development time for debug purposes, the logs are not kept for more than a hour
+    // If you need log retention, please make sure that you get your plugis to send logs to your own logging system
+    rpc StreamLogs(GetLogsRequest) returns (stream StreamLogsResponse){};
+}

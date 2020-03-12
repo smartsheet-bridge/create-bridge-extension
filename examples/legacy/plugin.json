@@ -1,0 +1,12 @@
+{
+  "name": "legacy",
+  "displayName": "Legacy",
+  "description": "This is a legacy extension.",
+  "category": "",
+  "documentLink": "",
+  "needsOAuth": false,
+  "providerData": [],
+  "module": [],
+  "hasOAuth": false,
+  "webhooks": []
+}

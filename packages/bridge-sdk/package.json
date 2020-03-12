@@ -1,0 +1,19 @@
+{
+  "name": "@smartsheet-bridge/bridge-sdk",
+  "version": "0.1.0-alpha.0",
+  "description": "",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "clean": "rm -rf lib"
+  },
+  "author": "graeme.cassels@smartsheet.com",
+  "devDependencies": {
+    "@types/axios": "^0.14.0"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^0.6.15",
+    "@grpc/proto-loader": "^0.5.3",
+    "axios": "^0.19.2"
+  }
+}

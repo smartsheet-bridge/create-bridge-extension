@@ -1,0 +1,4 @@
+// Testing tsconfig
+{
+  "extends": "./tsconfig.base.json"
+}

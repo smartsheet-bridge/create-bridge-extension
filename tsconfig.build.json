@@ -1,0 +1,38 @@
+// Production tsconfig
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    // Monorepo compilerOptions
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Build specific compilerOptions hencefort
+    "noImplicitAny": true,
+    "removeComments": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
+
+    // Important. Without this the compiler will complain it cannot find a referenced
+    // package during a build.
+    "moduleResolution": "node"
+  },
+
+  // Monorepo settings
+
+  // Empty files so we never build this folder by mistake
+  "files": [],
+
+  // All the packages that needs building
+  "references": [
+    {
+      "path": "packages/bridge-sdk/tsconfig.build.json"
+    },
+    {
+      "path": "packages/extension-cli-logger/tsconfig.build.json"
+    },
+    {
+      "path": "packages/extension-scripts/tsconfig.build.json"
+    }
+  ]
+}

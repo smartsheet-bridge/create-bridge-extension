@@ -1,0 +1,10 @@
+// Development tsconfig
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@smartsheet-bridge/*": ["packages/*/src/index.ts"]
+    }
+  }
+}

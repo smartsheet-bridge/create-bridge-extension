@@ -1,19 +1,19 @@
 import { Chalk, UserError } from '@smartsheet-bridge/extension-cli-logger';
 import { CLI_PREFIX } from '../types';
 
-export class HostNotFoundError extends UserError {
+export class URLNotFoundError extends UserError {
   public constructor(cmd = '[cmd]') {
     super(
-      `Parameter 'host' not found!`,
+      `Parameter 'url' not found!`,
       `Please provide your ${Chalk.green('Bridge URL')} using the ${Chalk.cyan(
-        '--host'
+        '--url'
       )} parameter.`,
       {
         examples: [
-          `extension-scripts ${cmd} --host=${Chalk.cyan(
+          `extension-scripts ${cmd} --url=${Chalk.cyan(
             '[insert Bridge URL here]'
           )}`,
-          `${CLI_PREFIX.toLocaleUpperCase()}_HOST=${Chalk.cyan(
+          `${CLI_PREFIX.toLocaleUpperCase()}_URL=${Chalk.cyan(
             '[insert Bridge URL here]'
           )} extension-scripts ${cmd}`,
         ],

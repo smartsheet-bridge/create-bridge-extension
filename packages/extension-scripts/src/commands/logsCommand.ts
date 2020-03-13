@@ -4,8 +4,9 @@ import {
   UserError,
 } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandModule } from 'yargs';
-import { AuthNotFoundError } from '../errors/AuthNotFoundError';
-import { HostNotFoundError } from '../errors/HostNotFoundError';
+import { KeyNotFoundError } from '../errors/KeyNotFoundError';
+import { URLNotFoundError } from '../errors/URLNotFoundError';
+import { key, url } from '../options';
 import { createLogsService } from '../services/logsService';
 import { CLIArguments } from '../types';
 
@@ -16,12 +17,12 @@ const MINUTE = SECOND * SECONDS_PER_MINUTE;
 
 const handler = async (argv: CLIArguments) => {
   try {
-    if (typeof argv.host !== 'string') {
-      throw new HostNotFoundError('logs');
+    if (typeof argv.url !== 'string') {
+      throw new URLNotFoundError('logs');
     }
 
-    if (typeof argv.auth !== 'string') {
-      throw new AuthNotFoundError('logs');
+    if (typeof argv.key !== 'string') {
+      throw new KeyNotFoundError('logs');
     }
 
     if (typeof argv.minutes !== 'number' || Number.isNaN(argv.minutes)) {
@@ -42,8 +43,8 @@ const handler = async (argv: CLIArguments) => {
     }
 
     const logs = createLogsService({
-      host: argv.host,
-      auth: argv.auth,
+      host: argv.url,
+      auth: argv.key,
       milliseconds: Math.abs(argv.minutes) * MINUTE,
     });
     await logs();
@@ -55,18 +56,16 @@ const handler = async (argv: CLIArguments) => {
 
 export const logsCommand: CommandModule = {
   command: 'logs',
-  describe: 'Logs logs from production.',
+  describe: 'Stream logs from production.',
   builder: {
-    host: {
-      default: undefined,
-    },
-    auth: {
-      default: undefined,
-    },
+    url,
+    key,
     minutes: {
       default: 0,
       type: 'number',
       alias: 'm',
+      description:
+        'The number of minutes in the past to start streaming the logs from.',
       coerce: (num: unknown) =>
         typeof num === 'number' && !Number.isNaN(num) ? Math.abs(num) : num,
     },

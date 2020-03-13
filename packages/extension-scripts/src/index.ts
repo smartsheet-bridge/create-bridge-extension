@@ -15,7 +15,7 @@ import { getManifest } from './utils';
 
 export * from './types';
 
-const configPath = findUp.sync([`.${CLI_PREFIX}`, `.${CLI_PREFIX}.json`]);
+const configPath = findUp.sync([`.${CLI_PREFIX}rc`, `.${CLI_PREFIX}rc.json`]);
 const config = configPath ? fs.readJSONSync(configPath) : {};
 
 const manifest = getManifest();
@@ -31,9 +31,9 @@ process.on('exit', exiting);
 /**
  * Priority
  * 1. Command line args
- * 2. Configuration file [`.${CLI_PREFIX}`, `.${CLI_PREFIX}.json`]
- * 3. `${CLI_PREFIX}` property in `package.json`
- * 4. Properties in `package.json` – (only `name`, `displayName`, `description`)
+ * 2. Env vars
+ * 3. Config file
+ * 4. `package.json`
  */
 
 yargs
@@ -46,7 +46,7 @@ yargs
     displayName: manifest.displayName || manifest.name,
     description: manifest.description,
   })
-  .middleware(middleware)
+  .middleware(middleware, true)
   .options(options)
   .command(deployCommand)
   .command(revokeCommand)

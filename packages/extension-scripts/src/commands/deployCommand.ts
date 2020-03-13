@@ -1,25 +1,26 @@
 import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandModule } from 'yargs';
-import { AuthNotFoundError } from '../errors/AuthNotFoundError';
-import { HostNotFoundError } from '../errors/HostNotFoundError';
+import { KeyNotFoundError } from '../errors/KeyNotFoundError';
+import { URLNotFoundError } from '../errors/URLNotFoundError';
+import { key, url } from '../options';
 import { createDeployService } from '../services/deployService';
 import { CLIArguments } from '../types';
 
 const buildOptions = (argv: CLIArguments) => ({
   include: argv.include || '**/**',
-  exclude: [].concat(argv.exclude) as string[],
+  exclude: [].concat(argv.exclude || []) as string[],
   symlinks: argv.symlinks !== undefined ? argv.symlinks : false,
   specificationFile: argv.specificationFile,
 });
 
 const handler = async (argv: CLIArguments) => {
   try {
-    if (typeof argv.host !== 'string') {
-      throw new HostNotFoundError('deploy');
+    if (typeof argv.url !== 'string') {
+      throw new URLNotFoundError('deploy');
     }
 
-    if (typeof argv.auth !== 'string') {
-      throw new AuthNotFoundError('deploy');
+    if (typeof argv.key !== 'string') {
+      throw new KeyNotFoundError('deploy');
     }
 
     if (typeof argv.include !== 'string') {
@@ -27,8 +28,8 @@ const handler = async (argv: CLIArguments) => {
     }
 
     const deploy = createDeployService({
-      host: argv.host,
-      auth: argv.auth,
+      host: argv.url,
+      auth: argv.key,
       options: buildOptions(argv),
     });
     await deploy();
@@ -42,11 +43,8 @@ export const deployCommand: CommandModule = {
   command: 'deploy',
   describe: 'Deploy to production.',
   builder: {
-    host: {
-      default: undefined,
-    },
-    auth: {
-      default: undefined,
+    url,
+    key,
     },
   },
   handler,

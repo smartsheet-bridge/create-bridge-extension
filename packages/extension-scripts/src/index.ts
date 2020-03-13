@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 import { Logger } from '@smartsheet-bridge/extension-cli-logger';
-import * as findUp from 'find-up';
-import * as fs from 'fs-extra';
+import { cosmiconfigSync as fetchRC } from 'cosmiconfig';
 import { upperCase } from 'lodash';
 import * as yargs from 'yargs';
 import { deployCommand } from './commands/deployCommand';
@@ -10,15 +9,11 @@ import { logsCommand } from './commands/logsCommand';
 import { revokeCommand } from './commands/revokeCommand';
 import middleware from './middleware';
 import options from './options';
-import { CLI_PREFIX } from './types';
-import { getManifest } from './utils';
 
 export * from './types';
 
-const configPath = findUp.sync([`.${CLI_PREFIX}rc`, `.${CLI_PREFIX}rc.json`]);
-const config = configPath ? fs.readJSONSync(configPath) : {};
-
-const manifest = getManifest();
+export const RC_NAME = `extension`;
+const { config } = fetchRC(RC_NAME).search();
 
 const exiting: NodeJS.ExitListener = code => {
   if (code === 0) {
@@ -32,20 +27,19 @@ process.on('exit', exiting);
  * Priority
  * 1. Command line args
  * 2. Env vars
- * 3. Config file
- * 4. `package.json`
+ * 3. 'extension' property of 'package.json'
+ * 4. .extensionrc
+ * 5. .extensionrc.json
+ * 6. .extensionrc.yaml
+ * 7. .extensionrc.yml
+ * 8. .extensionrc.js
+ * 9. extension.config.js
  */
 
 yargs
-  .env(upperCase(CLI_PREFIX))
+  .env(upperCase(RC_NAME))
   .scriptName('extension-scripts')
   .config(config)
-  .pkgConf(CLI_PREFIX)
-  .config({
-    name: manifest.name,
-    displayName: manifest.displayName || manifest.name,
-    description: manifest.description,
-  })
   .middleware(middleware, true)
   .options(options)
   .command(deployCommand)

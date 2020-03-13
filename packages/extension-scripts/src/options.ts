@@ -1,8 +1,5 @@
 import { upperCase } from 'lodash';
 import { InferredOptionTypes, Options } from 'yargs';
-import { CLI_PREFIX } from './types';
-
-export const ENV_LOGLEVEL = `${CLI_PREFIX}_LOGLEVEL`;
 
 const loglevel = {
   alias: 'l',

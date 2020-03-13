@@ -6,7 +6,8 @@
     "test": "mocha test/plugin-test.js 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@converseai/plugins-sdk": "latest"
+    "@converseai/plugins-sdk": "latest",
+    "@smartsheet-bridge/extensionrc-legacy": "latest"
   },
   "devDependencies": {
     "body-parser": "1.18.2",
@@ -15,13 +16,7 @@
     "mocha": "4.0.0",
     "supertest": "3.0.0"
   },
-  "smar": {
-    "specificationFile": "plugin.json",
-    "exclude": [
-      "**/*.log",
-      "**/plugin.json",
-      "**/node_modules/**",
-      "**/test/**"
-    ]
+  "extension": {
+    "extends": "@smartsheet-bridge/extensionrc-legacy"
   }
 }

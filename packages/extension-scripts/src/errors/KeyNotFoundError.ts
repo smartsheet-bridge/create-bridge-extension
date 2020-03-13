@@ -1,5 +1,5 @@
 import { Chalk, UserError } from '@smartsheet-bridge/extension-cli-logger';
-import { CLI_PREFIX } from '../types';
+import { RC_NAME } from '..';
 
 export class KeyNotFoundError extends UserError {
   public constructor(cmd = '[cmd]') {
@@ -13,7 +13,7 @@ export class KeyNotFoundError extends UserError {
           `extension-scripts ${cmd} --key=${Chalk.cyan(
             '[insert Bridge API key here]'
           )}`,
-          `${CLI_PREFIX.toLocaleUpperCase()}_KEY=${Chalk.cyan(
+          `${RC_NAME.toLocaleUpperCase()}_KEY=${Chalk.cyan(
             '[insert Bridge API key here]'
           )} extension-scripts ${cmd}`,
         ],

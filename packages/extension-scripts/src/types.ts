@@ -1,7 +1,5 @@
 import { Arguments as YargsArgs } from 'yargs';
 
-export const CLI_PREFIX = 'extension';
-
 export interface CLIEntriesMap {
   [entry: string]: string | string[];
 }

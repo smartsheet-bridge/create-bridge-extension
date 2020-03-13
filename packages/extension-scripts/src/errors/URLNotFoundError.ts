@@ -1,5 +1,5 @@
 import { Chalk, UserError } from '@smartsheet-bridge/extension-cli-logger';
-import { CLI_PREFIX } from '../types';
+import { RC_NAME } from '..';
 
 export class URLNotFoundError extends UserError {
   public constructor(cmd = '[cmd]') {
@@ -13,7 +13,7 @@ export class URLNotFoundError extends UserError {
           `extension-scripts ${cmd} --url=${Chalk.cyan(
             '[insert Bridge URL here]'
           )}`,
-          `${CLI_PREFIX.toLocaleUpperCase()}_URL=${Chalk.cyan(
+          `${RC_NAME.toLocaleUpperCase()}_URL=${Chalk.cyan(
             '[insert Bridge URL here]'
           )} extension-scripts ${cmd}`,
         ],

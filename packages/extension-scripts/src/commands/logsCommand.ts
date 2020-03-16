@@ -42,14 +42,14 @@ const logsOptions = {
 };
 
 export type LogsConfig = InferArgumentsIn<typeof logsOptions> & {
-  name: InferArgumentIn<typeof logsPositional>;
+  extensionName: InferArgumentIn<typeof logsPositional>;
 };
 type LogsArguments = InferArgumentsOut<typeof logsOptions> & {
-  name: InferArgumentOut<typeof logsPositional>;
+  extensionName: InferArgumentOut<typeof logsPositional>;
 };
 
 const builder: CommandBuilder = yargs => {
-  return yargs.positional('name', logsPositional).options(logsOptions);
+  return yargs.positional('extensionName', logsPositional).options(logsOptions);
 };
 
 const handler = async (argv: CLIArguments<LogsArguments>) => {
@@ -85,7 +85,7 @@ const handler = async (argv: CLIArguments<LogsArguments>) => {
       options: {
         milliseconds: Math.abs(argv.minutes) * MINUTE,
         specFile: argv.specFile,
-        name: argv.name,
+        name: argv.extensionName,
       },
     });
     await logs();
@@ -96,7 +96,7 @@ const handler = async (argv: CLIArguments<LogsArguments>) => {
 };
 
 export const logsCommand: CommandModule = {
-  command: 'logs',
+  command: 'logs [extensionName]',
   describe: 'Stream logs from production.',
   builder,
   handler,

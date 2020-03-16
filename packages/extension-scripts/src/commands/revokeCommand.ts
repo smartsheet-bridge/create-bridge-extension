@@ -29,14 +29,16 @@ const revokeOptions = {
 };
 
 export type RevokeConfig = InferArgumentsIn<typeof revokeOptions> & {
-  name: InferArgumentIn<typeof revokePositional>;
+  extensionName: InferArgumentIn<typeof revokePositional>;
 };
 type RevokeArguments = InferArgumentsOut<typeof revokeOptions> & {
-  name: InferArgumentOut<typeof revokePositional>;
+  extensionName: InferArgumentOut<typeof revokePositional>;
 };
 
 const builder: CommandBuilder = yargs => {
-  return yargs.positional('name', revokePositional).options(revokeOptions);
+  return yargs
+    .positional('extensionName', revokePositional)
+    .options(revokeOptions);
 };
 
 const handler = async (argv: CLIArguments<RevokeArguments>) => {
@@ -59,7 +61,7 @@ const handler = async (argv: CLIArguments<RevokeArguments>) => {
       options: {
         force: argv.force,
         specFile: argv.specFile,
-        name: argv.name,
+        name: argv.extensionName,
       },
     });
     await revoke();
@@ -70,7 +72,7 @@ const handler = async (argv: CLIArguments<RevokeArguments>) => {
 };
 
 export const revokeCommand: CommandModule = {
-  command: 'revoke [name]',
+  command: 'revoke [extensionName]',
   describe: 'Revoke extension from production.',
   builder,
   handler,

@@ -97,7 +97,17 @@ If no `extension name` is given then the command will attempt to read the name f
 
 ## Options
 
-Options can be provided inline, as environment variables, in a configuration file, or as part of the `extension` property in the `package.json` file and are prioritized in that order.
+Options can be provided inline, as environment variables, in a configuration file, or as part of the `extension` property in the `package.json` file and are prioritized in the following order:
+
+1. Inline arguments
+2. Environment variables
+3. `extension` property of `package.json`
+4. Configuration file
+   1. `.extensionrc`
+   2. `.extensionrc.json`
+   3. `.extensionrc.yaml`
+   4. `.extensionrc.yml`
+   5. `.extensionrc.js`
 
 #### Inline
 

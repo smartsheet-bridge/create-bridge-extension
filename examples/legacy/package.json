@@ -17,6 +17,9 @@
     "@smartsheet-bridge/extensionrc-legacy": "latest"
   },
   "extension": {
-    "extends": "@smartsheet-bridge/extensionrc-legacy"
+    "extends": "@smartsheet-bridge/extensionrc-legacy",
+    "env": {
+      "HELLO": "world"
+    }
   }
 }

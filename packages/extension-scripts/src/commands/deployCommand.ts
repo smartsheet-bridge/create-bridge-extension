@@ -1,11 +1,11 @@
 import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandModule } from 'yargs';
-import { EnvParserError } from '../errors/EnvParserError';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { key, url } from '../options';
 import { createDeployService } from '../services/deployService';
 import { CLIArguments } from '../types';
+import { buildEnvironmentVariables } from '../utils';
 
 interface DeployArguments {
   env: string[];
@@ -16,21 +16,7 @@ const buildOptions = (argv: CLIArguments<DeployArguments>) => ({
   exclude: [].concat(argv.exclude || []) as string[],
   symlinks: argv.symlinks !== undefined ? argv.symlinks : false,
   specificationFile: argv.specificationFile,
-  env: argv.env.reduce((acc, entry) => {
-    const [env, value] = entry.split(':');
-    if (
-      env === undefined ||
-      env === '' ||
-      value === undefined ||
-      value === ''
-    ) {
-      throw new EnvParserError(entry);
-    }
-    return {
-      ...acc,
-      [env.trim()]: value.trim(),
-    };
-  }, {}),
+  env: buildEnvironmentVariables(argv.env),
 });
 
 const handler = async (argv: CLIArguments<DeployArguments>) => {

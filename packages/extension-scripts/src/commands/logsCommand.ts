@@ -75,7 +75,7 @@ const handler = async (argv: CLIArguments<LogsArguments>) => {
       auth: argv.key,
       options: {
         milliseconds: Math.abs(argv.minutes) * MINUTE,
-        specPath: argv.specificationFile,
+        specFile: argv.specFile,
         name: argv.name,
       },
     });

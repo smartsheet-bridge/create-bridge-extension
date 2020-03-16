@@ -22,7 +22,7 @@ interface CreateDeployServiceArgs {
     include: string;
     exclude: string[];
     symlinks: boolean;
-    specificationFile?: string;
+    specFile?: string;
     env?: { [key: string]: string };
   };
 }
@@ -32,9 +32,9 @@ const VIRTUAL_FILE = '/extension.zip';
 export const createDeployService = ({
   host,
   auth,
-  options: { include, exclude, symlinks, specificationFile, env },
+  options: { include, exclude, symlinks, specFile, env },
 }: CreateDeployServiceArgs) => {
-  debug('options', { include, exclude, symlinks, specificationFile, env });
+  debug('options', { include, exclude, symlinks, specFile, env });
   const sdk = createBridgeService(host, auth);
 
   const archivePkg = async (): Promise<string> => {
@@ -94,7 +94,7 @@ export const createDeployService = ({
   };
 
   const uploadSpec = async (checksum: string): Promise<Caller> => {
-    const spec = getSpec(specificationFile);
+    const spec = getSpec(specFile);
     const data = {
       ...spec,
       invoker: { ...spec.invoker, upload: true, checksum },

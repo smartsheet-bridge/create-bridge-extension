@@ -15,7 +15,7 @@ const buildOptions = (argv: CLIArguments<DeployArguments>) => ({
   include: argv.include || '**/**',
   exclude: [].concat(argv.exclude || []) as string[],
   symlinks: argv.symlinks !== undefined ? argv.symlinks : false,
-  specificationFile: argv.specificationFile,
+  specFile: argv.specFile,
   env: buildEnvironmentVariables(argv.env),
 });
 

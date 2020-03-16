@@ -7,19 +7,19 @@ interface CreateLogsServiceArgs {
   auth: string;
   options: {
     milliseconds: number;
-    specPath: string;
+    specFile: string;
     name?: string;
   };
 }
 export const createLogsService = ({
   host,
   auth,
-  options: { milliseconds, specPath, name: extensionName },
+  options: { milliseconds, specFile, name: extensionName },
 }: CreateLogsServiceArgs) => {
   const sdk = createBridgeService(host, auth);
 
   const fetchCaller = async () => {
-    const spec = getSpec(specPath);
+    const spec = getSpec(specFile);
     const { data } = await sdk.extensions.caller(extensionName || spec.name);
     if (data !== undefined) {
       const { caller } = data;

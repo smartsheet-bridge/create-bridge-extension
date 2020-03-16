@@ -48,7 +48,7 @@ const handler = async (argv: CLIArguments<RevokeArguments>) => {
       auth: argv.key,
       options: {
         force: argv.force,
-        specPath: argv.specificationFile,
+        specFile: argv.specFile,
         name: argv.name,
       },
     });

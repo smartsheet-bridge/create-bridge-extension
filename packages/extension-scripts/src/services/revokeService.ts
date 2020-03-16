@@ -13,7 +13,7 @@ interface CreateRevokeService {
   auth: string;
   options: {
     force: boolean;
-    specPath: string;
+    specFile: string;
     name?: string;
   };
 }
@@ -21,12 +21,12 @@ interface CreateRevokeService {
 export const createRevokeService = ({
   host,
   auth,
-  options: { force, specPath, name: extensionName },
+  options: { force, specFile, name: extensionName },
 }: CreateRevokeService) => {
   const sdk = createBridgeService(host, auth);
   return async () => {
     Logger.start('Reading extension');
-    const spec = getSpec(specPath);
+    const spec = getSpec(specFile);
     extensionName = extensionName || spec.name;
     Logger.info('Extension name', Chalk.cyan(extensionName));
     Logger.start('Revoking extension');

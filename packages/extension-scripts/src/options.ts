@@ -18,7 +18,7 @@ const debug = {
   coerce: (d: string) => (d === '' ? undefined : d),
 };
 
-const specificationFile = {
+const specFile = {
   global: true,
   default: 'extension.json',
   hidden: true,
@@ -39,7 +39,7 @@ export const key: Options = {
 const options = {
   loglevel,
   debug,
-  specificationFile,
+  specFile,
 };
 
 export type CLIOptions = typeof options;

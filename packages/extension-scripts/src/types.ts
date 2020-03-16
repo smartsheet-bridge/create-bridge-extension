@@ -4,7 +4,7 @@ export interface CLIArgumentsBase {
   include?: string;
   exclude?: string | string[];
   symlinks?: boolean;
-  specificationFile?: string;
+  specFile?: string;
 }
 
 export type CLIArguments<CommandArguments extends {} = {}> = YargsArgs<

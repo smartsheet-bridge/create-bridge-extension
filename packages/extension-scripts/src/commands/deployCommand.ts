@@ -1,23 +1,48 @@
 import { Logger } from '@smartsheet-bridge/extension-cli-logger';
-import { CommandModule } from 'yargs';
+import { CommandBuilder, CommandModule } from 'yargs';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { key, url } from '../options';
 import { createDeployService } from '../services/deployService';
-import { CLIArguments } from '../types';
+import { CLIArguments, InferArgumentsIn, InferArgumentsOut } from '../types';
 import { buildEnvironmentVariables } from '../utils';
 
-interface DeployArguments {
-  env: string[];
-}
+const deployArguments = {
+  url,
+  key,
+  env: {
+    type: 'array' as 'array',
+    string: true as true,
+    description: 'Set environment variables on deployed extension.',
+    coerce: buildEnvironmentVariables,
+  },
+  include: {
+    type: 'string' as 'string',
+    default: '**/**',
+    description: 'Pattern to include filenames when packaging for deployment.',
+  },
+  exclude: {
+    type: 'string' as 'string',
+    description:
+      'Pattern or array of patterns to exclude filenames when packaging for deployment.',
+    default: '',
+    coerce: (exclude: string | string[]) =>
+      ([] as string[]).concat(exclude || []),
+  },
+  symlinks: {
+    type: 'boolean' as 'boolean',
+    description: 'Follow symlinks when packaging extension for deployment.',
+    default: false,
+    coerce: (ln?: boolean) => (ln !== undefined ? ln : false),
+  },
+};
 
-const buildOptions = (argv: CLIArguments<DeployArguments>) => ({
-  include: argv.include || '**/**',
-  exclude: [].concat(argv.exclude || []) as string[],
-  symlinks: argv.symlinks !== undefined ? argv.symlinks : false,
-  specFile: argv.specFile,
-  env: buildEnvironmentVariables(argv.env),
-});
+export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
+type DeployArguments = InferArgumentsOut<typeof deployArguments>;
+
+const builder: CommandBuilder = yargs => {
+  return yargs.options(deployArguments);
+};
 
 const handler = async (argv: CLIArguments<DeployArguments>) => {
   try {
@@ -36,7 +61,13 @@ const handler = async (argv: CLIArguments<DeployArguments>) => {
     const deploy = createDeployService({
       host: argv.url,
       auth: argv.key,
-      options: buildOptions(argv),
+      options: {
+        exclude: argv.exclude,
+        include: argv.include,
+        symlinks: argv.symlinks,
+        specFile: argv.specFile,
+        env: argv.env,
+      },
     });
     await deploy();
   } catch (e) {
@@ -48,14 +79,6 @@ const handler = async (argv: CLIArguments<DeployArguments>) => {
 export const deployCommand: CommandModule = {
   command: 'deploy',
   describe: 'Deploy to production.',
-  builder: {
-    url,
-    key,
-    env: {
-      type: 'array',
-      default: [],
-      description: 'Set environment variables on deployed extension.',
-    },
-  },
+  builder,
   handler,
 };

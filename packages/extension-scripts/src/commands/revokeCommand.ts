@@ -4,29 +4,39 @@ import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { key, url } from '../options';
 import { createRevokeService } from '../services/revokeService';
-import { CLIArguments } from '../types';
+import {
+  CLIArguments,
+  InferArgumentIn,
+  InferArgumentOut,
+  InferArgumentsIn,
+  InferArgumentsOut,
+} from '../types';
 
-interface RevokeArguments {
-  force: boolean;
-  name?: string;
-}
+const revokePositional = {
+  description:
+    'The name of the extension to revoke. Defaults to current working directory.',
+  type: 'string' as 'string',
+};
+
+const revokeOptions = {
+  url,
+  key,
+  force: {
+    type: 'boolean' as 'boolean',
+    default: false,
+    alias: '-f',
+  },
+};
+
+export type RevokeConfig = InferArgumentsIn<typeof revokeOptions> & {
+  name: InferArgumentIn<typeof revokePositional>;
+};
+type RevokeArguments = InferArgumentsOut<typeof revokeOptions> & {
+  name: InferArgumentOut<typeof revokePositional>;
+};
 
 const builder: CommandBuilder = yargs => {
-  return yargs
-    .positional('name', {
-      description:
-        'The name of the extension to revoke. Defaults to current working directory.',
-      type: 'string',
-    })
-    .options({
-      url,
-      key,
-      force: {
-        type: 'boolean',
-        default: false,
-        alias: '-f',
-      },
-    });
+  return yargs.positional('name', revokePositional).options(revokeOptions);
 };
 
 const handler = async (argv: CLIArguments<RevokeArguments>) => {

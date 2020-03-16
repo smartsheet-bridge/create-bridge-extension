@@ -1,10 +1,10 @@
 import { upperCase } from 'lodash';
-import { InferredOptionTypes, Options } from 'yargs';
+import { InferredOptionTypes } from 'yargs';
 
 const loglevel = {
   alias: 'l',
   global: true,
-  describe: 'Level of output logs',
+  description: 'Level of output logs',
   default: 'INFO',
   choices: ['INFO', 'VERBOSE', 'WARN', 'ERROR', 'SILENT'],
   coerce: (lvl: string) => upperCase(lvl),
@@ -13,7 +13,7 @@ const loglevel = {
 const debug = {
   alias: 'd',
   global: true,
-  describe: 'Regex pattern to match debug logs by',
+  description: 'Regex pattern to match debug logs by',
   default: '',
   coerce: (d: string) => (d === '' ? undefined : d),
 };
@@ -21,19 +21,7 @@ const debug = {
 const specFile = {
   global: true,
   default: 'extension.json',
-  hidden: true,
-};
-
-export const url: Options = {
-  type: 'string',
-  describe: 'URL of your Bridge by Smartsheet account.',
-  default: undefined,
-};
-
-export const key: Options = {
-  type: 'string',
-  describe: 'Authorized API key for you Bridge by Smartsheet account.',
-  default: undefined,
+  description: 'Filename of extension specification file.',
 };
 
 const options = {
@@ -42,8 +30,16 @@ const options = {
   specFile,
 };
 
-export type CLIOptions = typeof options;
-
-export type CLIArguments = InferredOptionTypes<CLIOptions>;
+export type CLICommonArguments = InferredOptionTypes<typeof options>;
 
 export default options;
+
+export const url = {
+  type: 'string' as 'string',
+  describe: 'URL of your Bridge by Smartsheet account.',
+};
+
+export const key = {
+  type: 'string' as 'string',
+  describe: 'Authorized API key for you Bridge by Smartsheet account.',
+};

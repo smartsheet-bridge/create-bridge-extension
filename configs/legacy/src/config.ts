@@ -1,6 +1,6 @@
-import { CLIArgumentsBase } from '@smartsheet-bridge/extension-scripts';
+import { CLIConfig } from '@smartsheet-bridge/extension-scripts';
 
-const Configuration: Partial<CLIArgumentsBase> = {
+const Configuration: CLIConfig = {
   specFile: 'plugin.json',
   exclude: [
     '**/.*',

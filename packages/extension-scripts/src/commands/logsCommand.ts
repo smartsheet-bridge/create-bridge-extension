@@ -8,39 +8,48 @@ import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { key, url } from '../options';
 import { createLogsService } from '../services/logsService';
-import { CLIArguments } from '../types';
+import {
+  CLIArguments,
+  InferArgumentIn,
+  InferArgumentOut,
+  InferArgumentsIn,
+  InferArgumentsOut,
+} from '../types';
 
 const MILLISECONDS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
 const SECOND = MILLISECONDS_PER_SECOND;
 const MINUTE = SECOND * SECONDS_PER_MINUTE;
 
-interface LogsArguments {
-  minutes: number;
-  name?: string;
-}
+const logsPositional = {
+  description:
+    'The name of the extension to stream logs from. Defaults to current working directory.',
+  type: 'string' as 'string',
+};
+
+const logsOptions = {
+  url,
+  key,
+  minutes: {
+    default: 0,
+    type: 'number' as 'number',
+    alias: 'm',
+    description:
+      'The number of minutes in the past to start streaming the logs from.',
+    coerce: (num?: number) =>
+      typeof num === 'number' && !Number.isNaN(num) ? Math.abs(num) : num,
+  },
+};
+
+export type LogsConfig = InferArgumentsIn<typeof logsOptions> & {
+  name: InferArgumentIn<typeof logsPositional>;
+};
+type LogsArguments = InferArgumentsOut<typeof logsOptions> & {
+  name: InferArgumentOut<typeof logsPositional>;
+};
 
 const builder: CommandBuilder = yargs => {
-  return yargs
-    .positional('name', {
-      description:
-        'The name of the extension to stream logs from. Defaults to current working directory.',
-      type: 'string',
-    })
-    .options({
-      url,
-      key,
-
-      minutes: {
-        default: 0,
-        type: 'number',
-        alias: 'm',
-        description:
-          'The number of minutes in the past to start streaming the logs from.',
-        coerce: (num: unknown) =>
-          typeof num === 'number' && !Number.isNaN(num) ? Math.abs(num) : num,
-      },
-    });
+  return yargs.positional('name', logsPositional).options(logsOptions);
 };
 
 const handler = async (argv: CLIArguments<LogsArguments>) => {

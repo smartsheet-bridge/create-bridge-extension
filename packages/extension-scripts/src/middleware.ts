@@ -5,7 +5,7 @@ import {
 } from '@smartsheet-bridge/extension-cli-logger';
 import { join } from 'path';
 import { MiddlewareFunction } from 'yargs';
-import { CLIArguments } from './options';
+import { CLIArguments } from './types';
 
 const middleware: MiddlewareFunction<CLIArguments> = argv => {
   Logger.addOut(

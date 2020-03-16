@@ -18,6 +18,12 @@ const debug = {
   coerce: (d: string) => (d === '' ? undefined : d),
 };
 
+const specificationFile = {
+  global: true,
+  default: 'extension.json',
+  hidden: true,
+};
+
 export const url: Options = {
   type: 'string',
   describe: 'URL of your Bridge by Smartsheet account.',
@@ -33,6 +39,7 @@ export const key: Options = {
 const options = {
   loglevel,
   debug,
+  specificationFile,
 };
 
 export type CLIOptions = typeof options;

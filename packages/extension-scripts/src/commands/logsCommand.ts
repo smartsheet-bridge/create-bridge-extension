@@ -3,7 +3,7 @@ import {
   Logger,
   UserError,
 } from '@smartsheet-bridge/extension-cli-logger';
-import { CommandModule } from 'yargs';
+import { CommandBuilder, CommandModule } from 'yargs';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { key, url } from '../options';
@@ -15,7 +15,35 @@ const SECONDS_PER_MINUTE = 60;
 const SECOND = MILLISECONDS_PER_SECOND;
 const MINUTE = SECOND * SECONDS_PER_MINUTE;
 
-const handler = async (argv: CLIArguments) => {
+interface LogsArguments {
+  minutes: number;
+  name?: string;
+}
+
+const builder: CommandBuilder = yargs => {
+  return yargs
+    .positional('name', {
+      description:
+        'The name of the extension to stream logs from. Defaults to current working directory.',
+      type: 'string',
+    })
+    .options({
+      url,
+      key,
+
+      minutes: {
+        default: 0,
+        type: 'number',
+        alias: 'm',
+        description:
+          'The number of minutes in the past to start streaming the logs from.',
+        coerce: (num: unknown) =>
+          typeof num === 'number' && !Number.isNaN(num) ? Math.abs(num) : num,
+      },
+    });
+};
+
+const handler = async (argv: CLIArguments<LogsArguments>) => {
   try {
     if (typeof argv.url !== 'string') {
       throw new URLNotFoundError('logs');
@@ -32,7 +60,7 @@ const handler = async (argv: CLIArguments) => {
           '--minutes'
         )} flag to travel back in time and view logs from up to 60 minutes ago.`,
         {
-          examples: [
+          items: [
             `extension-scripts logs --minutes=${Chalk.cyan(
               '[insert minutes here]'
             )}`,
@@ -45,7 +73,11 @@ const handler = async (argv: CLIArguments) => {
     const logs = createLogsService({
       host: argv.url,
       auth: argv.key,
-      milliseconds: Math.abs(argv.minutes) * MINUTE,
+      options: {
+        milliseconds: Math.abs(argv.minutes) * MINUTE,
+        specPath: argv.specificationFile,
+        name: argv.name,
+      },
     });
     await logs();
   } catch (e) {
@@ -57,18 +89,6 @@ const handler = async (argv: CLIArguments) => {
 export const logsCommand: CommandModule = {
   command: 'logs',
   describe: 'Stream logs from production.',
-  builder: {
-    url,
-    key,
-    minutes: {
-      default: 0,
-      type: 'number',
-      alias: 'm',
-      description:
-        'The number of minutes in the past to start streaming the logs from.',
-      coerce: (num: unknown) =>
-        typeof num === 'number' && !Number.isNaN(num) ? Math.abs(num) : num,
-    },
-  },
+  builder,
   handler,
 };

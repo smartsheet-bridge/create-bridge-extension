@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { Logger } from '@smartsheet-bridge/extension-cli-logger';
-import { cosmiconfigSync as fetchRC } from 'cosmiconfig';
+import { cosmiconfigSync as sync } from 'cosmiconfig';
 import { upperCase } from 'lodash';
-import * as yargs from 'yargs';
+import yargs from 'yargs';
 import { deployCommand } from './commands/deployCommand';
 import { logsCommand } from './commands/logsCommand';
 import { revokeCommand } from './commands/revokeCommand';
@@ -13,7 +13,7 @@ import options from './options';
 export * from './types';
 
 export const RC_NAME = `extension`;
-const { config } = fetchRC(RC_NAME).search();
+const { config } = sync(RC_NAME).search();
 
 const exiting: NodeJS.ExitListener = code => {
   if (code === 0) {
@@ -47,4 +47,5 @@ yargs
   .command(logsCommand)
   .demandCommand()
   .recommendCommands()
+  .help()
   .parse();

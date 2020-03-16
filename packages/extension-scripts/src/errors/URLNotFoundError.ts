@@ -9,7 +9,7 @@ export class URLNotFoundError extends UserError {
         '--url'
       )} parameter.`,
       {
-        examples: [
+        items: [
           `extension-scripts ${cmd} --url=${Chalk.cyan(
             '[insert Bridge URL here]'
           )}`,

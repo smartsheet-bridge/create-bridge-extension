@@ -1,12 +1,35 @@
 import { Logger } from '@smartsheet-bridge/extension-cli-logger';
-import { CommandModule } from 'yargs';
+import { CommandBuilder, CommandModule } from 'yargs';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { key, url } from '../options';
 import { createRevokeService } from '../services/revokeService';
 import { CLIArguments } from '../types';
 
-const handler = async (argv: CLIArguments) => {
+interface RevokeArguments {
+  force: boolean;
+  name?: string;
+}
+
+const builder: CommandBuilder = yargs => {
+  return yargs
+    .positional('name', {
+      description:
+        'The name of the extension to revoke. Defaults to current working directory.',
+      type: 'string',
+    })
+    .options({
+      url,
+      key,
+      force: {
+        type: 'boolean',
+        default: false,
+        alias: '-f',
+      },
+    });
+};
+
+const handler = async (argv: CLIArguments<RevokeArguments>) => {
   try {
     if (typeof argv.url !== 'string') {
       throw new URLNotFoundError('revoke');
@@ -23,7 +46,11 @@ const handler = async (argv: CLIArguments) => {
     const revoke = createRevokeService({
       host: argv.url,
       auth: argv.key,
-      force: argv.force as boolean,
+      options: {
+        force: argv.force,
+        specPath: argv.specificationFile,
+        name: argv.name,
+      },
     });
     await revoke();
   } catch (e) {
@@ -33,16 +60,8 @@ const handler = async (argv: CLIArguments) => {
 };
 
 export const revokeCommand: CommandModule = {
-  command: 'revoke',
+  command: 'revoke [name]',
   describe: 'Revoke extension from production.',
-  builder: {
-    url,
-    key,
-    force: {
-      type: 'boolean',
-      default: false,
-      alias: '-f',
-    },
-  },
+  builder,
   handler,
 };

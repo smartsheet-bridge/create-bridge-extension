@@ -23,6 +23,7 @@ interface CreateDeployServiceArgs {
     exclude: string[];
     symlinks: boolean;
     specificationFile?: string;
+    env?: { [key: string]: string };
   };
 }
 
@@ -31,8 +32,9 @@ const VIRTUAL_FILE = '/extension.zip';
 export const createDeployService = ({
   host,
   auth,
-  options: { include, exclude, symlinks, specificationFile },
+  options: { include, exclude, symlinks, specificationFile, env },
 }: CreateDeployServiceArgs) => {
+  debug('options', { include, exclude, symlinks, specificationFile, env });
   const sdk = createBridgeService(host, auth);
 
   const archivePkg = async (): Promise<string> => {
@@ -104,38 +106,36 @@ export const createDeployService = ({
     return response && response.data && response.data.uploadRef;
   };
 
-  const uploadPkg = async (hostname: string, caller: Caller) => {
+  const uploadPkg = async (rpc: any, caller: Caller) => {
     const majorVersion = semver.major(process.version);
     return new Promise((resolve, reject) => {
-      const client = sdk
-        .RPC(hostname)
-        .uploadPluginCode((error: any, response: any) => {
-          if (response) {
-            debug('UPLOAD CODE', 'response', response);
-            if (response.error) {
-              return reject(
-                new UserError(
-                  `${response.error.httpStatus} ${response.error.code}`,
-                  response.error.description
-                )
+      const client = rpc.uploadPluginCode((error: any, response: any) => {
+        if (response) {
+          debug('UPLOAD CODE', 'response', response);
+          if (response.error) {
+            return reject(
+              new UserError(
+                `${response.error.httpStatus} ${response.error.code}`,
+                response.error.description
+              )
+            );
+          } else {
+            if (
+              response.runtimeVersion !== undefined &&
+              semver.clean(response.runtimeVersion) !==
+                semver.clean(process.version)
+            ) {
+              Logger.warn(
+                `Your development environment (Node.js ${process.version}) does not match Converse.AI's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for supported versions of Node.js.`
               );
-            } else {
-              if (
-                response.runtimeVersion !== undefined &&
-                semver.clean(response.runtimeVersion) !==
-                  semver.clean(process.version)
-              ) {
-                Logger.warn(
-                  `Your development environment (Node.js ${process.version}) does not match Converse.AI's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for supported versions of Node.js.`
-                );
-              }
-              return resolve();
             }
-          } else if (error) {
-            return reject(new Error(error));
+            return resolve();
           }
-          return reject(new Error('Something went wrong!'));
-        });
+        } else if (error) {
+          return reject(new Error(error));
+        }
+        return reject(new Error('Something went wrong!'));
+      });
       Logger.verbose('Install UUID', Chalk.cyan(caller.installUUID));
       Logger.verbose('Revision ID', Chalk.cyan(caller.revision));
       Logger.verbose('NodeJS Major', Chalk.cyan(`${majorVersion}`));
@@ -158,8 +158,34 @@ export const createDeployService = ({
     });
   };
 
+  const setEnvironmentVariables = async (rpc: any, caller: Caller) => {
+    return new Promise((resolve, reject) => {
+      rpc.setPluginPrivateKeys(
+        {
+          caller,
+          keys: env,
+        },
+        (err: any, response: any) => {
+          if (
+            response !== undefined &&
+            response.error !== undefined &&
+            response.error !== null
+          ) {
+            err = response.error;
+          }
+          if (err !== undefined && err !== null) {
+            return reject(err);
+          }
+          resolve();
+        }
+      );
+    });
+  };
+
   const activateRevision = async (caller: Caller) =>
     sdk.extensions.activateRevision(caller.pluginUUID, caller.revision);
+
+  const hasENVVars = () => env !== undefined && Object.keys(env).length > 0;
 
   return async () => {
     Logger.start('Authenticating platform');
@@ -178,10 +204,16 @@ export const createDeployService = ({
         'Extension unchanged since last deployment.'
       );
     } else {
+      Logger.start(`Creating connection`);
+      const client = sdk.RPC(`${domain}:${port}`);
       Logger.start('Uploading bundle');
-      await uploadPkg(`${domain}:${port}`, caller);
+      await uploadPkg(client, caller);
       Logger.start('Activating revision');
       await activateRevision(caller);
+      if (hasENVVars()) {
+        Logger.start('Setting environment variables');
+        await setEnvironmentVariables(client, caller);
+      }
     }
     Logger.end();
   };

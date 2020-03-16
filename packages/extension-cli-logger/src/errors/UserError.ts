@@ -2,22 +2,23 @@ import { AbstractError } from './AbstractError';
 
 export interface UserErrorDetails {
   docs?: string;
-  examples?: string[];
+  items?: string[];
 }
 
 export class UserError extends AbstractError {
   public docs: string;
   public description: string;
-  public examples: string[];
+  public items: string[];
+  protected label: string = 'Examples';
   public constructor(
     message: string,
     description: string,
-    { docs, examples = [] }: UserErrorDetails = {}
+    { docs, items = [] }: UserErrorDetails = {}
   ) {
     super(message);
     this.docs = docs;
     this.description = description;
-    this.examples = examples;
+    this.items = items;
   }
 
   public toOut(): string {
@@ -27,9 +28,9 @@ export class UserError extends AbstractError {
       out += `\n- ${this.docs}`;
     }
 
-    if (this.examples.length > 0) {
-      out += `\n- Examples:`;
-      out += this.examples.map(example => `\n  - ${example}`).join('');
+    if (this.items.length > 0) {
+      out += `\n- ${this.label}:`;
+      out += this.items.map(example => `\n  - ${example}`).join('');
     }
     return out;
   }

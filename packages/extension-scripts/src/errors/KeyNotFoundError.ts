@@ -9,7 +9,7 @@ export class KeyNotFoundError extends UserError {
         'Bridge API key'
       )} using the ${Chalk.cyan('--key')} parameter.`,
       {
-        examples: [
+        items: [
           `extension-scripts ${cmd} --key=${Chalk.cyan(
             '[insert Bridge API key here]'
           )}`,

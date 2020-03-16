@@ -6,7 +6,15 @@
   "documentLink": "",
   "needsOAuth": false,
   "providerData": [],
-  "module": [],
+  "module": [
+    {
+      "id": "abc",
+      "name": "Abc",
+      "description": "",
+      "hasReturn": true,
+      "param": []
+    }
+  ],
   "hasOAuth": false,
   "webhooks": []
 }

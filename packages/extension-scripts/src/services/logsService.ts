@@ -5,18 +5,22 @@ import { createBridgeService } from './bridgeService';
 interface CreateLogsServiceArgs {
   host: string;
   auth: string;
-  milliseconds: number;
+  options: {
+    milliseconds: number;
+    specPath: string;
+    name?: string;
+  };
 }
 export const createLogsService = ({
   host,
   auth,
-  milliseconds,
+  options: { milliseconds, specPath, name: extensionName },
 }: CreateLogsServiceArgs) => {
   const sdk = createBridgeService(host, auth);
 
   const fetchCaller = async () => {
-    const spec = getSpec();
-    const { data } = await sdk.extensions.caller(spec.name);
+    const spec = getSpec(specPath);
+    const { data } = await sdk.extensions.caller(extensionName || spec.name);
     if (data !== undefined) {
       const { caller } = data;
       return caller;
@@ -24,7 +28,7 @@ export const createLogsService = ({
   };
 
   const RPCLogs = (hostname: string, caller: any, millisecondsAgo: number) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const client = sdk.RPC(hostname).streamLogs({
         caller,
         fromTimestamp: Date.now() - millisecondsAgo,

@@ -36,6 +36,10 @@ exports.trevor10608_legacy = function (request, response) {
 
   if (request && request.headers && request.headers['x_converse_app_token'] && request.headers['x_converse_app_token'] === require('./app-token')) {
 
+    app.setModules({
+      abc: require('./converseai_modules/abc')
+    });
+
 
 
     app.handleRequest();

@@ -1,4 +1,3 @@
-import { upperCase } from 'lodash';
 import { InferredOptionTypes } from 'yargs';
 
 const loglevel = {
@@ -7,7 +6,7 @@ const loglevel = {
   description: 'Level of output logs',
   default: 'INFO',
   choices: ['INFO', 'VERBOSE', 'WARN', 'ERROR', 'SILENT'],
-  coerce: (lvl: string) => upperCase(lvl),
+  coerce: (lvl: string) => lvl.toUpperCase(),
 };
 
 const debug = {

@@ -2,7 +2,6 @@
 
 import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { cosmiconfigSync as sync } from 'cosmiconfig';
-import { upperCase } from 'lodash';
 import yargs from 'yargs';
 import { deployCommand } from './commands/deployCommand';
 import { logsCommand } from './commands/logsCommand';
@@ -37,7 +36,7 @@ process.on('exit', exiting);
  */
 
 yargs
-  .env(upperCase(RC_NAME))
+  .env(RC_NAME.toUpperCase())
   .scriptName('extension-scripts')
   .config(config)
   .middleware(middleware, true)

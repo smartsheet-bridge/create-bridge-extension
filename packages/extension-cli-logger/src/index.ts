@@ -8,7 +8,7 @@ import { LogNormalizeStream } from './streams/LogNormalizeStream';
 import { LogPatternStream } from './streams/LogPatternStream';
 import { StripAnsiStream } from './streams/StripAnsiStream';
 
-export const Chalk = chalk.default;
+export const Chalk: typeof chalk.default = chalk.default;
 export * from './errors/AbstractError';
 export * from './errors/UserError';
 export * from './Logger';

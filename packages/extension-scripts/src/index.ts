@@ -12,7 +12,12 @@ import options from './options';
 export * from './types';
 
 export const RC_NAME = `extension`;
-const { config } = sync(RC_NAME).search();
+const configSearch = sync(RC_NAME).search();
+let config = {};
+
+if (configSearch && configSearch.config) {
+  config = configSearch.config;
+}
 
 const exiting: NodeJS.ExitListener = code => {
   if (code === 0) {

@@ -1,14 +1,18 @@
-import { bridgeSDK } from '@smartsheet-bridge/bridge-sdk';
+import {
+  createHTTPClient,
+  parseAccountURL,
+} from '@smartsheet-bridge/bridge-sdk';
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 
 export const createBridgeService = (host: string, auth: string) => {
   const debugRequest = Logger.debug('API Request');
-  const debugRespone = Logger.debug('API Response');
-  const sdk = bridgeSDK({
-    accountURL: host,
-    APIKey: auth,
+  const debugResponse = Logger.debug('API Response');
+  const { accountName, hostName, protocol } = parseAccountURL(host);
+  const http = createHTTPClient({
+    baseURL: `${protocol}://${accountName}.${hostName}/api/`,
+    token: auth,
   });
-  sdk.API.interceptors.request.use(request => {
+  http.instance.interceptors.request.use(request => {
     Logger.verbose(
       'API Request',
       Chalk.cyan(`${request.baseURL}${request.url}`)
@@ -18,27 +22,16 @@ export const createBridgeService = (host: string, auth: string) => {
     debugRequest('Data', request.data);
     return request;
   });
-  sdk.API.interceptors.response.use(response => {
+  http.instance.interceptors.response.use(response => {
     Logger.verbose(
       'API Response',
       Chalk.cyan(`${response.status} ${response.statusText}`)
     );
-    debugRespone('Status', response.status);
-    debugRespone('Headers', response.headers);
-    debugRespone('Data', response.data);
+    debugResponse('Status', response.status);
+    debugResponse('Headers', response.headers);
+    debugResponse('Data', response.data);
     return response;
   });
 
-  const platform = () =>
-    sdk
-      .platform()
-      .then(
-        ({
-          data: { pluginDataService },
-        }: {
-          data: { pluginDataService: { domain: string; port: string } };
-        }) => pluginDataService
-      );
-
-  return { ...sdk, platform };
+  return http;
 };

@@ -13,7 +13,6 @@
   "author": "graeme.cassels@smartsheet.com",
   "devDependencies": {
     "@types/archiver": "^3.0.0",
-    "@types/axios": "^0.14.0",
     "@types/chalk": "^2.2.0",
     "@types/fs-extra": "^8.1.0",
     "@types/glob": "^7.1.1",
@@ -28,7 +27,6 @@
     "@smartsheet-bridge/bridge-sdk": "^0.1.0-alpha.0",
     "@smartsheet-bridge/extension-cli-logger": "^0.1.0-alpha.0",
     "archiver": "^3.1.1",
-    "axios": "^0.19.2",
     "chalk": "^3.0.0",
     "cosmiconfig": "^6.0.0",
     "find-up": "^4.1.0",

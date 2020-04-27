@@ -31,7 +31,7 @@ export const createRevokeService = ({
     Logger.info('Extension name', Chalk.cyan(extensionName));
     Logger.start('Revoking extension');
     try {
-      await sdk.extensions.revoke(extensionName, force);
+      await sdk.extension.revoke({ extensionUUID: extensionName, force });
     } catch (err) {
       debug(err.response.data);
       if (err.response.data) {

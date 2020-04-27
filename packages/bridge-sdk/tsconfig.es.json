@@ -1,0 +1,10 @@
+// Compile ESModules for Webpack/Babel/Rollup/etc
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "es",
+    "target": "ES2015",
+    "module": "ESNext"
+  }
+}

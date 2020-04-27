@@ -29,6 +29,9 @@
       "path": "packages/bridge-sdk/tsconfig.build.json"
     },
     {
+      "path": "packages/bridge-sdk/tsconfig.es.json"
+    },
+    {
       "path": "packages/extension-cli-logger/tsconfig.build.json"
     },
     {

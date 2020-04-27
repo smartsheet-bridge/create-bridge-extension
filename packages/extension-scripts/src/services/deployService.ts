@@ -1,4 +1,4 @@
-import { Caller } from '@smartsheet-bridge/bridge-sdk';
+import { Caller, createGRPCClient } from '@smartsheet-bridge/bridge-sdk';
 import {
   Chalk,
   Logger,
@@ -101,15 +101,15 @@ export const createDeployService = ({
       appToken: require(`${process.cwd()}/app-token.js`),
     };
 
-    const response = await sdk.extensions.uploadSpec(data);
+    const response = await sdk.extension.uploadSpec(data);
 
     return response && response.data && response.data.uploadRef;
   };
 
-  const uploadPkg = async (rpc: any, caller: Caller) => {
+  const uploadPkg = async (grpc: any, caller: Caller) => {
     const majorVersion = semver.major(process.version);
     return new Promise((resolve, reject) => {
-      const client = rpc.uploadPluginCode((error: any, response: any) => {
+      const client = grpc.uploadPluginCode((error: any, response: any) => {
         if (response) {
           debug('UPLOAD CODE', 'response', response);
           if (response.error) {
@@ -158,9 +158,9 @@ export const createDeployService = ({
     });
   };
 
-  const setEnvironmentVariables = async (rpc: any, caller: Caller) => {
+  const setEnvironmentVariables = async (grpc: any, caller: Caller) => {
     return new Promise((resolve, reject) => {
-      rpc.setPluginPrivateKeys(
+      grpc.setPluginPrivateKeys(
         {
           caller,
           keys: env,
@@ -183,13 +183,20 @@ export const createDeployService = ({
   };
 
   const activateRevision = async (caller: Caller) =>
-    sdk.extensions.activateRevision(caller.pluginUUID, caller.revision);
+    sdk.extension.activateRevision({
+      extensionUUID: caller.pluginUUID,
+      revision: caller.revision,
+    });
 
   const hasENVVars = () => env !== undefined && Object.keys(env).length > 0;
 
   return async () => {
     Logger.start('Authenticating platform');
-    const { domain, port } = await sdk.platform();
+    const {
+      data: {
+        pluginDataService: { domain, port },
+      },
+    } = await sdk.platform.get();
     Logger.verbose('Platform', Chalk.cyan(`${domain}:${port}`));
     Logger.start('Bundling extension');
     const checksum = await archivePkg();
@@ -205,7 +212,7 @@ export const createDeployService = ({
       );
     } else {
       Logger.start(`Creating connection`);
-      const client = sdk.RPC(`${domain}:${port}`);
+      const client = createGRPCClient(`${domain}:${port}`);
       Logger.start('Uploading bundle');
       await uploadPkg(client, caller);
       Logger.start('Activating revision');

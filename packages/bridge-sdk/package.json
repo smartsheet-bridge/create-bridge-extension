@@ -3,14 +3,13 @@
   "version": "0.1.0-alpha.2",
   "description": "",
   "main": "./lib/index.js",
+  "module": "./es/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib && rm -rf es"
   },
   "author": "graeme.cassels@smartsheet.com",
-  "devDependencies": {
-    "@types/axios": "^0.14.0"
-  },
+  "devDependencies": {},
   "dependencies": {
     "@grpc/grpc-js": "^0.7.1",
     "@grpc/proto-loader": "^0.5.3",

@@ -1,3 +1,4 @@
+import { createGRPCClient } from '@smartsheet-bridge/bridge-sdk';
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { getSpec } from '../utils';
 import { createBridgeService } from './bridgeService';
@@ -20,7 +21,7 @@ export const createLogsService = ({
 
   const fetchCaller = async () => {
     const spec = getSpec(specFile);
-    const { data } = await sdk.extensions.caller(extensionName || spec.name);
+    const { data } = await sdk.extension.caller(extensionName || spec.name);
     if (data !== undefined) {
       const { caller } = data;
       return caller;
@@ -29,7 +30,7 @@ export const createLogsService = ({
 
   const RPCLogs = (hostname: string, caller: any, millisecondsAgo: number) => {
     return new Promise(resolve => {
-      const client = sdk.RPC(hostname).streamLogs({
+      const client = createGRPCClient(hostname).streamLogs({
         caller,
         fromTimestamp: Date.now() - millisecondsAgo,
       });
@@ -80,7 +81,11 @@ export const createLogsService = ({
 
   return async () => {
     Logger.start('Authenticating platform');
-    const { domain, port } = await sdk.platform();
+    const {
+      data: {
+        pluginDataService: { domain, port },
+      },
+    } = await sdk.platform.get();
     Logger.verbose('Platform', Chalk.cyan(`${domain}:${port}`));
     Logger.end();
     Logger.info(Chalk.cyan('Streaming logs...'));

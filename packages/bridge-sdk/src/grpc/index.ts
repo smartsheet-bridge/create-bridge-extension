@@ -2,7 +2,9 @@ import { credentials, loadPackageDefinition } from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
 import { join } from 'path';
 
-export default (host: string = 'plugindata.converse.ai:443') => {
+export const createGRPCClient = (
+  host: string = 'plugindata.converse.ai:443'
+) => {
   const packageDef = loadSync(
     'github.com/converseai/service/plugindata/datamanagement.proto',
     { includeDirs: [join(__dirname, '../../protos')] }

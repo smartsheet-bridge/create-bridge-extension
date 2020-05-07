@@ -97,11 +97,11 @@ export const createDeployService = ({
     const spec = getSpec(specFile);
     const data = {
       ...spec,
-      invoker: { ...spec.invoker, upload: true, checksum },
+      invoker: { upload: true, checksum },
       appToken: require(`${process.cwd()}/app-token.js`),
     };
 
-    const response = await sdk.extension.uploadSpec(data);
+    const response = await sdk.extension.uploadSpec({ data });
 
     return response && response.data && response.data.uploadRef;
   };

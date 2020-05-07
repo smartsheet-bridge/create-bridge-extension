@@ -73,6 +73,7 @@ const handler = async (argv: CLIArguments<RevokeArguments>) => {
 
 export const revokeCommand: CommandModule = {
   command: 'revoke [extensionName]',
+  aliases: ['r', 'delete', 'remove', 'unpublish'],
   describe: 'Revoke extension from production.',
   builder,
   handler,

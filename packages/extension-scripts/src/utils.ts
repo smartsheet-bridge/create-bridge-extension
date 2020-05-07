@@ -12,7 +12,7 @@ export const getManifest = (): PackageJson => {
   return manifest;
 };
 
-export const getSpec = (filename: string): any | never => {
+export const getSpec = (filename: string): { name: string } | never => {
   const specPath = sync(filename);
   if (specPath === undefined || specPath === null) {
     throw new SpecNotFoundError(filename, process.cwd());

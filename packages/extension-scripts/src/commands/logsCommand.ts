@@ -97,6 +97,7 @@ const handler = async (argv: CLIArguments<LogsArguments>) => {
 
 export const logsCommand: CommandModule = {
   command: 'logs [extensionName]',
+  aliases: ['l', 'log', 'stream-log', 'stream-logs'],
   describe: 'Stream logs from production.',
   builder,
   handler,

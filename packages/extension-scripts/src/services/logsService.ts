@@ -21,7 +21,9 @@ export const createLogsService = ({
 
   const fetchCaller = async () => {
     const spec = getSpec(specFile);
-    const { data } = await sdk.extension.caller(extensionName || spec.name);
+    const { data } = await sdk.extension.caller({
+      extensionUUID: extensionName || spec.name,
+    });
     if (data !== undefined) {
       const { caller } = data;
       return caller;

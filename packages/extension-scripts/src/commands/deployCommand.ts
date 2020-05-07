@@ -78,6 +78,7 @@ const handler = async (argv: CLIArguments<DeployArguments>) => {
 
 export const deployCommand: CommandModule = {
   command: 'deploy',
+  aliases: ['d', 'publish'],
   describe: 'Deploy to production.',
   builder,
   handler,

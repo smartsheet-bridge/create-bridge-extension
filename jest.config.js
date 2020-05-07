@@ -14,6 +14,8 @@ module.exports = {
     '**/?(*.)+(spec|test).[jt]s?(x)',
   ],
   moduleNameMapper: {
+    '^@smartsheet-bridge/bridge-sdk':
+      '<rootDir>/node_modules/@smartsheet-bridge/bridge-sdk',
     '^@smartsheet-bridge/(.*)$': '<rootDir>/packages/$1/src',
   },
   globals: {

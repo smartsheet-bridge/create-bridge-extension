@@ -183,10 +183,13 @@ export const createDeployService = ({
   };
 
   const activateRevision = async (caller: Caller) =>
-    sdk.extension.activateRevision({
-      extensionUUID: caller.pluginUUID,
-      revision: caller.revision,
-    });
+    sdk.extension.activateRevision(
+      {
+        extensionUUID: caller.pluginUUID,
+        revision: caller.revision,
+      },
+      {}
+    );
 
   const hasENVVars = () => env !== undefined && Object.keys(env).length > 0;
 

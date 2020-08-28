@@ -2,7 +2,8 @@ import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandBuilder, CommandModule } from 'yargs';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
-import { key, url } from '../options';
+import { middlewareAuth } from '../middleware/middlewareAuth';
+import { alias, extension, key, specFile, url } from '../options';
 import { createRevokeService } from '../services/revokeService';
 import {
   CLIArguments,
@@ -12,15 +13,11 @@ import {
   InferArgumentsOut,
 } from '../types';
 
-const revokePositional = {
-  description:
-    'The name of the extension to revoke. Defaults to current working directory.',
-  type: 'string' as 'string',
-};
-
 const revokeOptions = {
   url,
   key,
+  specFile,
+  extension,
   force: {
     type: 'boolean' as 'boolean',
     default: false,
@@ -29,15 +26,16 @@ const revokeOptions = {
 };
 
 export type RevokeConfig = InferArgumentsIn<typeof revokeOptions> & {
-  extensionName: InferArgumentIn<typeof revokePositional>;
+  alias: InferArgumentIn<typeof alias>;
 };
 type RevokeArguments = InferArgumentsOut<typeof revokeOptions> & {
-  extensionName: InferArgumentOut<typeof revokePositional>;
+  alias: InferArgumentOut<typeof alias>;
 };
 
 const builder: CommandBuilder = yargs => {
   return yargs
-    .positional('extensionName', revokePositional)
+    .middleware(middlewareAuth)
+    .positional('alias', alias)
     .options(revokeOptions);
 };
 
@@ -61,7 +59,7 @@ const handler = async (argv: CLIArguments<RevokeArguments>) => {
       options: {
         force: argv.force,
         specFile: argv.specFile,
-        name: argv.extensionName,
+        name: argv.extension,
       },
     });
     await revoke();
@@ -72,7 +70,7 @@ const handler = async (argv: CLIArguments<RevokeArguments>) => {
 };
 
 export const revokeCommand: CommandModule = {
-  command: 'revoke [extensionName]',
+  command: 'revoke [alias]',
   aliases: ['r', 'delete', 'remove', 'unpublish'],
   describe: 'Revoke extension from production.',
   builder,

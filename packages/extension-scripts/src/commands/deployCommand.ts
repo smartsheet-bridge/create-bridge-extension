@@ -2,7 +2,8 @@ import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandBuilder, CommandModule } from 'yargs';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
-import { key, url } from '../options';
+import { middlewareAuth } from '../middleware/middlewareAuth';
+import { alias, key, specFile, url } from '../options';
 import { createDeployService } from '../services/deployService';
 import { CLIArguments, InferArgumentsIn, InferArgumentsOut } from '../types';
 import { buildEnvironmentVariables } from '../utils';
@@ -10,6 +11,7 @@ import { buildEnvironmentVariables } from '../utils';
 const deployArguments = {
   url,
   key,
+  specFile,
   env: {
     type: 'array' as 'array',
     string: true as true,
@@ -41,7 +43,10 @@ export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
 type DeployArguments = InferArgumentsOut<typeof deployArguments>;
 
 const builder: CommandBuilder = yargs => {
-  return yargs.options(deployArguments);
+  return yargs
+    .middleware(middlewareAuth)
+    .positional('alias', alias)
+    .options(deployArguments);
 };
 
 const handler = async (argv: CLIArguments<DeployArguments>) => {
@@ -77,7 +82,7 @@ const handler = async (argv: CLIArguments<DeployArguments>) => {
 };
 
 export const deployCommand: CommandModule = {
-  command: 'deploy',
+  command: 'deploy [alias]',
   aliases: ['d', 'publish'],
   describe: 'Deploy to production.',
   builder,

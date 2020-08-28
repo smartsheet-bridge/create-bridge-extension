@@ -33,8 +33,8 @@ export const createRevokeService = ({
     try {
       await sdk.extension.revoke({ extensionUUID: extensionName, force });
     } catch (err) {
-      debug(err.response.data);
-      if (err.response.data) {
+      debug(err);
+      if (err.response !== undefined && err.response.data !== undefined) {
         if (err.response.status === 409 && err.response.data !== undefined) {
           throw new ExtensionInUseError(
             extensionName,

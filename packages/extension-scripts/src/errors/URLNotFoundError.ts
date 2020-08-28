@@ -1,5 +1,5 @@
 import { Chalk, UserError } from '@smartsheet-bridge/extension-cli-logger';
-import { RC_NAME } from '..';
+import { RC_NAME } from '../options';
 
 export class URLNotFoundError extends UserError {
   public constructor(cmd = '[cmd]') {

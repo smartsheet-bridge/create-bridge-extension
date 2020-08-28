@@ -6,7 +6,8 @@ import {
 import { CommandBuilder, CommandModule } from 'yargs';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
-import { key, url } from '../options';
+import { middlewareAuth } from '../middleware/middlewareAuth';
+import { alias, extension, key, specFile, url } from '../options';
 import { createLogsService } from '../services/logsService';
 import {
   CLIArguments,
@@ -21,15 +22,11 @@ const SECONDS_PER_MINUTE = 60;
 const SECOND = MILLISECONDS_PER_SECOND;
 const MINUTE = SECOND * SECONDS_PER_MINUTE;
 
-const logsPositional = {
-  description:
-    'The name of the extension to stream logs from. Defaults to current working directory.',
-  type: 'string' as 'string',
-};
-
 const logsOptions = {
   url,
   key,
+  specFile,
+  extension,
   minutes: {
     default: 0,
     type: 'number' as 'number',
@@ -42,14 +39,17 @@ const logsOptions = {
 };
 
 export type LogsConfig = InferArgumentsIn<typeof logsOptions> & {
-  extensionName: InferArgumentIn<typeof logsPositional>;
+  alias: InferArgumentIn<typeof alias>;
 };
 type LogsArguments = InferArgumentsOut<typeof logsOptions> & {
-  extensionName: InferArgumentOut<typeof logsPositional>;
+  alias: InferArgumentOut<typeof alias>;
 };
 
 const builder: CommandBuilder = yargs => {
-  return yargs.positional('extensionName', logsPositional).options(logsOptions);
+  return yargs
+    .middleware(middlewareAuth)
+    .positional('alias', alias)
+    .options(logsOptions);
 };
 
 const handler = async (argv: CLIArguments<LogsArguments>) => {
@@ -85,7 +85,7 @@ const handler = async (argv: CLIArguments<LogsArguments>) => {
       options: {
         milliseconds: Math.abs(argv.minutes) * MINUTE,
         specFile: argv.specFile,
-        name: argv.extensionName,
+        name: argv.extension,
       },
     });
     await logs();
@@ -96,7 +96,7 @@ const handler = async (argv: CLIArguments<LogsArguments>) => {
 };
 
 export const logsCommand: CommandModule = {
-  command: 'logs [extensionName]',
+  command: 'logs [alias]',
   aliases: ['l', 'log', 'stream-log', 'stream-logs'],
   describe: 'Stream logs from production.',
   builder,

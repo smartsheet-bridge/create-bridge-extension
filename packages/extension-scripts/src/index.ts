@@ -1,31 +1,22 @@
 #!/usr/bin/env node
 
-import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { cosmiconfigSync as sync } from 'cosmiconfig';
 import yargs from 'yargs';
+import { accountCommand } from './commands/accountCommand';
 import { deployCommand } from './commands/deployCommand';
 import { logsCommand } from './commands/logsCommand';
 import { revokeCommand } from './commands/revokeCommand';
-import middleware from './middleware';
-import options from './options';
+import { middlewareLogger } from './middleware/middlewareLogger';
+import options, { RC_NAME } from './options';
 
 export * from './types';
 
-export const RC_NAME = `extension`;
 const configSearch = sync(RC_NAME).search();
 let config = {};
 
 if (configSearch && configSearch.config) {
   config = configSearch.config;
 }
-
-const exiting: NodeJS.ExitListener = code => {
-  if (code === 0) {
-    Logger.info('👋 ', 'Exiting...');
-  }
-};
-
-process.on('exit', exiting);
 
 /**
  * Priority
@@ -44,8 +35,9 @@ yargs
   .env(RC_NAME.toUpperCase())
   .scriptName('extension-scripts')
   .config(config)
-  .middleware(middleware, true)
+  .middleware(middlewareLogger, true)
   .options(options)
+  .command(accountCommand)
   .command(deployCommand)
   .command(revokeCommand)
   .command(logsCommand)

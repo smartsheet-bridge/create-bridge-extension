@@ -74,3 +74,5 @@ export const buildEnvironmentVariables = (env?: ENVPossibleInput): ENVMap => {
   }
   return {};
 };
+
+export const maskKey = (str: string) => str.replace(/.(?=.{4})/g, '*');

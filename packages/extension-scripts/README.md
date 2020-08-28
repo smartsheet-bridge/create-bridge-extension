@@ -44,19 +44,60 @@ Or, it can be run via the npm scripts property in the package.json.
 
 # Usage
 
+## Command Map
+
+![CLI Map](../../docs/assets/CLICommandMap.png)
+
 ## Commands
+
+### `account`
+
+A set of commands to manage account aliases used with the tool. See [Authentication](#Authentication) and [Account Aliases](#Account%20Aliases) for more details.
+
+#### `add`
+
+This command will securely save an account alias to your local machine allowing you to make use of the account alias with other commands.
+
+```bash
+$ extension-scripts account add [alias] [options]
+```
+
+If no `alias` is given then the command will attempt to store the alias as "default".
+
+| option, alias | description                                                                      |
+| ------------- | -------------------------------------------------------------------------------- |
+| `--url`       | Account URL. See [Authentication](#Authentication).                              |
+| `--key`       | Authorized API Key for given account URL. See [Authentication](#Authentication). |
+| `--overwrite` | Will overwrite and existing alias.                                               |
+
+#### `list`
+
+This command will list all securely stored account aliases on the current machine.
+
+```bash
+$ extension-scripts account list
+```
+
+#### `remove`
+
+This command will remove the given account alias on the current machine.
+
+```bash
+$ extension-scripts account add [alias]
+```
 
 ### `deploy`
 
 This command will deploy your extension to your Bridge by Smartsheet account for use with the platform.
 
 ```bash
-$ extension-scripts  deploy [options]
+$ extension-scripts deploy [alias] [options]
 ```
 
 | option, alias | description                                                                                |
 | ------------- | ------------------------------------------------------------------------------------------ |
-| `--url`       | Account URL to deploy to. See [Authentication](#Authentication).                           |
+| `alias`       | Account alias to use. See [Account Aliases](#Account%20Aliases).                           |
+| `--url`       | Account URL to access. See [Authentication](#Authentication).                              |
 | `--key`       | Authorized API Key for given account URL. See [Authentication](#Authentication).           |
 | `--env`       | Set environment environments variables for deployed extension. See [ENV Vars](#ENV%20Vars) |
 | `--include`   | Pattern to include filenames when packaging for deployment.                                |
@@ -68,36 +109,36 @@ $ extension-scripts  deploy [options]
 This command will revoke your extension from your Bridge by Smartsheet account.
 
 ```bash
-$ extension-scripts revoke [options] [extension name]
+$ extension-scripts revoke [alias] [options]
 ```
-
-If no `extension name` is given then the command will attempt to read the name from the current working directory.
 
 | option, alias | description                                                                      |
 | ------------- | -------------------------------------------------------------------------------- |
-| `--url`       | Account URL to deploy to. See [Authentication](#Authentication).                 |
+| `alias`       | Account alias to use. See [Account Aliases](#Account%20Aliases).                 |
+| `--url`       | Account URL to access. See [Authentication](#Authentication).                    |
 | `--key`       | Authorized API Key for given account URL. See [Authentication](#Authentication). |
 | `--force, -f` | Will force the removal of an extension.                                          |
+| `--extension` | The name of the extension to revoke. Defaults to current working directory.      |
 
 ### `logs`
 
 This command will stream `console.log` and `console.error` from your extension running on Bridge by Smartsheet platform.
 
 ```bash
-$ extension-scripts logs [options] [extension name]
+$ extension-scripts logs [alias] [options]
 ```
-
-If no `extension name` is given then the command will attempt to read the name from the current working directory.
 
 | option, alias     | description                                                                      |
 | ----------------- | -------------------------------------------------------------------------------- |
-| `--url`           | Account URL to deploy to. See [Authentication](#Authentication).                 |
+| `alias`           | Account alias to use. See [Account Aliases](#Account%20Aliases).                 |
+| `--url`           | Account URL to access. See [Authentication](#Authentication).                    |
 | `--key`           | Authorized API Key for given account URL. See [Authentication](#Authentication). |
 | `--minutes`, `-m` | The number of minutes, in the past, to start streaming logs from.                |
+| `--extension`     | The name of the extension to log. Defaults to current working directory.         |
 
 ## Options
 
-Options can be provided inline, as environment variables, in a configuration file, or as part of the `extension` property in the `package.json` file and are prioritized in the following order:
+Many commands have options that can be supplied. These can be provided inline, as environment variables, in a configuration file, or as part of the `extension` property in the `package.json` file and are prioritized in the following order:
 
 1. Inline arguments
 2. Environment variables
@@ -119,7 +160,7 @@ _**Tip**: You can see all the options available for any command by running the c
 
 #### Environment Variables
 
-_**Note**: this section describes ENV variables for your development environment. See [ENV Vars](#ENV%20Vars) for setting runtime environment variables for an extension._
+_**Note**: this section describes ENV variables for supplying options in your development environment. See [ENV Vars](#ENV%20Vars) for setting runtime environment variables for an extension._
 
 Options can be configured via environment variables and come in the format of uppercase and prepended with `EXTENSION_`. E.g. `--url=[account url]` becomes `EXTENSION_URL:[url]`. Environment variables take priority over all but inline options.
 
@@ -198,6 +239,24 @@ _You can access these via the Bridge by Smartsheet user interface by clicking on
 ```bash
 $ extension-scripts deploy --key=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 ```
+
+## Account Aliases
+
+You can securely store account URLs and API Keys for future use using Account Aliases. This can be incredibly useful if you have multiple accounts or multiple extensions that you need to deploy regularly.
+
+To store account details you can use the `account add` command.
+
+```bash
+$ extension-scripts account add example --url=https://example.bridge.smartsheet.com --key=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+```
+
+Where `example` is the alias chosen by you for later use. Once stored, this alias can be used with any extension on this machine allowing you to drop the `--url` and `--key` arguments.
+
+```bash
+$ extension-scripts deploy example
+```
+
+_Note that `--url` and `--key` parameters are still prioritized over account aliases._
 
 ## Output Logs
 

@@ -49,5 +49,6 @@ release:
     - next
     - beta
     - alpha
+    - release
   script:
     - yarn release

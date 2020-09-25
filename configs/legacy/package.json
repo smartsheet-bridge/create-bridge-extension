@@ -5,6 +5,7 @@
   "main": "./lib/config.js",
   "types": "./lib/config.d.ts",
   "scripts": {
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib",
+    "release": "semantic-release"
   }
 }

@@ -5,7 +5,8 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib",
+    "release": "semantic-release"
   },
   "author": "graeme.cassels@smartsheet.com",
   "dependencies": {

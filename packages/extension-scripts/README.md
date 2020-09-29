@@ -94,15 +94,15 @@ This command will deploy your extension to your Bridge by Smartsheet account for
 $ extension-scripts deploy [alias] [options]
 ```
 
-| option, alias | description                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------ |
-| `alias`       | Account alias to use. See [Account Aliases](#Account%20Aliases).                           |
-| `--url`       | Account URL to access. See [Authentication](#Authentication).                              |
-| `--key`       | Authorized API Key for given account URL. See [Authentication](#Authentication).           |
-| `--env`       | Set environment environments variables for deployed extension. See [ENV Vars](#ENV%20Vars) |
-| `--include`   | Pattern to include filenames when packaging for deployment.                                |
-| `--exclude`   | Pattern or array of patterns to exclude filenames when packaging for deployment.           |
-| `--symlinks`  | Follow symlinks when packaging extension for deployment.                                   |
+| option, alias | description                                                                      |
+| ------------- | -------------------------------------------------------------------------------- |
+| `alias`       | Account alias to use. See [Account Aliases](#Account%20Aliases).                 |
+| `--url`       | Account URL to access. See [Authentication](#Authentication).                    |
+| `--key`       | Authorized API Key for given account URL. See [Authentication](#Authentication). |
+| `--env`       | Set environment variables for deployed extension. See [ENV Vars](#ENV%20Vars)    |
+| `--include`   | Pattern to include filenames when packaging for deployment.                      |
+| `--exclude`   | Pattern or array of patterns to exclude filenames when packaging for deployment. |
+| `--symlinks`  | Follow symlinks when packaging extension for deployment.                         |
 
 ### `revoke`
 

@@ -3,7 +3,8 @@
   "description": "This is a legacy extension.",
   "main": "plugin.js",
   "scripts": {
-    "test": "mocha test/plugin-test.js 'test/**/*-test.js'"
+    "test": "mocha test/plugin-test.js 'test/**/*-test.js'",
+    "release": "echo \"skip private package\""
   },
   "dependencies": {
     "@converseai/plugins-sdk": "latest"

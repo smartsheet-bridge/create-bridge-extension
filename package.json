@@ -1,4 +1,6 @@
 {
+  "name": "create-bridge-extension",
+  "version": "0.0.0-development.0",
   "private": true,
   "workspaces": [
     "packages/*",
@@ -12,16 +14,20 @@
     "test:watch": "jest --watchAll --no-coverage",
     "build": "lerna run clean && tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch ",
-    "clean": "lerna run clean && rm -rf node_modules"
+    "clean": "lerna run clean && rm -rf node_modules",
+    "release": "yarn workspaces run release"
   },
   "devDependencies": {
     "@npm/types": "^1.0.1",
+    "@semantic-release/gitlab": "^6.0.5",
     "@types/jest": "^25.1.4",
     "@types/node": "^13.5.1",
     "jest": "^25.1.0",
     "lerna": "^3.10.5",
     "prettier": "^1.15.3",
     "prettier-tslint": "^0.4.2",
+    "semantic-release": "^17.1.2",
+    "semantic-release-monorepo": "^7.0.3",
     "ts-jest": "^25.2.1",
     "tslint": "^5.12.1",
     "tslint-config-prettier": "^1.17.0",

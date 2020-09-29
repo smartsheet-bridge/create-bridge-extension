@@ -1,10 +1,11 @@
 {
   "name": "@smartsheet-bridge/extensionrc-legacy",
   "description": "Configuration file for a legacy extension.",
-  "version": "0.1.0-alpha.0",
+  "version": "0.0.0-development.0",
   "main": "./lib/config.js",
   "types": "./lib/config.d.ts",
   "scripts": {
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib",
+    "release": "semantic-release"
   }
 }

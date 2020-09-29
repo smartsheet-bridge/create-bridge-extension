@@ -1,6 +1,6 @@
 {
   "name": "@smartsheet-bridge/extension-scripts",
-  "version": "0.1.0-alpha.1",
+  "version": "0.0.0-development.0",
   "description": "",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -8,7 +8,8 @@
     "extension-scripts": "./lib/index.js"
   },
   "scripts": {
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib",
+    "release": "semantic-release"
   },
   "author": "graeme.cassels@smartsheet.com",
   "devDependencies": {

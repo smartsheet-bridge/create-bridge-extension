@@ -25,7 +25,7 @@ test:
     - alpha
     - merge_request
   script:
-    - yarn test:coverage
+    - yarn test
 
 build:
   stage: CI

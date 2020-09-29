@@ -15,7 +15,7 @@
     "build": "lerna run clean && tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch ",
     "clean": "lerna run clean && rm -rf node_modules",
-    "release": "yarn workspaces run release --dry-run"
+    "release": "yarn workspaces run release"
   },
   "devDependencies": {
     "@npm/types": "^1.0.1",

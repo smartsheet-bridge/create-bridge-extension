@@ -10,11 +10,6 @@
     {
       "name": "alpha",
       "prerelease": true
-    },
-    {
-      "name": "release",
-      "prerelease": true,
-      "channel": false
     }
   ],
   "plugins": [

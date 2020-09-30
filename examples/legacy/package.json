@@ -2,6 +2,10 @@
   "name": "legacy",
   "description": "This is a legacy extension.",
   "main": "plugin.js",
+  "private": true,
+  "publishConfig": {
+    "access": "restricted"
+  },
   "scripts": {
     "test": "mocha test/plugin-test.js 'test/**/*-test.js'",
     "release": "echo \"skip private package\""

@@ -4,6 +4,9 @@
   "version": "0.0.0-development.0",
   "main": "./lib/config.js",
   "types": "./lib/config.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "clean": "rm -rf lib",
     "release": "semantic-release"

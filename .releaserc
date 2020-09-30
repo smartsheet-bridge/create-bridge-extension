@@ -5,11 +5,13 @@
     "next",
     {
       "name": "beta",
-      "prerelease": true
+      "prerelease": true,
+      "channel": false
     },
     {
       "name": "alpha",
-      "prerelease": true
+      "prerelease": true,
+      "channel": false
     }
   ],
   "plugins": [

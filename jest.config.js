@@ -6,7 +6,7 @@ module.exports = {
     '!**/node_modules/**',
     '!**/__*__/**',
   ],
-  coverageReporters: ['text'],
+  coverageReporters: ['text', 'cobertura'],
   roots: ['packages/'],
   testEnvironment: 'jsdom',
   testMatch: [

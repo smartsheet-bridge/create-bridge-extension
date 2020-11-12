@@ -26,6 +26,9 @@ test:
     - merge_request
   script:
     - yarn test
+  artifacts:
+    reports:
+      cobertura: coverage/cobertura-coverage.xml
 
 build:
   stage: CI

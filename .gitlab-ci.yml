@@ -19,7 +19,7 @@ test:
   tags:
     - scaled
   only:
-    - master
+    - mainline
     - next
     - beta
     - alpha
@@ -35,7 +35,7 @@ build:
   tags:
     - scaled
   only:
-    - master
+    - mainline
     - next
     - beta
     - alpha
@@ -48,7 +48,7 @@ release:
   tags:
     - scaled
   only:
-    - master
+    - mainline
     - next
     - beta
     - alpha

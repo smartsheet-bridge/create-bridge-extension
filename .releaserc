@@ -1,7 +1,7 @@
 {
   "extends": "semantic-release-monorepo",
   "branches": [
-    "master",
+    "mainline",
     "next",
     {
       "name": "beta",

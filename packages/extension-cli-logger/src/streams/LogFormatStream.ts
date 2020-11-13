@@ -19,6 +19,6 @@ export class LogFormatStream extends Transform {
       { colors: true, compact: false, breakLength: Infinity, depth: 7 },
       chunk.message
     );
-    return next(null, str);
+    next(null, str);
   }
 }

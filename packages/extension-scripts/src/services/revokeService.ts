@@ -6,6 +6,7 @@ import {
 import { ExtensionInUseError } from '../errors/ExtensionInUseError';
 import { getSpec } from '../utils';
 import { createBridgeService } from './bridgeService';
+
 const debug = Logger.debug('revokeService');
 
 interface CreateRevokeService {
@@ -21,13 +22,13 @@ interface CreateRevokeService {
 export const createRevokeService = ({
   host,
   auth,
-  options: { force, specFile, name: extensionName },
+  options: { force, specFile, name },
 }: CreateRevokeService) => {
   const sdk = createBridgeService(host, auth);
   return async () => {
     Logger.start('Reading extension');
     const spec = getSpec(specFile);
-    extensionName = extensionName || spec.name;
+    const extensionName = name || spec.name;
     Logger.info('Extension name', Chalk.cyan(extensionName));
     Logger.start('Revoking extension');
     try {

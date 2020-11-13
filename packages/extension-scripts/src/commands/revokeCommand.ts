@@ -5,7 +5,7 @@ import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, extension, key, specFile, url } from '../options';
 import { createRevokeService } from '../services/revokeService';
-import {
+import type {
   CLIArguments,
   InferArgumentIn,
   InferArgumentOut,

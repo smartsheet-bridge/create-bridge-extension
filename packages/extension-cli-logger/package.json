@@ -15,7 +15,8 @@
   "author": "graeme.cassels@smartsheet.com",
   "dependencies": {
     "inquirer": "^7.0.6",
-    "strip-ansi": "^6.0.0"
+    "strip-ansi": "^6.0.0",
+    "chalk": "^3.0.0"
   },
   "devDependencies": {
     "@types/inquirer": "^6.5.0",

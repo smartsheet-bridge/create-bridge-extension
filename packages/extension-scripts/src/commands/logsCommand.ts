@@ -9,7 +9,7 @@ import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, extension, key, specFile, url } from '../options';
 import { createLogsService } from '../services/logsService';
-import {
+import type {
   CLIArguments,
   InferArgumentIn,
   InferArgumentOut,

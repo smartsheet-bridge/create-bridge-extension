@@ -9,15 +9,15 @@ export class LogNormalizeStream extends Transform {
   }
 
   public _transform(
-    chunk: LogStreamChunk | string,
+    chunkOrString: LogStreamChunk | string,
     encoding: string,
     next: TransformCallback
   ): void {
-    if (typeof chunk === 'string') {
-      chunk = {
-        message: chunk,
-      };
-    }
+    const chunk =
+      typeof chunkOrString === 'string'
+        ? { message: chunkOrString }
+        : chunkOrString;
+
     return next(null, chunk);
   }
 }

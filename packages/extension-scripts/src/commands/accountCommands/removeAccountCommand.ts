@@ -5,13 +5,13 @@ import { alias } from '../../options';
 import { createAccountService } from '../../services/accountService';
 import { CLIArguments, InferArgumentsOut } from '../../types';
 
-type aliasArguments = InferArgumentsOut<{ alias: typeof alias }>;
+type AliasArguments = InferArgumentsOut<{ alias: typeof alias }>;
 
 const builder: CommandBuilder = yargs => {
   return yargs.positional('alias', alias);
 };
 
-const handler = async (argv: CLIArguments<aliasArguments>) => {
+const handler = async (argv: CLIArguments<AliasArguments>) => {
   try {
     if (typeof argv.alias !== 'string') {
       throw new AliasNotFoundError(argv.alias);

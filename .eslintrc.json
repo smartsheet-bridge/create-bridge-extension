@@ -27,6 +27,15 @@
   },
   "rules": {
     "import/prefer-default-export": "off",
-    "@typescript-eslint/lines-between-class-members": "off"
+    "@typescript-eslint/lines-between-class-members": "off",
+    "no-param-reassign": [
+      "error",
+      { "props": true, "ignorePropertyModificationsForRegex": ["^argv$"] }
+    ],
+    "no-underscore-dangle": ["error", { "enforceInMethodNames": false }],
+    "class-methods-use-this": "off",
+    "consistent-return": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-throw-literal": "off"
   }
 }

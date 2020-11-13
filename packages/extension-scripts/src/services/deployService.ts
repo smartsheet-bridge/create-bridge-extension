@@ -1,3 +1,6 @@
+/* eslint-disable import/no-dynamic-require */
+/* eslint-disable global-require */
+
 import { Caller, createGRPCClient } from '@smartsheet-bridge/bridge-sdk';
 import {
   Chalk,
@@ -119,19 +122,19 @@ export const createDeployService = ({
                 response.error.description
               )
             );
-          } else {
-            if (
-              response.runtimeVersion !== undefined &&
-              semver.clean(response.runtimeVersion) !==
-                semver.clean(process.version)
-            ) {
-              Logger.warn(
-                `Your development environment (Node.js ${process.version}) does not match Converse.AI's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for supported versions of Node.js.`
-              );
-            }
-            return resolve();
           }
-        } else if (error) {
+          if (
+            response.runtimeVersion !== undefined &&
+            semver.clean(response.runtimeVersion) !==
+              semver.clean(process.version)
+          ) {
+            Logger.warn(
+              `Your development environment (Node.js ${process.version}) does not match Converse.AI's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for supported versions of Node.js.`
+            );
+          }
+          return resolve();
+        }
+        if (error) {
           return reject(new Error(error));
         }
         return reject(new Error('Something went wrong!'));
@@ -171,10 +174,10 @@ export const createDeployService = ({
             response.error !== undefined &&
             response.error !== null
           ) {
-            err = response.error;
+            reject(response.error);
           }
           if (err !== undefined && err !== null) {
-            return reject(err);
+            reject(err);
           }
           resolve();
         }

@@ -1,4 +1,4 @@
-import { PackageJson } from '@npm/types';
+import type { PackageJson } from '@npm/types';
 import { sync } from 'find-up';
 import { readJSONSync } from 'fs-extra';
 import normalizeData from 'normalize-package-data';
@@ -62,11 +62,11 @@ export const buildEnvironmentVariables = (env?: ENVPossibleInput): ENVMap => {
     return env.reduce<ENVMap>((acc, entry) => {
       if (typeof entry === 'string') {
         return normalizeEnv(acc, entry);
-      } else {
-        return { ...acc, ...buildEnvironmentVariables(entry) };
       }
+      return { ...acc, ...buildEnvironmentVariables(entry) };
     }, {});
-  } else if (typeof env === 'object') {
+  }
+  if (typeof env === 'object') {
     return Object.entries(env).reduce<ENVMap>(
       (acc, entry) => normalizeEnv(acc, entry),
       {}

@@ -11,5 +11,8 @@
   "scripts": {
     "clean": "rm -rf lib",
     "release": "semantic-release"
+  },
+  "devDependencies": {
+    "@smartsheet-bridge/extension-scripts": "latest"
   }
 }

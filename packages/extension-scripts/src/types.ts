@@ -4,13 +4,13 @@ import {
   Options,
   PositionalOptions,
 } from 'yargs';
-import { AccountConfig } from './commands/accountCommand';
-import { DeployConfig } from './commands/deployCommand';
-import { LogsConfig } from './commands/logsCommand';
-import { RevokeConfig } from './commands/revokeCommand';
-import { CLICommonArguments } from './options';
+import type { AccountConfig } from './commands/accountCommand';
+import type { DeployConfig } from './commands/deployCommand';
+import type { LogsConfig } from './commands/logsCommand';
+import type { RevokeConfig } from './commands/revokeCommand';
+import type { CLICommonArguments } from './options';
 
-export const createOption = <O = {}>(option: any) => {
+export const createOption = (option: any) => {
   return option;
 };
 
@@ -19,7 +19,7 @@ export type InferArgumentOut<
 > = O extends { coerce: (arg: any) => infer T } ? T : InferredOptionType<O>;
 
 export type InferArgumentIn<O extends Options | PositionalOptions> = O extends {
-  coerce: (arg: infer T) => infer U;
+  coerce: (arg: infer T) => any;
 }
   ? T
   : InferredOptionType<O>;

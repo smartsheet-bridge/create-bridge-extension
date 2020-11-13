@@ -1,5 +1,6 @@
 import * as dotpref from 'dotpref';
-import yargsParser from 'yargs-parser';
+// import yargsParser from 'yargs-parser';
+import { parse as yargsParser } from 'yargs';
 import { AuthOptions } from '../options';
 import { CLIArguments } from '../types';
 import { middlewareAuth } from './middlewareAuth';
@@ -58,7 +59,7 @@ describe('middlewareAuth', () => {
     'modifies the argv object with the correct url and key for `%s`',
     (argString, url, key) => {
       get.mockImplementation(k => MOCK_PREFERENCES_MULTIPLE[k]);
-      const { _, ...args } = yargsParser(argString);
+      const { _: yargs, ...args } = yargsParser(argString);
       middlewareAuth(args as CLIArguments<Partial<AuthOptions>>);
       expect(args).toHaveProperty('url', url);
       expect(args).toHaveProperty('key', key);

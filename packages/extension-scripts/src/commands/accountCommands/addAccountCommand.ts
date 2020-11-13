@@ -19,7 +19,7 @@ const addAccountArguments = {
   },
 };
 
-type addAccountArguments = InferArgumentsOut<
+type AddAccountArguments = InferArgumentsOut<
   typeof addAccountArguments & { alias: typeof alias }
 >;
 
@@ -27,7 +27,7 @@ const builder: CommandBuilder = yargs => {
   return yargs.positional('alias', alias).options(addAccountArguments);
 };
 
-const handler = async (argv: CLIArguments<addAccountArguments>) => {
+const handler = async (argv: CLIArguments<AddAccountArguments>) => {
   try {
     if (typeof argv.alias !== 'string') {
       throw new AliasNotFoundError(argv.alias);

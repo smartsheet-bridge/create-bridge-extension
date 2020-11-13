@@ -1,7 +1,5 @@
 import * as Util from 'util';
-import { LogLevel } from './';
-
-const ANSI_CLEAR_LINE = '[2K[1G'; // NOT A SPACE CHARACTER BTW
+import { LogLevel } from './LogLevel';
 
 const loglevelFromString = (str: string): LogLevel => {
   if (str && str !== '') {

@@ -36,7 +36,8 @@ export class LogFilterStream extends Transform {
   ): void {
     if (!chunk.filter || this.isLoggable(chunk.filter)) {
       next(null, chunk);
+    } else {
+      next();
     }
-    next();
   }
 }

@@ -174,12 +174,12 @@ export const createDeployService = ({
             response.error !== undefined &&
             response.error !== null
           ) {
-            reject(response.error);
+            return reject(response.error);
           }
           if (err !== undefined && err !== null) {
-            reject(err);
+            return reject(err);
           }
-          resolve();
+          return resolve();
         }
       );
     });

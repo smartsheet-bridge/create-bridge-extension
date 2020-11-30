@@ -6,14 +6,7 @@ import { PassThrough, Readable, Writable } from 'stream';
 import { WriteStream } from 'tty';
 import * as Util from 'util';
 import { AbstractError } from './errors/AbstractError';
-
-export enum LogLevel {
-  SILENT = 0,
-  ERROR = 10,
-  WARN = 20,
-  INFO = 30,
-  VERBOSE = 40,
-}
+import { LogLevel } from './LogLevel';
 
 const indentNewLines = (replacement: string = `${EOL}${ASCII_TAB} `) => (
   arg: any
@@ -32,7 +25,6 @@ const ASCII_BOX_TOP: string = '┌';
 const ASCII_BOX_MIDDLE: string = '│';
 const ASCII_BOX_BOTTOM: string = '└';
 const ASCII_PROMPT: string = '?';
-const ASCII_SUCCESS: string = '✔️';
 const GOLDEN_RATIO: number = 0.618033988749895;
 const ERROR = Chalk.hex('#E57373');
 const WARN = Chalk.hex('#FFF176');
@@ -173,11 +165,10 @@ export class Logger {
         ASCII_BOX_MIDDLE,
         ...args.map(indentNewLines(`${EOL}${ASCII_TAB}${ASCII_TAB}`)),
       ].join(' ');
-    } else {
-      return [prefix, ...args.map(indentNewLines(`${EOL}${ASCII_TAB}`))].join(
-        ' '
-      );
     }
+    return [prefix, ...args.map(indentNewLines(`${EOL}${ASCII_TAB}`))].join(
+      ' '
+    );
   }
 
   protected write(

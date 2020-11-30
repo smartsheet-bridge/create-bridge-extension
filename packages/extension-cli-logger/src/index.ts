@@ -1,7 +1,8 @@
 import * as chalk from 'chalk';
 import { createWriteStream } from 'fs';
 import { Writable } from 'stream';
-import { Logger as Base, LogLevel } from './Logger';
+import { Logger as Base } from './Logger';
+import { LogLevel } from './LogLevel';
 import { LogFilterStream } from './streams/LogFilterStream';
 import { LogFormatStream } from './streams/LogFormatStream';
 import { LogNormalizeStream } from './streams/LogNormalizeStream';
@@ -11,8 +12,9 @@ import { StripAnsiStream } from './streams/StripAnsiStream';
 export const Chalk: typeof chalk.default = chalk.default;
 export * from './errors/AbstractError';
 export * from './errors/UserError';
-export * from './Logger';
+export { LogStreamChunk, ReadWritable } from './Logger';
 export * from './LoggerOut';
+export * from './LogLevel';
 
 class LoggerInstance extends Base {
   private static instance: LoggerInstance;

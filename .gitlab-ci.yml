@@ -30,6 +30,19 @@ test:
     reports:
       cobertura: coverage/cobertura-coverage.xml
 
+lint:
+  stage: CI
+  tags:
+    - scaled
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+    - merge_request
+  script:
+    - yarn lint
+
 build:
   stage: CI
   tags:

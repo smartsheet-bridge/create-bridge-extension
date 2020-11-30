@@ -1,5 +1,6 @@
 import { Transform, TransformCallback } from 'stream';
-import { LogLevel, LogStreamChunk } from '../Logger';
+import { LogStreamChunk } from '../Logger';
+import { LogLevel } from '../LogLevel';
 
 const levelFromString = (str: string): LogLevel => {
   if (str && str !== '') {
@@ -34,8 +35,9 @@ export class LogFilterStream extends Transform {
     next: TransformCallback
   ): void {
     if (!chunk.filter || this.isLoggable(chunk.filter)) {
-      return next(null, chunk);
+      next(null, chunk);
+    } else {
+      next();
     }
-    next();
   }
 }

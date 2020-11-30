@@ -1,6 +1,6 @@
 import { CommandBuilder, CommandModule } from 'yargs';
 import { alias, key, url } from '../options';
-import { CLIArguments, InferArgumentsIn, InferArgumentsOut } from '../types';
+import type { InferArgumentsIn } from '../types';
 import { addAccountCommand } from './accountCommands/addAccountCommand';
 import { listAccountCommand } from './accountCommands/listAccountCommand';
 import { removeAccountCommand } from './accountCommands/removeAccountCommand';
@@ -12,7 +12,6 @@ const accountArguments = {
 };
 
 export type AccountConfig = InferArgumentsIn<typeof accountArguments>;
-type accountArguments = InferArgumentsOut<typeof accountArguments>;
 
 const builder: CommandBuilder = yargs => {
   return yargs
@@ -24,7 +23,7 @@ const builder: CommandBuilder = yargs => {
     .help();
 };
 
-const handler = async (argv: CLIArguments<accountArguments>) => {};
+const handler = async () => {};
 
 export const accountCommand: CommandModule = {
   command: 'account',

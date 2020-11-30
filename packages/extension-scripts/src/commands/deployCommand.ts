@@ -5,7 +5,11 @@ import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, key, specFile, url } from '../options';
 import { createDeployService } from '../services/deployService';
-import { CLIArguments, InferArgumentsIn, InferArgumentsOut } from '../types';
+import type {
+  CLIArguments,
+  InferArgumentsIn,
+  InferArgumentsOut,
+} from '../types';
 import { buildEnvironmentVariables } from '../utils';
 
 const deployArguments = {

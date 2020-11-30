@@ -1,16 +1,15 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandModule } from 'yargs';
 import { createAccountService } from '../../services/accountService';
-import { CLIArguments } from '../../types';
 import { maskKey } from '../../utils';
 
-const handler = async (argv: CLIArguments) => {
+const handler = async () => {
   try {
     const { listAccounts } = createAccountService();
     const accounts = listAccounts();
 
     if (accounts.length > 0) {
-      accounts.map(account => {
+      accounts.forEach(account => {
         Logger.info(
           account.alias,
           Chalk.cyan.underline(account.url),

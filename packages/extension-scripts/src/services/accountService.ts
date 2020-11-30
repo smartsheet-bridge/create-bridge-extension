@@ -46,8 +46,8 @@ export const createAccountService = () => {
   };
 
   const removeAccount = (alias: string): AuthOptions => {
-    const { [alias]: _, ...account } = get('account');
-    set('account', account);
+    const { [alias]: accountToBeRemoved, ...others } = get('account');
+    set('account', others);
 
     return get('account')[alias];
   };

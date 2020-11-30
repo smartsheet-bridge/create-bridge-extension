@@ -1,4 +1,4 @@
-import { CLIConfig } from '@smartsheet-bridge/extension-scripts';
+import type { CLIConfig } from '@smartsheet-bridge/extension-scripts';
 
 const Configuration: CLIConfig = {
   specFile: 'plugin.json',

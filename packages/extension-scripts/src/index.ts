@@ -7,6 +7,7 @@ import { deployCommand } from './commands/deployCommand';
 import { logsCommand } from './commands/logsCommand';
 import { revokeCommand } from './commands/revokeCommand';
 import { middlewareLogger } from './middleware/middlewareLogger';
+import { middlewareVersionCheck } from './middleware/middlewareVersionCheck';
 import options, { RC_NAME } from './options';
 
 export * from './types';
@@ -36,6 +37,7 @@ yargs
   .scriptName('extension-scripts')
   .config(config)
   .middleware(middlewareLogger, true)
+  .middleware(middlewareVersionCheck)
   .options(options)
   .command(accountCommand)
   .command(deployCommand)

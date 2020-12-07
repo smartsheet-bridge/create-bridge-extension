@@ -67,3 +67,10 @@ export const extension = {
     'The name of the extension to revoke. Defaults to current working directory.',
   type: 'string' as 'string',
 };
+
+export const json = {
+  type: 'boolean' as 'boolean',
+  description: 'Print output in JSON readable format.',
+  default: false,
+  coerce: (o?: boolean) => (o !== undefined ? o : false),
+};

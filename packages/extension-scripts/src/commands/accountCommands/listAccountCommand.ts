@@ -1,21 +1,39 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
-import { CommandModule } from 'yargs';
+import { CommandBuilder, CommandModule } from 'yargs';
+import { json } from '../../options';
 import { createAccountService } from '../../services/accountService';
+import { CLIArguments, InferArgumentsOut } from '../../types';
 import { maskKey } from '../../utils';
 
-const handler = async () => {
+const listAccountArguments = {
+  json,
+};
+
+type ListAccountArguments = InferArgumentsOut<typeof listAccountArguments>;
+
+const builder: CommandBuilder = yargs => {
+  return yargs.options(listAccountArguments);
+};
+
+const handler = async (argv: CLIArguments<ListAccountArguments>) => {
   try {
     const { listAccounts } = createAccountService();
     const accounts = listAccounts();
 
     if (accounts.length > 0) {
-      accounts.forEach(account => {
-        Logger.info(
-          account.alias,
-          Chalk.cyan.underline(account.url),
-          maskKey(account.key)
-        );
-      });
+      if (argv.json) {
+        console.log(JSON.stringify(accounts));
+      } else {
+        accounts.forEach(account => {
+          Logger.info(
+            account.alias,
+            Chalk.cyan.underline(account.url),
+            maskKey(account.key)
+          );
+        });
+      }
+    } else if (argv.json) {
+      console.log(JSON.stringify([]));
     } else {
       Logger.info('No account aliases stored on this machine.');
     }
@@ -29,5 +47,6 @@ export const listAccountCommand: CommandModule = {
   command: 'list',
   aliases: ['ls'],
   describe: 'List all account aliases.',
+  builder,
   handler,
 };

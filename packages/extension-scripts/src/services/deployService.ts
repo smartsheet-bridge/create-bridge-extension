@@ -13,6 +13,7 @@ import { createReadStream } from 'fs-extra';
 import { vol } from 'memfs';
 import { obj as multistream } from 'multistream';
 import * as semver from 'semver';
+import { v4 as uuid } from 'uuid';
 import { getSpec } from '../utils';
 import { createBridgeService } from './bridgeService';
 
@@ -39,10 +40,11 @@ export const createDeployService = ({
 }: CreateDeployServiceArgs) => {
   debug('options', { include, exclude, symlinks, specFile, env });
   const sdk = createBridgeService(host, auth);
+  const challengeUUID = uuid();
 
   const archivePkg = async (): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const streams: NodeJS.ReadableStream[] = [];
+      const paths: string[] = [];
       const output = vol.createWriteStream(VIRTUAL_FILE);
       const hash = createHash('sha256');
       hash.setEncoding('hex');
@@ -56,16 +58,16 @@ export const createDeployService = ({
 
       output.on('close', () => {
         multistream(
-          streams.sort().map(s => {
+          paths.sort().map(s => {
             return createReadStream(s as any);
           })
         ).pipe(hash);
       });
 
       archive.on('entry', (data: any) => {
-        if (data.type === 'file') {
-          debug(data);
-          streams.push(data.sourcePath);
+        Logger.verbose('Bundling:', data.name);
+        if (data.type === 'file' && data.sourceType === 'stream') {
+          paths.push(data.sourcePath);
         }
       });
 
@@ -92,6 +94,11 @@ export const createDeployService = ({
         },
         {}
       );
+
+      archive.append(`EXTENSION_CHALLENGE=${challengeUUID}`, {
+        name: 'extension-scripts.env',
+      });
+
       archive.finalize();
     });
   };
@@ -101,7 +108,7 @@ export const createDeployService = ({
     const data = {
       ...spec,
       invoker: { upload: true, checksum },
-      appToken: require(`${process.cwd()}/app-token.js`),
+      appToken: challengeUUID,
     };
 
     const response = await sdk.extension.uploadSpec({ data });

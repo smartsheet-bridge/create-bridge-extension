@@ -4,7 +4,7 @@ import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, key, specFile, url } from '../options';
-import { createDeployService } from '../services/deployService';
+import { CreateDeployServiceFn } from '../services/deployService';
 import type {
   CLIArguments,
   InferArgumentsIn,
@@ -53,7 +53,9 @@ const builder: CommandBuilder = yargs => {
     .options(deployArguments);
 };
 
-const handler = async (argv: CLIArguments<DeployArguments>) => {
+const handler = (createDeployService: CreateDeployServiceFn) => async (
+  argv: CLIArguments<DeployArguments>
+) => {
   try {
     if (typeof argv.url !== 'string') {
       throw new URLNotFoundError('deploy');
@@ -85,10 +87,12 @@ const handler = async (argv: CLIArguments<DeployArguments>) => {
   }
 };
 
-export const deployCommand: CommandModule = {
+export const deployCommand = (
+  createDeployService: CreateDeployServiceFn
+): CommandModule => ({
   command: 'deploy [alias]',
   aliases: ['d', 'publish'],
   describe: 'Deploy to production.',
   builder,
-  handler,
-};
+  handler: handler(createDeployService),
+});

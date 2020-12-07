@@ -1,5 +1,6 @@
 import { CommandBuilder, CommandModule } from 'yargs';
 import { alias, key, url } from '../options';
+import { CreateAccountServiceFn } from '../services/accountService';
 import type { InferArgumentsIn } from '../types';
 import { addAccountCommand } from './accountCommands/addAccountCommand';
 import { listAccountCommand } from './accountCommands/listAccountCommand';
@@ -13,11 +14,13 @@ const accountArguments = {
 
 export type AccountConfig = InferArgumentsIn<typeof accountArguments>;
 
-const builder: CommandBuilder = yargs => {
+const builder = (
+  createAccountService: CreateAccountServiceFn
+): CommandBuilder => yargs => {
   return yargs
-    .command(listAccountCommand)
-    .command(addAccountCommand)
-    .command(removeAccountCommand)
+    .command(listAccountCommand(createAccountService))
+    .command(addAccountCommand(createAccountService))
+    .command(removeAccountCommand(createAccountService))
     .demandCommand()
     .recommendCommands()
     .help();
@@ -25,10 +28,12 @@ const builder: CommandBuilder = yargs => {
 
 const handler = async () => {};
 
-export const accountCommand: CommandModule = {
+export const accountCommand = (
+  createAccountService: CreateAccountServiceFn
+): CommandModule => ({
   command: 'account',
   aliases: ['alias', 'user'],
   describe: 'Manage your saved account aliases.',
-  builder,
+  builder: builder(createAccountService),
   handler,
-};
+});

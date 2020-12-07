@@ -8,8 +8,7 @@ import { getSpec } from '../utils';
 import { createBridgeService } from './bridgeService';
 
 const debug = Logger.debug('revokeService');
-
-interface CreateRevokeService {
+export interface CreateRevokeService {
   host: string;
   auth: string;
   options: {
@@ -60,3 +59,5 @@ export const createRevokeService = ({
     Logger.end();
   };
 };
+
+export type CreateRevokeServiceFn = typeof createRevokeService;

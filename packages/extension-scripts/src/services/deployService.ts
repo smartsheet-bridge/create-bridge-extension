@@ -18,7 +18,7 @@ import { createBridgeService } from './bridgeService';
 
 const debug = Logger.debug('deployService');
 
-interface CreateDeployServiceArgs {
+export interface CreateDeployServiceArgs {
   host: string;
   auth: string;
   options: {
@@ -231,3 +231,5 @@ export const createDeployService = ({
     Logger.end();
   };
 };
+
+export type CreateDeployServiceFn = typeof createDeployService;

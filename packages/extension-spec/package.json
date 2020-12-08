@@ -1,0 +1,13 @@
+{
+  "name": "extension-spec",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "precompile": "mkdir ./lib",
+    "compile": "ts-json-schema-generator --path './src/*.ts' --type 'PluginJSON' -o './lib/plugin.spec.json'"
+  },
+  "devDependencies": {
+    "ts-json-schema-generator": "^0.80.0"
+  }
+}

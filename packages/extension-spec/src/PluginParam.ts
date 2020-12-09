@@ -8,7 +8,7 @@ export interface PluginParam {
   isOpen?: boolean;
   maxItems?: number;
   minItems?: number;
-  optional: boolean;
+  optional?: boolean;
   param: string;
   readOnly?: boolean;
   type: ParamType;

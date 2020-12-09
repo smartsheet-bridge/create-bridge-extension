@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "precompile": "mkdir ./lib",
+    "precompile": "mkdir -p ./lib",
     "compile": "ts-json-schema-generator --path './src/*.ts' --type 'PluginJSON' -o './lib/plugin.spec.json'"
   },
   "devDependencies": {

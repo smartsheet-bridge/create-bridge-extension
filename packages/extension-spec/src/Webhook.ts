@@ -1,10 +1,10 @@
 export interface Webhook {
-  id: string;
-  name: string;
-  description: string;
-  showEndpoint: boolean;
   asyncResponse?: AsyncResponse;
   challengeIdentifier?: ChallengeIdentifier;
+  description: string;
+  id: string;
+  name: string;
+  showEndpoint: boolean;
 }
 
 export interface AsyncResponse {

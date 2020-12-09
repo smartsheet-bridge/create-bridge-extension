@@ -1,18 +1,18 @@
 import { PluginParam } from './PluginParam';
 
 export interface ModuleSpec {
-  param: PluginParam[];
-  features: string[];
-  exits: string[];
-  id: string;
-  name: string;
+  canAddExits?: boolean;
   description: string;
-  documentLink: string;
-  returnTypeSchema: Map<string, any>;
-  orderBy: number;
-  canAddExits: boolean;
-  isDeprecated: boolean;
+  documentLink?: string;
+  exits?: string[];
+  features?: string[];
   hasReturn: boolean;
-  needsOAuth: boolean;
-  needsChannel: boolean;
+  id: string;
+  isDeprecated?: boolean;
+  name: string;
+  needsChannel?: boolean;
+  needsOAuth?: boolean;
+  orderBy?: number;
+  param: PluginParam[];
+  returnTypeSchema?: Map<string, any>;
 }

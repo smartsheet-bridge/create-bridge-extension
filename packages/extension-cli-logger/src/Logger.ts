@@ -50,7 +50,6 @@ export class Logger {
    */
   public info(...args: string[]): void {
     const message = this.format(...args);
-    // this.write(this.out, msg + EOL, LogLevel.INFO);
     this.write({ level: 'info', message });
   }
 
@@ -60,7 +59,6 @@ export class Logger {
    */
   public verbose(...args: string[]): void {
     const message = this.format(...args);
-    // this.write(this.out, msg + EOL, LogLevel.VERBOSE);
     this.write({ level: 'verbose', message });
   }
 
@@ -70,7 +68,6 @@ export class Logger {
    */
   public warn(...args: string[]): void {
     const message = this.format(WARN(...args));
-    // this.write(this.err, msg + EOL, LogLevel.WARN);
     this.write({ level: 'warn', message });
   }
 

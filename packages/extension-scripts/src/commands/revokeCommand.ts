@@ -4,7 +4,7 @@ import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, extension, key, specFile, url } from '../options';
-import { createRevokeService } from '../services/revokeService';
+import { CreateRevokeServiceFn } from '../services/revokeService';
 import type {
   CLIArguments,
   InferArgumentIn,
@@ -39,7 +39,9 @@ const builder: CommandBuilder = yargs => {
     .options(revokeOptions);
 };
 
-const handler = async (argv: CLIArguments<RevokeArguments>) => {
+const handler = (createRevokeService: CreateRevokeServiceFn) => async (
+  argv: CLIArguments<RevokeArguments>
+) => {
   try {
     if (typeof argv.url !== 'string') {
       throw new URLNotFoundError('revoke');
@@ -69,10 +71,12 @@ const handler = async (argv: CLIArguments<RevokeArguments>) => {
   }
 };
 
-export const revokeCommand: CommandModule = {
+export const revokeCommand = (
+  createRevokeService: CreateRevokeServiceFn
+): CommandModule => ({
   command: 'revoke [alias]',
   aliases: ['r', 'delete', 'remove', 'unpublish'],
   describe: 'Revoke extension from production.',
   builder,
-  handler,
-};
+  handler: handler(createRevokeService),
+});

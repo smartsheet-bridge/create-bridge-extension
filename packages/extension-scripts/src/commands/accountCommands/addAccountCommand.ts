@@ -5,7 +5,7 @@ import { AliasNotFoundError } from '../../errors/AliasNotFoundError';
 import { KeyNotFoundError } from '../../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../../errors/URLNotFoundError';
 import { alias, key, url } from '../../options';
-import { createAccountService } from '../../services/accountService';
+import { CreateAccountServiceFn } from '../../services/accountService';
 import { CLIArguments, InferArgumentsOut } from '../../types';
 
 const addAccountArguments = {
@@ -27,7 +27,9 @@ const builder: CommandBuilder = yargs => {
   return yargs.positional('alias', alias).options(addAccountArguments);
 };
 
-const handler = async (argv: CLIArguments<AddAccountArguments>) => {
+const handler = (createAccountService: CreateAccountServiceFn) => async (
+  argv: CLIArguments<AddAccountArguments>
+) => {
   try {
     if (typeof argv.alias !== 'string') {
       throw new AliasNotFoundError(argv.alias);
@@ -62,10 +64,12 @@ const handler = async (argv: CLIArguments<AddAccountArguments>) => {
   }
 };
 
-export const addAccountCommand: CommandModule = {
+export const addAccountCommand = (
+  createAccountService: CreateAccountServiceFn
+): CommandModule => ({
   command: 'add [alias]',
   aliases: ['a'],
   describe: 'Add or overwrite account alias.',
   builder,
-  handler,
-};
+  handler: handler(createAccountService),
+});

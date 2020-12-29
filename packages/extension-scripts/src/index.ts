@@ -9,6 +9,10 @@ import { revokeCommand } from './commands/revokeCommand';
 import { middlewareLogger } from './middleware/middlewareLogger';
 import { middlewareVersionCheck } from './middleware/middlewareVersionCheck';
 import options, { RC_NAME } from './options';
+import { createAccountService } from './services/accountService';
+import { createDeployService } from './services/deployService';
+import { createLogsService } from './services/logsService';
+import { createRevokeService } from './services/revokeService';
 
 export * from './types';
 
@@ -39,11 +43,13 @@ yargs
   .middleware(middlewareLogger, true)
   .middleware(middlewareVersionCheck)
   .options(options)
-  .command(accountCommand)
-  .command(deployCommand)
-  .command(revokeCommand)
-  .command(logsCommand)
+  .command(accountCommand(createAccountService))
+  .command(deployCommand(createDeployService))
+  .command(revokeCommand(createRevokeService))
+  .command(logsCommand(createLogsService))
   .demandCommand()
   .recommendCommands()
   .help()
+  .alias('h', 'help')
+  .alias('v', 'version')
   .parse();

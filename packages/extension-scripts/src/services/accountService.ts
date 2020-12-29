@@ -67,3 +67,5 @@ export const createAccountService = () => {
     listAccounts,
   };
 };
+
+export type CreateAccountServiceFn = typeof createAccountService;

@@ -8,7 +8,7 @@ import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, extension, key, specFile, url } from '../options';
-import { createLogsService } from '../services/logsService';
+import { CreateLogsServiceFn } from '../services/logsService';
 import type {
   CLIArguments,
   InferArgumentIn,
@@ -52,7 +52,9 @@ const builder: CommandBuilder = yargs => {
     .options(logsOptions);
 };
 
-const handler = async (argv: CLIArguments<LogsArguments>) => {
+const handler = (createLogsService: CreateLogsServiceFn) => async (
+  argv: CLIArguments<LogsArguments>
+) => {
   try {
     if (typeof argv.url !== 'string') {
       throw new URLNotFoundError('logs');
@@ -95,10 +97,12 @@ const handler = async (argv: CLIArguments<LogsArguments>) => {
   }
 };
 
-export const logsCommand: CommandModule = {
+export const logsCommand = (
+  createLogsService: CreateLogsServiceFn
+): CommandModule => ({
   command: 'logs [alias]',
   aliases: ['l', 'log', 'stream-log', 'stream-logs'],
   describe: 'Stream logs from production.',
   builder,
-  handler,
-};
+  handler: handler(createLogsService),
+});

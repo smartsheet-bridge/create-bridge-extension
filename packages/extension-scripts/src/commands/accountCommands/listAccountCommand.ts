@@ -1,9 +1,9 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandModule } from 'yargs';
-import { createAccountService } from '../../services/accountService';
+import { CreateAccountServiceFn } from '../../services/accountService';
 import { maskKey } from '../../utils';
 
-const handler = async () => {
+const handler = (createAccountService: CreateAccountServiceFn) => async () => {
   try {
     const { listAccounts } = createAccountService();
     const accounts = listAccounts();
@@ -25,9 +25,11 @@ const handler = async () => {
   }
 };
 
-export const listAccountCommand: CommandModule = {
+export const listAccountCommand = (
+  createAccountService: CreateAccountServiceFn
+): CommandModule => ({
   command: 'list',
   aliases: ['ls'],
   describe: 'List all account aliases.',
-  handler,
-};
+  handler: handler(createAccountService),
+});

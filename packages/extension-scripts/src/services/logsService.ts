@@ -3,7 +3,7 @@ import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { getSpec } from '../utils';
 import { createBridgeService } from './bridgeService';
 
-interface CreateLogsServiceArgs {
+export interface CreateLogsServiceArgs {
   host: string;
   auth: string;
   options: {
@@ -12,6 +12,7 @@ interface CreateLogsServiceArgs {
     name?: string;
   };
 }
+
 export const createLogsService = ({
   host,
   auth,
@@ -94,3 +95,5 @@ export const createLogsService = ({
     await streamLogs(`${domain}:${port}`, milliseconds);
   };
 };
+
+export type CreateLogsServiceFn = typeof createLogsService;

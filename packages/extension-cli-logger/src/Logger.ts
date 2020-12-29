@@ -161,6 +161,9 @@ export class Logger {
     { message, level, ...meta }: LogEntry,
     callback?: () => void
   ): boolean {
-    return !!this.logger.log(level, message, meta, callback);
+    if (this.logger.transports.length > 0) {
+      return !!this.logger.log(level, message, meta, callback);
+    }
+    return true;
   }
 }

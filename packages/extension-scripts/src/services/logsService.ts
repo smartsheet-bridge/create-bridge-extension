@@ -42,6 +42,9 @@ export const createLogsService = ({
       client.on('data', (response: any) => {
         if (response.record) {
           if (response.record.logType === 'ERROR') {
+            // Allow console log here as we want to console the logs directly to the
+            // terminal without going through the logger (privacy reasons).
+            // eslint-disable-next-line no-console
             console.error(
               Chalk.red(
                 new Date(parseInt(response.record.timestamp, 10)).toString(),
@@ -50,6 +53,9 @@ export const createLogsService = ({
               ...JSON.parse(response.record.message)
             );
           } else {
+            // Allow console log here as we want to console the logs directly to the
+            // terminal without going through the logger (privacy reasons).
+            // eslint-disable-next-line no-console
             console.log(
               new Date(parseInt(response.record.timestamp, 10)).toString(),
               response.record.logType,

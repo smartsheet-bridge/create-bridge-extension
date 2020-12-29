@@ -8,24 +8,15 @@ import { MiddlewareFunction } from 'yargs';
 import { CLIArguments } from '../types';
 
 export const middlewareLogger: MiddlewareFunction<CLIArguments> = argv => {
-  Logger.addOut(
-    ...createBasicFS({ path: join(process.cwd(), 'extension.log') })
-  );
-  Logger.addErr(
-    ...createBasicFS({ path: join(process.cwd(), 'extension.log') })
-  );
-  Logger.addOut(
-    ...createBasicTTY({
+  Logger.addTransport(
+    createBasicTTY({
+      levelFilter: argv.loglevel.toLowerCase(),
       debugPattern: argv.debug,
-      levelFilter: argv.loglevel,
-      stream: process.stdout,
     })
   );
-  Logger.addErr(
-    ...createBasicTTY({
-      debugPattern: argv.debug,
-      levelFilter: argv.loglevel,
-      stream: process.stderr,
+  Logger.addTransport(
+    createBasicFS({
+      path: join(process.cwd(), 'extension.log'),
     })
   );
   Logger.debug('extension-scripts')(argv);

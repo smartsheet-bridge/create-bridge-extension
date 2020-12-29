@@ -1,5 +1,6 @@
 import { createGRPCClient } from '@smartsheet-bridge/bridge-sdk';
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
+import { prompt } from 'inquirer';
 import { getSpec } from '../utils';
 import { createBridgeService } from './bridgeService';
 
@@ -41,6 +42,9 @@ export const createLogsService = ({
       client.on('data', (response: any) => {
         if (response.record) {
           if (response.record.logType === 'ERROR') {
+            // Allow console log here as we want to console the logs directly to the
+            // terminal without going through the logger (privacy reasons).
+            // eslint-disable-next-line no-console
             console.error(
               Chalk.red(
                 new Date(parseInt(response.record.timestamp, 10)).toString(),
@@ -49,6 +53,9 @@ export const createLogsService = ({
               ...JSON.parse(response.record.message)
             );
           } else {
+            // Allow console log here as we want to console the logs directly to the
+            // terminal without going through the logger (privacy reasons).
+            // eslint-disable-next-line no-console
             console.log(
               new Date(parseInt(response.record.timestamp, 10)).toString(),
               response.record.logType,
@@ -71,15 +78,17 @@ export const createLogsService = ({
     await RPCLogs(hostname, caller, millisecondsAgo);
     Logger.info(Chalk.yellow('No logs have been sent in over a minute.'));
     const date = Date.now();
-    const answer = await Logger.prompt<{ reconnect: boolean }>({
+    const answer = await prompt<{ reconnect: boolean }>({
       type: 'confirm',
       name: 'reconnect',
       message: 'Would you like to continue?',
       default: true,
     });
     if (answer.reconnect) {
+      Logger.verbose('Restarting stream');
       return streamLogs(hostname, Date.now() - date);
     }
+    Logger.verbose('Closing stream');
   };
 
   return async () => {

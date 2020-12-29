@@ -40,5 +40,9 @@
     "semantic-release-monorepo": "^7.0.3",
     "ts-jest": "^26.4.4",
     "typescript": "^4.0.5"
+  },
+  "resolutions": {
+    "@smartsheet-bridge/extension-cli-logger": "0.0.0-development.0",
+    "@smartsheet-bridge/extension-scripts": "0.0.0-development.0"
   }
 }

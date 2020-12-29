@@ -67,7 +67,6 @@ const handler = (createRevokeService: CreateRevokeServiceFn) => async (
     await revoke();
   } catch (e) {
     Logger.error(e);
-    process.exit(1);
   }
 };
 

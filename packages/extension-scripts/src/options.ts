@@ -7,9 +7,9 @@ const loglevel = {
   alias: 'l',
   global: true,
   description: 'Level of output logs',
-  default: 'INFO',
-  choices: ['INFO', 'VERBOSE', 'WARN', 'ERROR', 'SILENT'],
-  coerce: (lvl: string) => lvl.toUpperCase(),
+  default: 'info',
+  choices: ['info', 'verbose', 'warn', 'error', 'silent'],
+  coerce: (lvl: string) => lvl.toLowerCase(),
 };
 
 const debug = {

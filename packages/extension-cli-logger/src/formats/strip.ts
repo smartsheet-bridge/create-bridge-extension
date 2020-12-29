@@ -4,7 +4,7 @@ import { format } from 'winston';
 
 const MESSAGE: string = MESSAGE_SYMBOL as any;
 
-export const strip = format((info, opts) => ({
+export const strip = format((info, opts = {}) => ({
   ...info,
   level: opts.level !== false ? stripAnsi(info.level) : info.level,
   message: opts.message !== false ? stripAnsi(info.message) : info.message,

@@ -21,7 +21,6 @@ const handler = (createAccountService: CreateAccountServiceFn) => async () => {
     }
   } catch (e) {
     Logger.error(e);
-    process.exit(1);
   }
 };
 

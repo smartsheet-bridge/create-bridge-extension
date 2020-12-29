@@ -83,7 +83,6 @@ const handler = (createDeployService: CreateDeployServiceFn) => async (
     await deploy();
   } catch (e) {
     Logger.error(e);
-    process.exit(1);
   }
 };
 

@@ -93,7 +93,6 @@ const handler = (createLogsService: CreateLogsServiceFn) => async (
     await logs();
   } catch (e) {
     Logger.error(e);
-    process.exit(1);
   }
 };
 

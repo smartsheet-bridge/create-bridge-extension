@@ -1,21 +1,14 @@
 import * as chalk from 'chalk';
-import { createWriteStream } from 'fs';
 import { Writable } from 'stream';
+import * as Winston from 'winston';
+import { regexp } from './formats/regexp';
+import { strip } from './formats/strip';
+import { tty } from './formats/tty';
 import { Logger as Base } from './Logger';
-import { LogLevel } from './LogLevel';
-import { LogFilterStream } from './streams/LogFilterStream';
-import { LogFormatStream } from './streams/LogFormatStream';
-import { LogNormalizeStream } from './streams/LogNormalizeStream';
-import { LogPatternStream } from './streams/LogPatternStream';
-import { StripAnsiStream } from './streams/StripAnsiStream';
 
 export const Chalk: typeof chalk.default = chalk.default;
 export * from './errors/AbstractError';
 export * from './errors/UserError';
-export { LogStreamChunk, ReadWritable } from './Logger';
-export * from './LoggerOut';
-export * from './LogLevel';
-
 class LoggerInstance extends Base {
   private static instance: LoggerInstance;
 
@@ -31,23 +24,21 @@ export const Logger = LoggerInstance.getInstance();
 
 export const createBasicTTY = ({
   debugPattern,
-  levelFilter = LogLevel.INFO,
-  stream = process.stdout,
+  levelFilter = 'info',
 }: {
   debugPattern?: string | RegExp;
-  levelFilter?: string | LogLevel;
+  levelFilter?: string;
   stream?: Writable;
-}): Writable[] => [
-  new LogNormalizeStream(),
-  new LogFilterStream(levelFilter),
-  new LogPatternStream(debugPattern),
-  new LogFormatStream(),
-  stream,
-];
+}): Writable =>
+  new Winston.transports.Console({
+    level: levelFilter.toLowerCase(),
+    format: Winston.format.combine(regexp({ pattern: debugPattern }), tty()),
+  });
 
-export const createBasicFS = ({ path }: { path: string }): Writable[] => [
-  new LogNormalizeStream(),
-  new StripAnsiStream(),
-  new LogFormatStream(),
-  createWriteStream(path),
-];
+export const createBasicFS = ({ path }: { path: string }): Writable =>
+  new Winston.transports.File({
+    options: { flags: 'w' },
+    level: 'verbose',
+    format: Winston.format.combine(tty(), strip()),
+    filename: path,
+  });

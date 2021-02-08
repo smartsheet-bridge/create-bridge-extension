@@ -10,7 +10,7 @@ import { CLIArguments } from '../types';
 export const middlewareLogger: MiddlewareFunction<CLIArguments> = argv => {
   Logger.addTransport(
     createBasicTTY({
-      levelFilter: argv.loglevel.toLowerCase(),
+      levelFilter: (argv.loglevel && argv.loglevel.toLowerCase()) || 'info',
       debugPattern: argv.debug,
     })
   );

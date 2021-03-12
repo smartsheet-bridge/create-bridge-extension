@@ -15,6 +15,7 @@ stages:
 before_script:
   - yarn
 
+# Run tests on all packages and capture coverage
 test:
   stage: test
   tags:
@@ -31,6 +32,7 @@ test:
     reports:
       cobertura: coverage/cobertura-coverage.xml
 
+# Run linting rules on all packages
 lint:
   stage: test
   tags:
@@ -44,6 +46,7 @@ lint:
   script:
     - yarn lint
 
+# Build and cache all packages and configs
 build:
   stage: build
   tags:
@@ -57,6 +60,7 @@ build:
   script:
     - yarn build
 
+# Build GitLab pages artifact (must be called "pages": GitLab docs)
 pages:
   stage: build
   tags:
@@ -78,7 +82,8 @@ pages:
     paths:
       - public
 
-pages:deploy:
+# Publish pages to environments on protected branches
+pages:publish:
   stage: deploy
   tags:
     - scaled
@@ -95,6 +100,7 @@ pages:deploy:
     name: $CI_COMMIT_BRANCH
     url: 'https://$CI_PROJECT_ROOT_NAMESPACE.pages.smart.rodeo/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG'
 
+# Publish pages to a "review" environments on MRs
 pages:review:
   stage: deploy
   tags:
@@ -110,6 +116,7 @@ pages:review:
     url: 'https://$CI_PROJECT_ROOT_NAMESPACE.pages.smart.rodeo/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG'
     on_stop: pages:remove
 
+# Remove previously created "review" environments after MR
 pages:remove:
   stage: deploy
   tags:
@@ -124,6 +131,7 @@ pages:remove:
     name: reviews/$CI_COMMIT_REF_NAME
     action: stop
 
+# Run semantic-release for all workspaces on protected branches
 release:
   stage: deploy
   tags:

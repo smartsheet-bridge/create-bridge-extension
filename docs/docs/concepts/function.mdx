@@ -1,0 +1,254 @@
+---
+id: function
+title: Functions
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+A "function" is a single unit of code that can be triggered by an external system. A function will execute with some inputs, and return an output.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+```js
+export const myFunction = inputs => `Hello, ${inputs.username}`;
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+```ts
+interface MyFunctionInputs {
+  username: string;
+}
+
+export const myFunction: ExtensionFunction<MyFunctionInputs> = inputs =>
+  `Hello, ${inputs.username}`;
+```
+
+</TabItem>
+</Tabs>
+
+
+## Function Parameters
+
+An extension function always takes two parameters: `inputs`, and `context`.
+
+### `inputs`
+
+An extension defined, user-populated map of input parameters that are provided to the function at execution time. These are defined in the [spec](./spec) and are not restricted to any particular type.
+
+```ts
+type inputs = Record<string, any>;
+```
+
+:::caution Unsafe Userdata
+
+Each input parameter consists of user data and therefore should be treated with care. The extension handler will validate required properties for `undefined` or `null` values but you should always assume that the input is unsafe.
+
+:::
+
+:::tip Logging Userdata
+
+Remember that user data may contain sensitive information so please follow [logging best practices](../advanced/best_practices#logging).
+
+:::
+
+### `context`
+
+An object that consits of metadata properties in the context of the triggering user and extension.
+
+```ts
+interface BridgeContext<T> {
+  settings: T;
+}
+```
+
+_Where T is the `ReturnType` of the [`onInstall` callback](./callback#oninstall)._
+
+## Function Response
+
+Returning a response from a Function is no different from returning a response from any other JavaScript function including returning [promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) and [thunks](https://en.wikipedia.org/wiki/Thunk).
+
+### Primitives
+
+Return a primitive value just as you would any other function.
+
+```js
+export const aStringResponse = () => 'a string response';
+
+export const aNumberResponse = () => 42;
+
+export const aBooleanResponse = () => true;
+```
+
+Objects and arrays are also returned as normal.
+
+```js
+export const anObjectResponse = () => ({ nested: { result: 42 } });
+
+export function anArrayResponse() {
+  const myArray = ['one', 'two', 'three'];
+  return myArray;
+}
+```
+
+### Promises
+
+Promises will be executed and either fully resolved or rejected before eventually returning the response allowing you do write asynchronous extension functions as if they were synchronous.
+
+```js
+export const anResolvedResponse = () => Promise.resolve('a resolved promise');
+
+export const anRejectedResponse = () => Promise.reject('a resolved promise');
+```
+
+Promises can also be chained.
+
+```js
+export const anChainedResponse = () =>
+  axios
+    .get('https://example.com/user?ID=12345')
+    .then(function (response) {
+      // handle success
+      return response;
+    })
+    .catch(function (error) {
+      // handle error
+      return error;
+    });
+```
+
+You can also write promises using the `async`/`await` syntax.
+
+```js
+export const async anAsyncResponse = () => {
+  const response = await axios
+    .get('https://example.com/user?ID=12345')
+  return response;
+}
+```
+
+### Thunks
+
+#### What?
+
+_Taken from [What the heck is a 'thunk'?](https://daveceddia.com/what-is-a-thunk/)_
+
+> A thunk is another word for a _function_. But it’s not just any old function. It’s a special (and uncommon) name for a function that’s returned by another. Like this:
+>
+> ```js
+> function wrapper_function() {
+>   // this one is a "thunk" because it defers work for later:
+>   return function thunk() {
+>     // it can be named, or anonymous
+>     console.log('do stuff now');
+>   };
+> }
+> ```
+
+#### Why?
+
+When writing an extension this is really useful if you are dealing with a third-party library that uses javascript "_callbacks_" for asynchronous execution like this contrived example from the Smartsheet SDK.
+
+```js
+smartsheet.sheets.listSheets({}, function (error, data) {
+  if (error) {
+    return error;
+  } else {
+    return data;
+  }
+});
+```
+
+The above function will attempt to call the Smartsheet API for a list of sheets available to you, once it has completed it will execute the second parameter, known as the "callback".
+
+However, in a synchronous extension the extension would return before the callback is called. Imagine the following:
+
+```js {4}
+export const async anBadCallbackResponse = () => {
+  console.log('Before Smartsheet is called');
+  smartsheet.sheets.listSheets({}, function (error, data) {
+    console.log('After Smartsheet is completed');
+  });
+  console.log('After Smartsheet is called');
+}
+```
+
+```js
+// Before Smartsheet is called
+// After Smartsheet is called
+```
+
+The extension would have returned before `After Smartsheet is completed` could have executed and therefore neither `error` or `data` in this "callback" would have be able to return from the extension.
+
+:::tip Side Effects
+
+This is a useful pattern for asynchronous "side effects". See [Side Effects](../advanced/best_practices#side-effects) best practices.
+
+:::
+
+#### How?
+
+To fix this, an extension function can return a thunk. The thunk is then executed with a single parameter, which is itself a function of type `(response: any) => void` allowing you to pass that parameter around and call it when the asynchronous function has finished.
+
+```js {2,6}
+export const async anBadCallbackResponse = () => {
+  return (respond) => {
+    console.log('Before Smartsheet is called');
+    smartsheet.sheets.listSheets({}, function (error, data) {
+      console.log('After Smartsheet is completed');
+      respond(data);
+    });
+    console.log('After Smartsheet is called');
+  }
+}
+```
+
+The returned thunk will executed immediately but the `respond` parameter can be called whenever your ready. You should pass into the `respond` function what you would normally return from a standard function (without a thunk). I.e. the following two functions will return the same value.
+
+```js
+export const async basicResponse = () => {
+  return 'Hello, World';
+}
+
+export const async thunkResponse = () => {
+  return (respond) => respond('Hello, World')
+}
+```
+
+### Errors
+
+:::warning
+
+// TODO decide with the team how errors will be handled
+
+:::
+
+There's nothing special about Errors when writing an extension. Any error explicitly thrown or implicitly caught will be returned to the sender as a
+
+```js
+throw new Error('This will return an error');
+```
+
+will be received by the sender as
+
+```
+400
+USER_ERROR
+This will return an error
+```
+
+## Declaration
+
+For declaring functions to the platform system and exposing it to external platforms [read about the Spec file](./spec).

@@ -46,7 +46,7 @@ Or, it can be run via the npm scripts property in the package.json.
 
 ## Command Map
 
-![CLI Map](../../docs/assets/CLICommandMap.png)
+![CLI Map](../../docs/static/img/CLICommandMap.png)
 
 ## Commands
 

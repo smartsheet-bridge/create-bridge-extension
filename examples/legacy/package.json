@@ -2,6 +2,7 @@
   "name": "legacy",
   "description": "This is a legacy extension.",
   "main": "plugin.js",
+  "version": "1.0.0",
   "private": true,
   "publishConfig": {
     "access": "restricted"

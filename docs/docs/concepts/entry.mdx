@@ -1,0 +1,81 @@
+---
+id: entry
+title: Entry Point
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The "entry point" is the point of entry for the application and is used to configure and serve the entire extension for runtime execution. All [function](./function) and [callback](./callback) requests will enter through this point.
+
+The only requirement for the entry point is that it **must** export a function called `main` that takes a `request` and a `response` as parameters.
+
+```ts
+type main = (request: Request, response: Response) => void;
+```
+
+E.g.
+
+```js
+export main = (request, response) => { ... }
+```
+
+or
+
+```js
+export function main(request, response){ ... }
+```
+
+More likely than not, you will simply use the `extension-handler` to create this function for you. The `extension-handler` is a helper package that will wrap your functions and callbacks in the above request and has the following type.
+
+```ts
+type handler = (config: {
+  callbacks: Record<string, ExtensionFunction>;
+  functions: Record<string, ExtensionFunction>;
+}) => (request: Request, response: Response) => void;
+```
+
+Resulting in the following example code.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+```js
+import { handler } from '@smartsheet-bridge/extension-handler';
+import { myFunction } from './functions/myFunction';
+import { onRegister } from './callbacks/onRegister';
+
+export const main = handler({
+  callbacks: { onRegister },
+  functions: { myFunction },
+});
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+```ts
+import { handler } from '@smartsheet-bridge/extension-handler';
+import { myFunction } from './functions/myFunction';
+import { onRegister } from './callbacks/onRegister';
+
+export const main = handler({
+  callbacks: { onRegister },
+  functions: { myFunction },
+});
+```
+
+</TabItem>
+</Tabs>
+
+
+As you add more functions and callbacks to your extension you simply need to add them to the handler and it will handle all requests to your extension.

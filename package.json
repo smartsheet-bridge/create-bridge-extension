@@ -5,7 +5,8 @@
   "workspaces": [
     "packages/*",
     "examples/*",
-    "configs/*"
+    "configs/*",
+    "docs"
   ],
   "scripts": {
     "start": "lerna run start",
@@ -15,7 +16,8 @@
     "build": "lerna run clean && tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch ",
     "clean": "lerna run clean && rm -rf node_modules",
-    "release": "yarn workspaces run release"
+    "release": "yarn workspaces run release",
+    "docs": "yarn workspace docs"
   },
   "devDependencies": {
     "@npm/types": "^1.0.1",

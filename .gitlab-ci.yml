@@ -8,14 +8,15 @@ cache:
     - .yarn
 
 stages:
-  - CI
-  - CD
+  - build
+  - test
+  - deploy
 
 before_script:
   - yarn
 
 test:
-  stage: CI
+  stage: test
   tags:
     - scaled
   only:
@@ -31,7 +32,7 @@ test:
       cobertura: coverage/cobertura-coverage.xml
 
 lint:
-  stage: CI
+  stage: test
   tags:
     - scaled
   only:
@@ -44,7 +45,7 @@ lint:
     - yarn lint
 
 build:
-  stage: CI
+  stage: build
   tags:
     - scaled
   only:
@@ -56,8 +57,75 @@ build:
   script:
     - yarn build
 
+pages:
+  stage: build
+  tags:
+    - scaled
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+    - merge_request
+  allow_failure: false
+  variables:
+    BASE_URL: '/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG/'
+  script:
+    - mkdir -p public/$CI_COMMIT_REF_SLUG
+    - yarn docs build --out-dir=../public/$CI_COMMIT_REF_SLUG
+  artifacts:
+    name: '$CI_COMMIT_REF_SLUG'
+    paths:
+      - public
+
+pages:deploy:
+  stage: deploy
+  tags:
+    - scaled
+  needs: ['pages']
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+  allow_failure: false
+  script:
+    - echo "Updating Docs"
+  environment:
+    name: $CI_COMMIT_BRANCH
+    url: 'https://$CI_PROJECT_ROOT_NAMESPACE.pages.smart.rodeo/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG'
+
+pages:review:
+  stage: deploy
+  tags:
+    - scaled
+  needs: ['pages']
+  only:
+    - merge_request
+  allow_failure: false
+  script:
+    - echo "Create Review Docs"
+  environment:
+    name: reviews/$CI_COMMIT_REF_NAME
+    url: 'https://$CI_PROJECT_ROOT_NAMESPACE.pages.smart.rodeo/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG'
+    on_stop: pages:remove
+
+pages:remove:
+  stage: deploy
+  tags:
+    - scaled
+  only:
+    - merge_request
+  when: manual
+  allow_failure: false
+  script:
+    - echo "Remove Review Docs"
+  environment:
+    name: reviews/$CI_COMMIT_REF_NAME
+    action: stop
+
 release:
-  stage: CD
+  stage: deploy
   tags:
     - scaled
   only:

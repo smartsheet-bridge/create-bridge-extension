@@ -6,7 +6,7 @@ title: Entry Point
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The "entry point" is the point of entry for the application and is used to configure and serve the entire extension for runtime execution. All [function](./function) and [callback](./callback) requests will enter through this point.
+The "entry point" is the point of entry for the application and is used to configure and serve the entire extension for runtime execution. All extension requests will enter through this point.
 
 The only requirement for the entry point is that it **must** export a function called `main` that takes a `request` and a `response` as parameters.
 

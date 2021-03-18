@@ -1,4 +1,9 @@
 const npm2yarn = require('@docusaurus/remark-plugin-npm2yarn');
+const remarkShortcuts = require('./plugins/remarkShortcuts');
+const remarkGitProvider = require('./plugins/remarkGitProvider');
+
+const gitProvider = process.env.GIT_PROVIDER || 'GitHub';
+const gitURL = process.env.GIT_URL;
 
 module.exports = {
   title: 'Create Bridge Extension',
@@ -35,11 +40,10 @@ module.exports = {
           position: 'left',
         },
         {
-          href: 'https://github.com/smartsheet-bridge/create-bridge-extension',
-          label: 'GitHub',
+          href: gitURL,
+          label: gitProvider,
           position: 'right',
-          className: 'header-github-link',
-          'aria-label': 'GitHub repository',
+          'aria-label': `${gitProvider} repository`,
         },
       ],
     },
@@ -57,9 +61,15 @@ module.exports = {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/',
-          remarkPlugins: [[npm2yarn, { sync: true }]],
+          editUrl: `${gitURL}/edit/alpha/docs/`,
+          remarkPlugins: [
+            [npm2yarn, { sync: true }],
+            remarkShortcuts,
+            remarkGitProvider({
+              gitProvider,
+              gitURL,
+            }),
+          ],
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

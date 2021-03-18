@@ -74,6 +74,8 @@ pages:
   allow_failure: false
   variables:
     BASE_URL: '/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG/'
+    GIT_PROVIDER: '$GIT_PROVIDER'
+    GIT_URL: '$GIT_URL'
   script:
     - mkdir -p public/$CI_COMMIT_REF_SLUG
     - yarn docs build --out-dir=../public/$CI_COMMIT_REF_SLUG

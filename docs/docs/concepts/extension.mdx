@@ -1,42 +1,60 @@
 ---
 id: extension
-title: Extension
+title: Introducing Extensions
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-An "extension" is a set of decoupled functionality made available to Bridge by Smartsheet. It can be thought of like a "package" or "library" that can consists of functionality that can be imported into a workflow and executed on command.
+An "extension" is a set of decoupled functionality that can be executed remotely. It can be thought of like a "package" or "library" consisting of additional functionality that can be imported into an external system (like Bridge by Smartsheet) and executed on command.
 
 ## Project structure
 
-The smallest extension exists of three files.
+The smallest extension exists of two files.
 
 ```
 example
 ├── index.js
-├── extension.json
 └── package.json
 ```
 
-The three files include `index.js` that consits of the runtime code executed by the extension platform, `extension.json` that describes the extension name and description as well as declaring [functions](function), [callbacks](./callback), [hooks](./hook), and more, and `package.json` that defines the development metadata relevant to the extension and is used for managing the extension's dependencies, scripts, version and a whole lot more.
+The two files include `index.js` that consists of runtime code executed by the extension platform, and `package.json` that defines the development metadata relevant to the extension including the extension's dependencies, scripts, version and a whole lot more.
 
 ### `package.json`
 
+```json title="Example package.json"
+{
+  "name": "hello_world",
+  "main": "index.js",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@smartsheet-bridge/extension-handler": "latest"
+  },
+  "devDependencies": {
+    "@smartsheet-bridge/extension-handler": "latest"
+  }
+}
+```
+
 If you're familiar with JavaScript development then you should be very familiar with `package.json` files. These are used in server applications, libraries, and even front end development.
 
-For the most part, the `package.json` file is only here to serve the development metatadata of the package. For example, when you deploy an extension the extension platform will use this information to install dependencies.
+For the most part, the `package.json` file is only here to serve the development metadata of the package. For example, when you deploy an extension the extension platform will use this information to install dependencies.
 
-While the `create-bridge-extension` tool will fill in much of the necessary information needed, you are free to edit and ammend this file with settings unique to your project just as you would with any other JavaScript project.
+While the `create-bridge-extension` tool will fill in much of the necessary information needed, you are free to edit and amend this file with settings unique to your project just as you would with any other JavaScript project.
 
 However, the `main` property must point to the [entry point](./entry) of the extension – in this case `index.js`
 
 ### `index.js`
 
+```js title="Example index.js"
+import { handler } from '@smartsheet-bridge/extension-handler';
+
+export const main = handler({
+  functions: { myFunction: () => 'Hello, World!' },
+});
+```
+
 This file can be called anything you'd like, it's only called `index.js` by default for historical JavaScript reasons. The important point is that the relative path from `package.json` to `index.js` is set as the `main` property in `package.json` file.
 
 When your extension is called, it checks the `main` property of the `package.json` file, and executes that file. This is called the [Entry Point](./entry) because it's the gateway for the extension platform to your runtime code.
-
-### `extension.json`
-
-If `package.json` is for development metadata, and `index.js` is for runtime execution, then `extension.json` is for runtime metadata. This is the [Specification File](./spec) or often know as the "Spec" and is used to describe the extension as well as declaring [functions](function) and their inputs so that the extension platform and its consumers can integrate the extension seemlessly.

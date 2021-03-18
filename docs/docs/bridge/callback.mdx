@@ -6,13 +6,13 @@ title: Callback
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-A "callback" is the same as a "function" but it cannot be called by an external system. These functions are called by the extension platform itself at specific times and expect specific responses.
+A "callback" is the same as a "function" but cannot be called by users of an external system. These functions are called by the extension platform itself, or platform dependents of the extension platform, at specific times and expect specific responses.
 
 ## Install/Uninstall
 
 ### `onInstall`
 
-When an extension is [_installed_](./lifecycle#installation) by a user of an external system the platform will trigger the `onInstall` callback if one exists. This is particularly useful if you wish to gather inputs from the user that are required to integrate with another service.
+When an extension is [_installed_](/concepts/lifecycle#installation) by a user of an external system the platform will trigger the `onInstall` callback if one exists. This is particularly useful if you wish to gather inputs from the user that are required to integrate with another service.
 
 <Tabs
 groupId="js2ts"
@@ -59,7 +59,7 @@ export const main = handler({
 </Tabs>
 
 
-Whatever is returned from the `onInstall` function is saved with the particular instance of the extension and can be accessed in any function via [`context.settings`](./function#context).
+Whatever is returned from the `onInstall` function is saved with the particular instance of the extension and can be accessed in any function via [`context.settings`](/concepts/function#context).
 
 :::tip
 
@@ -91,13 +91,13 @@ const onInstall = inputs => {
 
 :::note
 
-Returned data from `onInstall` doesn't automatically render in the UI of an external system. In order for the UI to render the extra data returned they must be declared in the [Spec](./spec) file.
+Returned data from `onInstall` doesn't automatically render in the UI of an external system. In order for the UI to render the extra data returned they must be declared in the [Spec](/bridge/spec) file.
 
 :::
 
 ### `onUninstall`
 
-Likewise, when an extension is [_uninstalled_](./lifecycle#uninstalling) by a user of an external system the platform will trigger the `onUninstall` callback if one exists. There are no inputs given and no data is expected to be returned.
+Likewise, when an extension is [_uninstalled_](/concepts/lifecycle#uninstalling) by a user of an external system the platform will trigger the `onUninstall` callback if one exists. There are no inputs given and no data is expected to be returned.
 
 <Tabs
 groupId="js2ts"
@@ -140,7 +140,7 @@ export const main = handler({
 
 :::tip
 
-Because a "callback" is the same as a "function" the second parameter of an `onUninstall` callback includes the currently saved `settings` object prior to uninstalling. This information is incredibly useful for cleaning up resources on an integrated app. See [Best Practices](../advanced/best_practices#external-integrations) for integrating with external applications.
+Because a "callback" is the same as a "function" the second parameter of an `onUninstall` callback includes the currently saved `settings` object prior to uninstalling. This information is incredibly useful for cleaning up resources on an integrated app. See [Best Practices](/advanced/best_practices#external-integrations) for integrating with external applications.
 
 :::
 

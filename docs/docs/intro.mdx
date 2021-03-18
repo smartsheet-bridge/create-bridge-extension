@@ -7,35 +7,74 @@ slug: /
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import TOCInline from '@theme/TOCInline';
 
-[Bridge by Smartsheet](https://www.smartsheet.com/platform/bridge) offers the ability to run customised extensions that can integrate your worklfow into third-party services. There are numerous integrations and utilities that come with the platform but it's also possible to create your own.
+_This page is an overview of the Bridge by Smartsheet extension documentation and related resources._
 
-<Tabs
-defaultValue="js"
-values={[
-  { label: 'JavaScript', value: 'js', },
-  { label: 'TypeScript', value: 'ts', },
-]
-}>
-<TabItem value="js">
+Bridge by Smartsheet workflow system is an extensible platform that offers users the ability to run arbitrary code at specific points in a workflow that can be as simple as executing a calculation or as advanced as integrating with third-party app or platform. There are numerous integrations and utilities that come with the platform but it's also possible to create your own. This documentation will describe how to create an extension using the best practices set out by the Bridge by Smartsheet Extensions team.
 
+---
 
-```js
-function helloWorld() {
-  console.log('Hello, world!');
-}
-```
+<TOCInline toc={toc} />
 
-</TabItem>
-<TabItem value="ts">
+## Getting Started
 
+Extensions have been designed for easy adoption, and our goal is to reduce the barrier of entry for potential extension developers allowing you to focus on the business objectives of your extension offloading everything else that makes a good system reliable on us.
 
-```ts
-function helloWorld() {
-  console.log('Hello, world!');
-}
-```
+### Create a new Extension
 
-</TabItem>
-</Tabs>
+When starting an Extension project, the recommended approach is to use our [Quick Start](/quick_start) guide. It only takes a minute to set up!
 
+As your extension requirements grow, you might want to consider a more enterprise setup. There are several toolchains we recommend for larger extension development teams.
+
+## Learn Extension Development
+
+Like any unfamiliar technology, Extension development does have a learning curve. However, we have designed the extension development to be as familiar with JavaScript developers as possible allowing us to flatten that learning curve significantly. With some light reading, and a little practice, you _will_ find extension development very easy.
+
+### First Steps
+
+Follow the [Quick Start](/quick_start) guide to set up a simple "Hello, World!" extension including deploying the extension to a Bridge by Smartsheet account.
+
+### Extensions for Beginners
+
+Once you are comfortable with the examples above, check out this extensions [main concepts](/concepts/hello_world) guide. It introduces the most important concepts in a detailed, beginner-friendly way.
+
+#### JavaScript Resources
+
+This documentation assumes some familiarity with programming in the JavaScript language. You don't have to be an expert, but it's harder to learn extension development and JavaScript at the same time.
+
+We recommend going through [this JavaScript overview](https://developer.mozilla.org/en-US/docs/Web/JavaScript/A_re-introduction_to_JavaScript) to check your knowledge level. It will take you between 30 minutes and an hour but you will feel more confident learning extension development.
+
+:::tip
+
+Whenever you get confused by something in JavaScript, [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript) and [javascript.info](https://javascript.info/) are great websites to check.
+
+:::
+
+### Extensions for Bridge
+
+Once you’re done with the main concepts, you should check out the [Bridge specific concepts](/bridge/hello_bridge). You'll then have everything you need to know to build custom extensions and provide added value for your organization's experience on Smartsheet.
+
+### Advanced Concepts
+
+Once you're comfortable with the [main concepts](/concepts/hello_world) and played with extensions a little bit, you might be interested in more advanced guides. This section will introduce you to the powerful, but less commonly used extension features like [thunks](/advanced/thunks) and [best practices](/advanced/best_practices).
+
+<!-- #### For Solutions Architects & Individual Engineers
+
+If you're coming from a Solutions Architect or Individual Engineering background, then check out these [advanced guides](/advanced) for recommendations, limitations, and more examples. -->
+
+### For Enterprise Teams
+
+If you're coming to this documentation as part of an enterprise engineering team, then check our [these resources](/advanced/best_practices) on best practices and how to make use of features like using [TypeScript](/advanced/typescript), [running tests](/advanced/tests), and integrating with [CI/CD pipelines](/advanced/pipeline).
+
+### API Reference
+
+This documentation section is useful when you want to learn more details about a particular extensions API.
+
+## Staying Informed
+
+The team is working on a way to provide simple communication around releases. However, the best way to ensure you don't miss anything is to star us on GitProvider and watch out for releases.
+
+## Something Missing?
+
+If something is missing in the documentation or if you found some part confusing, please file an issue for the documentation on GitProvider with your suggestions for improvement.

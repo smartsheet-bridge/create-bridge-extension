@@ -1,4 +1,4 @@
-image: node:lts
+image: artifactory.pipeline.smartsheet.com/dockerhub/node:14.16.1
 
 cache:
   paths:

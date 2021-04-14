@@ -149,5 +149,7 @@ release:
     - next
     - beta
     - alpha
+  dependencies:
+    - build
   script:
     - yarn release

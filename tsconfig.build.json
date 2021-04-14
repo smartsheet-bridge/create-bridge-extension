@@ -32,6 +32,9 @@
       "path": "packages/extension-scripts/tsconfig.build.json"
     },
     {
+      "path": "packages/extension-handler/tsconfig.build.json"
+    },
+    {
       "path": "configs/legacy/tsconfig.build.json"
     }
   ]

@@ -1,0 +1,37 @@
+{
+  "manifest": {
+    "name": "@smartsheet-bridge/extension-handler",
+    "version": "0.1.0-alpha.0",
+    "description": "Entry point for extensions.",
+    "main": "./lib/index.js",
+    "types": "./lib/index.d.ts",
+    "scripts": {
+      "clean": "rm -rf lib"
+    },
+    "author": {
+      "name": "graeme.cassels@smartsheet.com"
+    },
+    "devDependencies": {
+      "node-mocks-http": "^1.7.6"
+    },
+    "dependencies": {
+      "@types/express": "^4.17.0"
+    },
+    "peerDependencies": {
+      "@types/node": "^12.7.0"
+    },
+    "_registry": "npm",
+    "_loc": "/Users/gcassels/Library/Caches/Yarn/v6/npm-@smartsheet-bridge-extension-handler-0.1.0-alpha.0-123ca68f-ce96-433b-a629-2233464031b9-1583862106920/node_modules/@smartsheet-bridge/extension-handler/package.json",
+    "readmeFilename": "README.md",
+    "readme": "# Extension Handler\n\nEntry point for extensions.\n\n## Principles\n\n- **Pure Functions**: Functions executing within an extension should be pure in nature – a pure function is a function where the return value is only determined by its input values, without observable side effects.\n- **Separation of Concerns**: An extension is handled via sections. These sections address a particular concern of the handling of an extension such as the:\n  - `handler`: execute a function with a given payload.\n  - `enhancers`: modify the execution of the handler with middleware.\n  - `transports`: handle the transport layer of the extension interaction e.g. over http.\n- **No Configuration Required**: Exports the most common setup, and indeed the setup used by the Bridge team internally for ease of use. See [Quick Start](#Quick%20Start).\n- **No Lock In**: If the common configuration doesn't suit your needs, then you can create custom handlers, enhancers, and transports and configure together in a way that suit your needs. See [Usage](#Usage).\n\n# Quick Start\n\nThis library exports the most common setup for each transport layer supported (currently only http). Your extension should look similar the following.\n\n```ts\nimport { http as handler } from '@smartsheet-bridge/extension-handler';\n\nconst functions = {\n  //...\n};\n\nexport default handler({ functions });\n```\n\nWhere `functions` is a map of function ID to function.\n\n```ts\nconst hello: ExtensionFunction = (params, meta) => `Hello, World!`;\n\nconst functions = { hello };\n```\n\nFor the vast majority of cases the above setup will be more than sufficient. For advanced use cases, see below.\n\n# Usage\n\n```js\nconst handler = createExtensibleHandler(config);\nexpress().post('/', handler);\n```\n\n```js\nconst handler = createExtensibleHandler(config, middleware);\nexpress().post('/', handler);\n```\n\n# Middleware\n"
+  },
+  "artifacts": [],
+  "remote": {
+    "type": "copy",
+    "registry": "npm",
+    "hash": "f2da4d63-7f3c-468f-9e8d-d0833875fe3a-1583890274343",
+    "reference": "/Users/gcassels/Documents/Code/create-bridge-extension/examples/hello/ext"
+  },
+  "registry": "npm",
+  "hash": "f2da4d63-7f3c-468f-9e8d-d0833875fe3a-1583890274343"
+}

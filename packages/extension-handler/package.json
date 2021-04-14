@@ -1,0 +1,26 @@
+{
+  "name": "@smartsheet-extensions/handler",
+  "version": "0.0.0-development.0",
+  "description": "",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "private": true,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "rm -rf lib",
+    "release": "echo \"skip private package\""
+  },
+  "author": "graeme.cassels@smartsheet.com",
+  "devDependencies": {
+    "node-mocks-http": "^1.7.6"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.0"
+  },
+  "peerDependencies": {
+    "@types/node": "^12.7.0"
+  }
+}

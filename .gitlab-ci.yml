@@ -2,9 +2,7 @@ image: node:lts
 
 cache:
   paths:
-    - $CI_PROJECT_DIR/node_modules/
-    - $CI_PROJECT_DIR/packages/**/lib
-    - $CI_PROJECT_DIR/configs/**/lib
+    - $CI_PROJECT_DIR/node_modules
     - .yarn
 
 stages:
@@ -28,6 +26,8 @@ test:
     - merge_request
   script:
     - yarn test
+  dependencies:
+    - build
   artifacts:
     reports:
       cobertura: coverage/cobertura-coverage.xml
@@ -59,6 +59,12 @@ build:
     - merge_request
   script:
     - yarn build
+  artifacts:
+    public: false
+    when: on_success
+    paths:
+      - $CI_PROJECT_DIR/packages/**/lib
+      - $CI_PROJECT_DIR/configs/**/lib
 
 # Build GitLab pages artifact (must be called "pages": GitLab docs)
 pages:

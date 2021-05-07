@@ -45,6 +45,7 @@
   },
   "resolutions": {
     "@smartsheet-bridge/extension-cli-logger": "0.0.0-development.0",
+    "@smartsheet-bridge/extension-handler": "0.0.0-development.0",
     "@smartsheet-extensions/handler": "0.0.0-development.0",
     "@smartsheet-bridge/extension-scripts": "0.0.0-development.0"
   }

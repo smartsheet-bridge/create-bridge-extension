@@ -1,4 +1,5 @@
 export * from './enhancers/handleHasProperty';
+export * from './enhancers/handlePayloadFunctions';
 export * from './enhancers/handlePing';
 export * from './enhancers/handlePromises';
 export * from './enhancers/handleThunks';

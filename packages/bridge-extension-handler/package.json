@@ -1,0 +1,30 @@
+{
+  "name": "@smartsheet-bridge/extension-handler",
+  "version": "0.0.0-development.0",
+  "description": "",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "private": true,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "rm -rf lib",
+    "release": "echo \"skip private package\""
+  },
+  "author": "graeme.cassels@smartsheet.com",
+  "devDependencies": {
+    "@types/supertest": "^2.0.8",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "@smartsheet-extensions/handler": "^0.1.0-alpha.0",
+    "@types/express": "^4.17.0"
+  },
+  "peerDependencies": {
+    "@types/node": "^12.7.0"
+  }
+}

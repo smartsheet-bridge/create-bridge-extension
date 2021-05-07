@@ -2,13 +2,18 @@ export type ExtensionHandlerCallback = (result?: any) => void;
 
 export type ExtensionHandler = (...args: any[]) => void;
 
+export type DefaultExtensionHandler = (
+  payload: any,
+  callback: ExtensionHandlerCallback
+) => void;
+
 export interface RequestPayload<Event extends string> {
   event: Event;
 }
 
 export type ExtensionHandlerEnhancer<
-  ReturnHandler extends ExtensionHandler = ExtensionHandler,
-  NextHandler extends ExtensionHandler = ExtensionHandler
+  ReturnHandler extends ExtensionHandler = DefaultExtensionHandler,
+  NextHandler extends ExtensionHandler = DefaultExtensionHandler
 > = (
   extensibleHandler: ExtensionHandlerEnhancerCreate<NextHandler>
 ) => ExtensionHandlerEnhancerCreate<ReturnHandler>;
@@ -25,12 +30,12 @@ const isEnhancer = <T>(fn: unknown): fn is T => typeof fn === 'function';
 export function createExtensionHandler(): ExtensionHandler;
 
 export function createExtensionHandler<
-  Enhancer extends ExtensionHandlerEnhancer,
+  Enhancer extends ExtensionHandlerEnhancer<ExtensionHandler, ExtensionHandler>,
   Handler = InferEnhancerReturn<Enhancer>
 >(enhancer: Enhancer): Handler;
 
 export function createExtensionHandler<
-  Enhancer extends ExtensionHandlerEnhancer,
+  Enhancer extends ExtensionHandlerEnhancer<ExtensionHandler, ExtensionHandler>,
   Handler = InferEnhancerReturn<Enhancer>
 >(enhancer?: Enhancer): ExtensionHandler | Handler | never {
   if (enhancer !== undefined) {

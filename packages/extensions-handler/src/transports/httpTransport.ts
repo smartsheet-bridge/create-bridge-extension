@@ -4,7 +4,10 @@ import { InternalError } from '../errors/InternalError';
 import { ExtensionHandlerEnhancer } from '../handler';
 import { normalizeError } from '../utils/normalizeError';
 
-type ExtensionHTTPHandler = (request: Request, response: Response) => void;
+export type ExtensionHTTPHandler = (
+  request: Request,
+  response: Response
+) => void;
 
 /**
  * This enhancer will return a function that takes a `Request` and a `Response`

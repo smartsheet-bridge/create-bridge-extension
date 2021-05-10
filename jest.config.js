@@ -17,7 +17,10 @@ module.exports = {
   moduleNameMapper: {
     '^@smartsheet-bridge/bridge-sdk':
       '<rootDir>/node_modules/@smartsheet-bridge/bridge-sdk',
+    '^@smartsheet-bridge/extension-handler$':
+      '<rootDir>/packages/bridge-extension-handler/src',
     '^@smartsheet-bridge/(.*)$': '<rootDir>/packages/$1/src',
+    '^@smartsheet-extensions/(.*)$': '<rootDir>/packages/extensions-$1/src',
   },
   globals: {
     'ts-jest': {

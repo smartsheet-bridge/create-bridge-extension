@@ -3,7 +3,7 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: [
     'packages/**/src/**/*.{js,jsx,ts,tsx}',
-    '!packages/extension-scripts/src/{index,types}.ts',
+    '!packages/bridge-extension-scripts/src/{index,types}.ts',
     '!**/node_modules/**',
     '!**/__*__/**',
   ],
@@ -17,9 +17,7 @@ module.exports = {
   moduleNameMapper: {
     '^@smartsheet-bridge/bridge-sdk':
       '<rootDir>/node_modules/@smartsheet-bridge/bridge-sdk',
-    '^@smartsheet-bridge/extension-handler$':
-      '<rootDir>/packages/bridge-extension-handler/src',
-    '^@smartsheet-bridge/(.*)$': '<rootDir>/packages/$1/src',
+    '^@smartsheet-bridge/(.*)$': '<rootDir>/packages/bridge-$1/src',
     '^@smartsheet-extensions/(.*)$': '<rootDir>/packages/extensions-$1/src',
   },
   globals: {

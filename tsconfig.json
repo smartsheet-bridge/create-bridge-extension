@@ -4,7 +4,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@smartsheet-bridge/*": ["packages/*/src/index.ts"]
+      "@smartsheet-bridge/*": ["packages/bridge-*/src/index.ts"],
+      "@smartsheet-extensions/*": ["packages/extensions-*/src/index.ts"]
     }
   }
 }

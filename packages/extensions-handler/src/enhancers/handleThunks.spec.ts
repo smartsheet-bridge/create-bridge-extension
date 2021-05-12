@@ -1,7 +1,7 @@
 import { createExtensionHandler } from '../handler';
 import { handleThunks } from './handleThunks';
 
-describe('promiseEnhancer', () => {
+describe('Thunk Enhancer', () => {
   const META = { registrationData: { hello: 'hello' } };
   const PARAMS = { world: 'world' };
   const RESULT = { meta: META, params: PARAMS };

@@ -1,4 +1,7 @@
-import { ExtensionFunction } from '@smartsheet-extensions/handler';
+import {
+  ExtensionFunction,
+  ExtensionHandlerEnhancer,
+} from '@smartsheet-extensions/handler';
 
 export interface UnregisterConfig {
   onUnregister?: ExtensionFunction;
@@ -16,13 +19,24 @@ export interface UnregisterPayload {
 const isUnregisterPayload = (payload: any): payload is UnregisterPayload =>
   payload.event === PLUGIN_UNREGISTER;
 
-export const handleUnregister = (config: UnregisterConfig) => (body: any) => {
-  if (isUnregisterPayload(body)) {
-    const registrationData =
-      (body.payload && body.payload.registrationData) || {};
+export const handleUnregister = (
+  config: UnregisterConfig
+): ExtensionHandlerEnhancer => create => () => {
+  const next = create();
+  return (body, callback) => {
+    if (
+      isUnregisterPayload(body) &&
+      typeof config.onUnregister === 'function'
+    ) {
+      const registrationData =
+        (body.payload && body.payload.registrationData) || {};
 
-    if (typeof config.onUnregister === 'function') {
-      return config.onUnregister(registrationData, { registrationData });
+      next(
+        config.onUnregister(registrationData, { registrationData }),
+        callback
+      );
+    } else {
+      next(body, callback);
     }
-  }
+  };
 };

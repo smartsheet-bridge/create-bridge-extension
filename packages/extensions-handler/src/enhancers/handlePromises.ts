@@ -20,8 +20,10 @@ import { ExtensionHandlerEnhancer } from '../handler';
 export const handlePromises: ExtensionHandlerEnhancer = create => () => {
   const handler = create();
   return (body, callback) => {
-    handler(body, (resultOrPromise: unknown) =>
-      Promise.resolve(resultOrPromise).then(callback)
-    );
+    handler(body, (err, resultOrPromise) => {
+      Promise.resolve(resultOrPromise)
+        .then(result => callback(err, result))
+        .catch(callback);
+    });
   };
 };

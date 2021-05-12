@@ -8,7 +8,7 @@ describe('Promise Enhancer', () => {
 
   it('should handle a primitive response', done => {
     const extensibleHandler = createExtensionHandler(handlePromises);
-    extensibleHandler(RESULT, result => {
+    extensibleHandler(RESULT, (err, result) => {
       expect(result).toEqual(RESULT);
       done();
     });
@@ -16,7 +16,7 @@ describe('Promise Enhancer', () => {
 
   it('should handle a promise response', done => {
     const extensibleHandler = createExtensionHandler(handlePromises);
-    extensibleHandler(Promise.resolve(RESULT), result => {
+    extensibleHandler(Promise.resolve(RESULT), (err, result) => {
       expect(result).toEqual(RESULT);
       done();
     });
@@ -28,8 +28,17 @@ describe('Promise Enhancer', () => {
       return result;
     };
     const extensibleHandler = createExtensionHandler(handlePromises);
-    extensibleHandler(promiseFn(PARAMS, META), result => {
+    extensibleHandler(promiseFn(PARAMS, META), (err, result) => {
       expect(result).toEqual(RESULT);
+      done();
+    });
+  });
+
+  it('should handle a rejected promise response', done => {
+    const extensibleHandler = createExtensionHandler(handlePromises);
+    const expectedError = new Error('some error');
+    extensibleHandler(Promise.reject(expectedError), err => {
+      expect(err).toEqual(expectedError);
       done();
     });
   });

@@ -15,7 +15,11 @@
   },
   "author": "graeme.cassels@smartsheet.com",
   "devDependencies": {
-    "node-mocks-http": "^1.7.6"
+    "@types/supertest": "^2.0.8",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "node-mocks-http": "^1.7.6",
+    "supertest": "^4.0.2"
   },
   "dependencies": {
     "@types/express": "^4.17.0"

@@ -47,8 +47,8 @@ export const createBridgeHandler = (config: BridgeConfiguration) => {
     handleHasProperty('event'),
     handlePing(),
     payloadHandler,
-    handleThunks,
-    handlePromises
+    handlePromises,
+    handleThunks
   );
 
   return createExtensionHandler(enhancer);

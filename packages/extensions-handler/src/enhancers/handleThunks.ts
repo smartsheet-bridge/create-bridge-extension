@@ -21,11 +21,11 @@ import { ExtensionHandlerEnhancer } from '../handler';
 export const handleThunks: ExtensionHandlerEnhancer = create => () => {
   const handler = create();
   return (body, callback) => {
-    handler(body, (resultOrThunk: unknown) => {
+    handler(body, (err, resultOrThunk) => {
       if (typeof resultOrThunk === 'function') {
-        resultOrThunk(callback);
+        resultOrThunk((result: unknown) => callback(err, result));
       } else {
-        callback(resultOrThunk);
+        callback(err, resultOrThunk);
       }
     });
   };

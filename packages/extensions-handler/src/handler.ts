@@ -1,4 +1,4 @@
-export type ExtensionHandlerCallback = (result?: any) => void;
+export type ExtensionHandlerCallback = (err?: Error, result?: unknown) => void;
 
 export type ExtensionHandler = (...args: any[]) => void;
 
@@ -53,6 +53,6 @@ export function createExtensionHandler<
         `Invalid Configuration! Cannot call a callback function of type '${typeof callback}'`
       );
     }
-    callback(payload);
+    callback(null, payload);
   };
 }

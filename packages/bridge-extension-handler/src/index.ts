@@ -2,11 +2,11 @@ import {
   compose,
   createExtensionHandler,
   handleHasProperty,
-  handlePayloadFunctions,
   handlePing,
   handlePromises,
   handleThunks,
   httpTransport,
+  xorHandler,
 } from '@smartsheet-extensions/handler';
 import {
   ExternalsConfig,
@@ -35,7 +35,7 @@ export type BridgeConfiguration = RegisterConfig &
   ExternalsConfig;
 
 export const createBridgeHandler = (config: BridgeConfiguration) => {
-  const payloadHandler = handlePayloadFunctions({
+  const payloadHandler = xorHandler({
     [PLUGIN_REGISTER]: handleRegister(config),
     [PLUGIN_UNREGISTER]: handleUnregister(config),
     [MODULE_EXEC]: handleModules(config),

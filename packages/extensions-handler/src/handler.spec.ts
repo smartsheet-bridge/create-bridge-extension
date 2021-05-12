@@ -110,7 +110,7 @@ describe('createExtensionHandler', () => {
     expect(mockB2).toBeCalledTimes(2);
   });
 
-  it('should execute enhancers from right to left', () => {
+  it('should execute enhancers from left to right and return right to left', () => {
     const configOrder = [];
     const executionOrder = [];
     const enhancerA: ExtensionHandlerEnhancer = create => () => {

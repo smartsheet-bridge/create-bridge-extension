@@ -1,4 +1,7 @@
-import { ExtensionFunction } from '@smartsheet-extensions/handler';
+import {
+  ExtensionFunction,
+  ExtensionHandlerEnhancer,
+} from '@smartsheet-extensions/handler';
 
 export interface RegisterConfig {
   onRegister?: ExtensionFunction;
@@ -16,15 +19,18 @@ export interface RegisterPayload {
 const isRegisterPayload = (payload: any): payload is RegisterPayload =>
   payload.event === PLUGIN_REGISTER;
 
-export const handleRegister = (config: RegisterConfig) => (
-  body: RegisterPayload
-) => {
-  if (isRegisterPayload(body)) {
-    const registrationData =
-      (body.payload && body.payload.registrationData) || {};
+export const handleRegister = (
+  config: RegisterConfig
+): ExtensionHandlerEnhancer => create => () => {
+  const next = create();
+  return (body, callback) => {
+    if (isRegisterPayload(body) && typeof config.onRegister === 'function') {
+      const registrationData =
+        (body.payload && body.payload.registrationData) || {};
 
-    if (typeof config.onRegister === 'function') {
-      return config.onRegister(registrationData, { registrationData });
+      next(config.onRegister(registrationData, { registrationData }), callback);
+    } else {
+      next(body, callback);
     }
-  }
+  };
 };

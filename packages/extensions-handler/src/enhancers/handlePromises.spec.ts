@@ -1,7 +1,7 @@
 import { createExtensionHandler } from '../handler';
 import { handlePromises } from './handlePromises';
 
-describe('promiseEnhancer', () => {
+describe('Promise Enhancer', () => {
   const META = { registrationData: { hello: 'hello' } };
   const PARAMS = { world: 'world' };
   const RESULT = { meta: META, params: PARAMS };

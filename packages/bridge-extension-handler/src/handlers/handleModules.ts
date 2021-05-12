@@ -1,6 +1,7 @@
 import {
   BadRequestError,
   ExtensionFunction,
+  ExtensionHandlerEnhancer,
   NotFoundError,
 } from '@smartsheet-extensions/handler';
 
@@ -22,8 +23,17 @@ export interface ModulePayload {
 const isModulePayload = (payload: any): payload is ModulePayload =>
   payload.event === MODULE_EXEC;
 
-export const handleModules = (config: ModulesConfig) => (body: any) => {
-  if (isModulePayload(body)) {
+export const handleModules = (
+  config: ModulesConfig
+): ExtensionHandlerEnhancer => create => () => {
+  const next = create();
+  return (body: ModulePayload, callback) => {
+    if (!isModulePayload(body)) {
+      throw new BadRequestError(
+        'Payload must contain `event` property and `payload` property.'
+      );
+    }
+
     const { moduleId, moduleParam, registrationData } = body.payload;
 
     if (moduleId === undefined) {
@@ -40,6 +50,11 @@ export const handleModules = (config: ModulesConfig) => (body: any) => {
       throw new NotFoundError(`Module \`${moduleId}\` does not exist.`);
     }
 
-    return config.modules[moduleId](moduleParam, { registrationData });
-  }
+    next(
+      config.modules[moduleId](moduleParam, {
+        registrationData,
+      }),
+      callback
+    );
+  };
 };

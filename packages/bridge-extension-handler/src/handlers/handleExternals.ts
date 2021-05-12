@@ -1,6 +1,7 @@
 import {
   BadRequestError,
   ExtensionFunction,
+  ExtensionHandlerEnhancer,
   NotFoundError,
 } from '@smartsheet-extensions/handler';
 
@@ -24,8 +25,17 @@ export interface ExternalPayload {
 const isExternalPayload = (payload: any): payload is ExternalPayload =>
   payload.event === EXTERNAL_CALL;
 
-export const handleExternals = (config: ExternalsConfig) => (body: any) => {
-  if (isExternalPayload(body)) {
+export const handleExternals = (
+  config: ExternalsConfig
+): ExtensionHandlerEnhancer => create => () => {
+  const next = create();
+  return (body, callback) => {
+    if (!isExternalPayload(body)) {
+      throw new BadRequestError(
+        'Payload must contain `event` property and `payload` property.'
+      );
+    }
+
     const { call: externalId, bodyData, registrationData } = body.payload;
 
     if (externalId === undefined) {
@@ -44,6 +54,9 @@ export const handleExternals = (config: ExternalsConfig) => (body: any) => {
       );
     }
 
-    return config.externals[externalId](bodyData, { registrationData });
-  }
+    next(
+      config.externals[externalId](bodyData, { registrationData }),
+      callback
+    );
+  };
 };

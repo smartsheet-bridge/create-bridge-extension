@@ -32,11 +32,11 @@ describe('createExtensionHandler', () => {
 
   it('should call given function with metadata and parameters', () => {
     const TEST = { hello: 'world' };
-    const callback = jest.fn().mockImplementation(a => a);
+    const callback = jest.fn();
     const extensibleHandler = createExtensionHandler();
     extensibleHandler(TEST, callback);
     expect(callback).toBeCalledTimes(1);
-    expect(callback).toReturnWith(TEST);
+    expect(callback).toBeCalledWith(null, TEST);
   });
 
   it('should call enhancer', () => {

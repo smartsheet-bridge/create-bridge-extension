@@ -20,6 +20,16 @@ export type ExtensionHTTPHandler = (
 export const httpTransport: ExtensionHandlerEnhancer<ExtensionHTTPHandler> = create => () => {
   const handler = create();
   return (request: Request, response: Response) => {
+    const throwAndRespond = (e: any) => {
+      const error = normalizeError(e);
+      // Disabling eslint warning here because the expected behavior is to print the error.
+      // eslint-disable-next-line no-console
+      console.error(error);
+      if (response) {
+        response.status(200).json(error.toJSON());
+      }
+    };
+
     try {
       if (request === undefined) {
         throw new InternalError('HTTP Request can not be undefined.');
@@ -35,19 +45,17 @@ export const httpTransport: ExtensionHandlerEnhancer<ExtensionHTTPHandler> = cre
         throw new BadRequestError('HTTP Request must contain `body` property.');
       }
 
-      handler(body, (result: unknown) => {
-        response.status(200).json(result);
+      handler(body, (err, result) => {
+        if (err) {
+          throwAndRespond(err);
+        } else {
+          response.status(200).json(result);
+        }
       });
-    } catch (e) {
-      const error = normalizeError(e);
-      // Disabling eslint warning here because the expected behavior is to print the error.
-      // eslint-disable-next-line no-console
-      console.error(error);
-      if (response) {
-        response.status(200).json(error.toJSON());
-      }
+    } catch (err) {
+      throwAndRespond(err);
       if (!process.env.SILENCE) {
-        throw e;
+        throw err;
       }
     }
   };

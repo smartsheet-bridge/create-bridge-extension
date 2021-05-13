@@ -4,14 +4,13 @@
   "description": "",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "private": true,
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
   },
   "scripts": {
     "clean": "rm -rf lib",
-    "release": "echo \"skip private package\""
+    "release": "semantic-release"
   },
   "author": "graeme.cassels@smartsheet.com",
   "devDependencies": {

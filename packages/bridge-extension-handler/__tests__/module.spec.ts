@@ -1,6 +1,8 @@
 import { BadRequestError, NotFoundError } from '@smartsheet-extensions/handler';
 import { createBridgeHandler } from '../src';
+import { BadResponseError } from '../src/errors/BadResponseError';
 import { ModulePayload } from '../src/handlers/handleModules';
+import { ModuleResponse } from '../src/responses/ModuleResponse';
 import { serve } from './express';
 
 describe('integration tests - module', () => {
@@ -53,44 +55,78 @@ describe('integration tests - module', () => {
   });
 
   it.each([
-    ['NUMBER', 1],
-    ['STRING', 'Hello, World!'],
-    ['ARRAY', [1, 2, 3]],
-    ['OBJECT', { hello: 'world!' }],
-  ] as Array<[string, any]>)(
-    'should return %s module response',
-    async (type, expectedResult) => {
-      const mockFn = jest.fn(() => expectedResult);
+    ['NUMBER', 1, 'number'],
+    ['STRING', 'Hello, World!', 'string'],
+    ['ARRAY', [1, 2, 3], 'object'],
+    ['THUNK', respond => respond('hello'), 'string'],
+    ['PROMISE', Promise.resolve('hello'), 'string'],
+  ] as Array<[string, any, any?]>)(
+    'should return BAD_RESPONSE for %s',
+    async (name, response, type) => {
+      const mockFn = jest.fn(() => response);
+      const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const expectedResult = new BadResponseError(
+        'abc',
+        type || typeof response
+      );
       const handler = createBridgeHandler({
         modules: {
           abc: mockFn,
         },
       });
       const res = await serve(handler).post('/').send(PAYLOAD);
-      expect(mockFn).toBeCalledTimes(1);
-      expect(mockFn).toBeCalledWith(
-        {
-          param1: 'param1',
-          param2: 'param2',
-        },
-        {
-          registrationData: {
-            reg1: 'reg1',
-            reg2: 'reg2',
-          },
-        }
-      );
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res.body).toEqual(expectedResult.toJSON());
+      expect(stderr).toBeCalledTimes(1);
+      expect(stderr).toBeCalledWith(expectedResult);
     }
   );
 
   it.each([
-    ['UNDEFINED', undefined, ''],
-    ['THUNK', respond => respond('Hello, World!'), 'Hello, World!'],
-    ['PROMISE', Promise.resolve('Hello, World!'), 'Hello, World!'],
-    ['PROMISE UNDEFINED', Promise.resolve(), ''],
-    ['THUNK UNDEFINED', respond => respond(), ''],
+    [
+      'MODULE_RESPONSE',
+      ModuleResponse.create({ value: { result: 0 }, exit: 'hello' }),
+      ModuleResponse.create({ value: { result: 0 }, exit: 'hello' }),
+    ],
+    ['NUMBER', { result: 1 }, ModuleResponse.create({ value: { result: 1 } })],
+    [
+      'STRING',
+      { result: 'Hello, World!' },
+      ModuleResponse.create({ value: { result: 'Hello, World!' } }),
+    ],
+    [
+      'ARRAY',
+      { result: [1, 2, 3] },
+      ModuleResponse.create({ value: { result: [1, 2, 3] } }),
+    ],
+    [
+      'OBJECT',
+      { hello: 'world!' },
+      ModuleResponse.create({ value: { hello: 'world!' } }),
+    ],
+    [
+      'NESTED OBJECT',
+      { result: { hello: 'world!' } },
+      ModuleResponse.create({ value: { result: { hello: 'world!' } } }),
+    ],
+    ['UNDEFINED', undefined, ModuleResponse.create()],
+    [
+      'THUNK',
+      respond => respond({ result: 'Hello, World!' }),
+      ModuleResponse.create({ value: { result: 'Hello, World!' } }),
+    ],
+    [
+      'PROMISE',
+      Promise.resolve({ result: 'Hello, World!' }),
+      ModuleResponse.create({ value: { result: 'Hello, World!' } }),
+    ],
+    ['PROMISE UNDEFINED', Promise.resolve(), ModuleResponse.create()],
+    ['THUNK UNDEFINED', respond => respond(), ModuleResponse.create()],
+    [
+      'THUNK > PROMISE',
+      respond => respond(Promise.resolve({ result: 'Hello, World!' })),
+      ModuleResponse.create({ value: { result: 'Hello, World!' } }),
+    ],
   ] as Array<[string, any, any]>)(
     'should return %s module response',
     async (type, response, expectedResult) => {

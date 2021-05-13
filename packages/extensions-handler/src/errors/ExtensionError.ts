@@ -1,4 +1,5 @@
-import { AbstractError, ResponseError } from './AbstractError';
+import { ErrorResponse } from '../responses/ErrorResponse';
+import { AbstractError } from './AbstractError';
 import { InternalError } from './InternalError';
 
 export class ExtensionError extends AbstractError {
@@ -17,8 +18,8 @@ export class ExtensionError extends AbstractError {
     description,
     httpStatus = InternalError.STATUS,
     code = ExtensionError.CODE,
-  }: Partial<Pick<ResponseError, 'code' | 'httpStatus'>> &
-    Pick<ResponseError, 'description'>) {
+  }: Partial<Omit<ErrorResponse['error'], 'description'>> &
+    Pick<ErrorResponse['error'], 'description'>) {
     super({
       code,
       httpStatus,

@@ -45,9 +45,12 @@ describe('httpEnhancer', () => {
     expect(res._isJSON()).toBeTruthy();
     expect(res._getStatusCode()).toBe(200);
     expect(res._getJSONData()).toEqual({
-      code: 'BAD_REQUEST',
-      description: 'HTTP Request must contain `body` property.',
-      httpStatus: 400,
+      status: 1,
+      error: {
+        code: 'BAD_REQUEST',
+        description: 'HTTP Request must contain `body` property.',
+        httpStatus: 400,
+      },
     });
   });
 
@@ -63,9 +66,12 @@ describe('httpEnhancer', () => {
     expect(res._isJSON()).toBeTruthy();
     expect(res._getStatusCode()).toBe(200);
     expect(res._getJSONData()).toEqual({
-      code: 'BAD_REQUEST',
-      description: 'HTTP Request must contain `body` property.',
-      httpStatus: 400,
+      status: 1,
+      error: {
+        code: 'BAD_REQUEST',
+        description: 'HTTP Request must contain `body` property.',
+        httpStatus: 400,
+      },
     });
   });
 

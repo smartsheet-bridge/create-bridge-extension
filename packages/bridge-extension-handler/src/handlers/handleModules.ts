@@ -4,6 +4,9 @@ import {
   ExtensionHandlerEnhancer,
   NotFoundError,
 } from '@smartsheet-extensions/handler';
+import { BadResponseError } from '../errors/BadResponseError';
+import { ModuleResponse } from '../responses/ModuleResponse';
+import { isJSONObject } from '../utils/isType';
 
 export interface ModulesConfig {
   modules?: { [moduleId: string]: ExtensionFunction };
@@ -54,7 +57,18 @@ export const handleModules = (
       config.modules[moduleId](moduleParam, {
         registrationData,
       }),
-      callback
+      (err?: Error, result?: unknown) => {
+        if (result instanceof ModuleResponse) {
+          callback(err, result);
+        } else if (isJSONObject(result)) {
+          callback(err, ModuleResponse.create({ value: result }));
+        } else {
+          throw new BadResponseError(
+            moduleId,
+            result === null ? 'null' : typeof result
+          );
+        }
+      }
     );
   };
 };

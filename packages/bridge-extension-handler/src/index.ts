@@ -29,6 +29,13 @@ import {
   UnregisterConfig,
 } from './handlers/handleUnregister';
 
+export {
+  ErrorResponse,
+  ExtensionResponse,
+  ExtensionStatus,
+} from '@smartsheet-extensions/handler';
+export { ModuleResponse } from './responses/ModuleResponse';
+
 export type BridgeConfiguration = RegisterConfig &
   UnregisterConfig &
   ModulesConfig &

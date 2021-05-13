@@ -10,5 +10,7 @@ export * from './errors/InternalError';
 export * from './errors/NotFoundError';
 export * from './errors/UncaughtError';
 export * from './handler';
+export * from './responses/ErrorResponse';
+export * from './responses/ExtensionResponse';
 export * from './transports/httpTransport';
 export * from './utils/compose';

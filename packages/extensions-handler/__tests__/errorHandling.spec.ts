@@ -71,9 +71,12 @@ describe('integration tests - error handling', () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
-        code: ExtensionError.CODE,
-        description: 'some error',
-        httpStatus: 500,
+        status: 1,
+        error: {
+          code: ExtensionError.CODE,
+          description: 'some error',
+          httpStatus: 500,
+        },
       });
     }
   );
@@ -126,9 +129,12 @@ describe('integration tests - error handling', () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
-        code: ExtensionError.CODE,
-        description: 'some error',
-        httpStatus: 500,
+        status: 1,
+        error: {
+          code: ExtensionError.CODE,
+          description: 'some error',
+          httpStatus: 500,
+        },
       });
     }
   );

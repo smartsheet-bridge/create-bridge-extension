@@ -1,12 +1,13 @@
-export interface ResponseError {
-  code: string;
-  description: string;
-  httpStatus: number;
-}
+import { ErrorResponse } from '../responses/ErrorResponse';
+import { ExtensionStatus } from '../responses/ExtensionResponse';
 
 export abstract class AbstractError extends Error {
   private httpStatus: number;
-  public constructor({ code, description, httpStatus }: ResponseError) {
+  public constructor({
+    code,
+    description,
+    httpStatus,
+  }: ErrorResponse['error']) {
     super(description);
     Error.captureStackTrace(this, this.constructor);
     Object.defineProperty(this, 'name', {
@@ -23,11 +24,14 @@ export abstract class AbstractError extends Error {
     });
   }
 
-  public toJSON(): ResponseError {
+  public toJSON(): ErrorResponse {
     return {
-      code: this.name,
-      httpStatus: this.httpStatus,
-      description: this.message,
+      status: ExtensionStatus.FAIL,
+      error: {
+        code: this.name,
+        httpStatus: this.httpStatus,
+        description: this.message,
+      },
     };
   }
 }

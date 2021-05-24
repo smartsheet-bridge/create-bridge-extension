@@ -9,11 +9,12 @@ import {
 } from '@smartsheet-bridge/extension-cli-logger';
 import archiver from 'archiver';
 import { createHash } from 'crypto';
-import { createReadStream } from 'fs-extra';
+import { createReadStream, pathExistsSync } from 'fs-extra';
 import { vol } from 'memfs';
 import { obj as multistream } from 'multistream';
+import * as Path from 'path';
 import * as semver from 'semver';
-import { getSpec } from '../utils';
+import { getSpec, maskKey } from '../utils';
 import { createBridgeService } from './bridgeService';
 
 const debug = Logger.debug('deployService');
@@ -98,11 +99,19 @@ export const createDeployService = ({
 
   const uploadSpec = async (checksum: string): Promise<Caller> => {
     const spec = getSpec(specFile);
-    const data = {
+    const data: Record<string, any> = {
       ...spec,
       invoker: { upload: true, checksum },
-      appToken: require(`${process.cwd()}/app-token.js`),
+      appToken: 'APP_TOKEN',
     };
+
+    const appTokenPath = Path.resolve(process.cwd(), 'app-token.js');
+    if (pathExistsSync(appTokenPath)) {
+      data.appToken = require(appTokenPath);
+      Logger.verbose('App token', Chalk.cyan(maskKey(data.appToken)));
+    } else {
+      Logger.verbose('App token', 'not included');
+    }
 
     const response = await sdk.extension.uploadSpec({ data });
 

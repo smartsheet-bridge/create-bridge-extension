@@ -8,34 +8,21 @@ import TabItem from '@theme/TabItem';
 
 The "entry point" is the point of entry for the application and is used to configure and serve the entire extension for runtime execution. All extension requests will enter through this point.
 
-The only requirement for the entry point is that it **must** export a function called `main` that takes a `request` and a `response` as parameters.
-
-```ts
-type main = (request: Request, response: Response) => void;
-```
+The only requirement for the entry point is that it **must** export a function called `main` that has the signature of the expected runtime platform.
 
 E.g.
 
 ```js
-export main = (request, response) => { ... }
+export const main = ...
 ```
 
 or
 
 ```js
-export function main(request, response){ ... }
+export function main...
 ```
 
-More likely than not, you will simply use the `extension-handler` to create this function for you. The `extension-handler` is a helper package that will wrap your functions and callbacks in the above request and has the following type.
-
-```ts
-type handler = (config: {
-  callbacks: Record<string, ExtensionFunction>;
-  functions: Record<string, ExtensionFunction>;
-}) => (request: Request, response: Response) => void;
-```
-
-Resulting in the following example code.
+In nearly all cases the you will never need to write this function by hand. Instead, you can use one of the helper methods designed for the platform you wish to work with to create this function for you. E.g. The `createBridgeHandler` will set up this function perfectly so that your extension will work with Bridge now and in the futre. This is the recommended way of developing extensions to ensure you are always up to date.
 
 <Tabs
 groupId="js2ts"
@@ -49,13 +36,13 @@ values={[
 
 
 ```js
-import { handler } from '@smartsheet-bridge/extension-handler';
-import { myFunction } from './functions/myFunction';
-import { onRegister } from './callbacks/onRegister';
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+import { myFunction } from './myFunction';
+import { onRegister } from './onRegister';
 
-export const main = handler({
-  callbacks: { onRegister },
-  functions: { myFunction },
+export const main = createBridgeHandler({
+  onRegister,
+  modules: { myFunction },
 });
 ```
 
@@ -64,13 +51,13 @@ export const main = handler({
 
 
 ```ts
-import { handler } from '@smartsheet-bridge/extension-handler';
-import { myFunction } from './functions/myFunction';
-import { onRegister } from './callbacks/onRegister';
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+import { myFunction } from './myFunction';
+import { onRegister } from './onRegister';
 
-export const main = handler({
-  callbacks: { onRegister },
-  functions: { myFunction },
+export const main = createBridgeHandler({
+  onRegister,
+  modules: { myFunction },
 });
 ```
 

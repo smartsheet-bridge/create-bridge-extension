@@ -1,0 +1,73 @@
+---
+id: introduction
+title: Intoduction to Extensions
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+An "extension" is a set of decoupled functionality that can be executed remotely. It can be thought of like a "package" or "library" consisting of additional functionality that can be imported into a Smartsheet system (like Bridge by Smartsheet) and executed on command.
+
+## Prerequisites
+
+Extensions are executed in JavaScript, and so we'll assume you have a basic understanding of the JavaScript language. **If you don't feel very confident, we recommend [going through a JavaScript tutorial](https://developer.mozilla.org/en-US/docs/Web/JavaScript/A_re-introduction_to_JavaScript) to check your knowledge level** and enable you to follow along this guide without getting lost.
+
+:::note
+
+This guide occasionally uses some of the newer JavaScript syntax in the examples. If you haven't worked with JavaScript in the last few years, the following points should get you most of the way.
+
+- We define variables with [`let`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let) and [`const`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const) statements. For the purposes of this documentation, you can consider them equivalent to [`var`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var).
+- We sometimes use `=>` to define ["arrow functions"](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions). They're like regular functions, but shorter. For example, `x => x * 2` is roughly equivalent to `function(x) { return x * 2; }`. Importantly, arrow functions [don't have their own `this` value](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions#No_separate_this) so they're handy when you want to preserve the `this` value from an outer method definition.
+
+Don't worry if this is too much to take in at once. **The [MDN JavaScript Reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript) is a stellar resource, and you can consult it whenever you get confused by something.**
+
+:::
+
+## Project structure
+
+The smallest extension exists of two files.
+
+```
+example
+├── index.js
+└── package.json
+```
+
+The two files include `index.js` that consists of runtime code executed by the extension platform, and `package.json` that defines the development metadata relevant to the extension including the extension's dependencies, scripts, version and a whole lot more.
+
+### `package.json`
+
+```json title="Example package.json"
+{
+  "name": "hello_world",
+  "main": "index.js",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@smartsheet-bridge/extension-handler": "latest"
+  },
+  "devDependencies": {
+    "@smartsheet-bridge/extension-handler": "latest"
+  }
+}
+```
+
+If you're familiar with JavaScript development then you should be very familiar with `package.json` files. These are used in server applications, libraries, and even front end development.
+
+For the most part, the `package.json` file is only here to serve the development metadata of the package. For example, when you deploy an extension the extension platform will use this information to install dependencies.
+
+While the `create-bridge-extension` tool will fill in much of the necessary information needed, you are free to edit and amend this file with settings unique to your project just as you would with any other JavaScript project.
+
+However, the `main` property must point to the [entry point](./entry) of the extension – in this case `index.js`
+
+### `index.js`
+
+```js title="Example index.js"
+import { createExtensionHandler } from '@smartsheet-extensions/handler';
+
+export const main = createExtensionHandler();
+```
+
+This file can be called anything you'd like, it's only called `index.js` by default for historical JavaScript reasons. The important point is that the relative path from `package.json` to `index.js` is set as the `main` property in `package.json` file.
+
+When your extension is called, it checks the `main` property of the `package.json` file, and executes that file. This is called the [Entry Point](./entry) because it's the gateway for the extension platform to your runtime code.

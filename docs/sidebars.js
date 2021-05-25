@@ -2,13 +2,16 @@ module.exports = {
   docs: {
     'Getting Started': ['intro', 'quick_start'],
     'Main Concepts': [
-      'concepts/hello_world',
-      'concepts/extension',
-      'concepts/lifecycle',
+      'concepts/introduction',
       'concepts/entry',
       'concepts/function',
+      // 'concepts/lifecycle',
     ],
-    'Bridge Concepts': ['bridge/hello_bridge', 'bridge/spec'],
+    'Bridge Concepts': [
+      'bridge/introduction',
+      'bridge/spec',
+      // { Recipes: ['bridge/callback'] },
+    ],
     'Advanced Guides': [
       // 'advanced/setup',
       'advanced/thunks',

@@ -62,12 +62,10 @@ Each input parameter consists of user populated data and therefore should be tre
 
 ### `context`
 
-An object that consists of metadata properties in the context of the triggering user and extension.
+An object that consists of metadata properties in the context of the triggering user and extension. This context will be unique to the platform the function is being executed for.
 
 ```ts
-interface BridgeContext<T> {
-  settings: T;
-}
+type context = Record<string, any>;
 ```
 
 ## Function Response
@@ -150,22 +148,8 @@ export const async thunkResponse = () => {
 
 ### Errors
 
-:::warning
-
-// TODO decide with the team how errors will be handled
-
-:::
-
-There's nothing special about Errors when writing an extension. Any error explicitly thrown or implicitly caught will be returned to the sender as a
+There's nothing special about Errors when writing an extension function. Any error explicitly thrown or implicitly caught will be returned to the sender as an `ExtensionError`.
 
 ```js
 throw new Error('This will return an error');
-```
-
-will be received by the sender as
-
-```
-400
-USER_ERROR
-This will return an error
 ```

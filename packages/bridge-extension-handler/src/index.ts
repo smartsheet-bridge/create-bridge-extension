@@ -33,6 +33,10 @@ export {
   ErrorResponse,
   ExtensionResponse,
   ExtensionStatus,
+  SerializableArray,
+  SerializableObject,
+  SerializablePrimitive,
+  SerializableValue,
 } from '@smartsheet-extensions/handler';
 export { ModuleResponse } from './responses/ModuleResponse';
 

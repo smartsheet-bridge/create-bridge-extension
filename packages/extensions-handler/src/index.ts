@@ -14,3 +14,4 @@ export * from './responses/ErrorResponse';
 export * from './responses/ExtensionResponse';
 export * from './transports/httpTransport';
 export * from './utils/compose';
+export * from './utils/serializable';

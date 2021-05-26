@@ -1,16 +1,19 @@
-import { ExtensionResponse } from '@smartsheet-extensions/handler';
-import { JSONObject } from '../types';
+import {
+  ExtensionResponse,
+  SerializableEmpty,
+  SerializableObject,
+} from '@smartsheet-extensions/handler';
 import { AbstractResponse } from './AbstractResponse';
 
 export interface ModuleResponse extends ExtensionResponse {
-  value: JSONObject;
+  value: SerializableObject | SerializableEmpty;
   exit: string;
 }
 export class ModuleResponse extends AbstractResponse {
   /**
    * The returned value of the module.
    */
-  value: JSONObject;
+  value: SerializableObject | SerializableEmpty;
 
   /**
    * The string ID of the next exit path.
@@ -29,7 +32,7 @@ export class ModuleResponse extends AbstractResponse {
    * Sets the return value for the response.
    * @param value a serializable object to be returned.
    */
-  public setValue(value: JSONObject) {
+  public setValue(value: SerializableObject) {
     this.value = value;
   }
 

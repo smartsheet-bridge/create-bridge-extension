@@ -48,17 +48,6 @@ describe('handleModule', () => {
       );
     }
   );
-  it('throws error when response is null', async () => {
-    const config: ModulesConfig = {
-      modules: {
-        moduleA: () => null,
-      },
-    };
-    const handler = createExtensionHandler(handleModules(config));
-    expect(() => handler(PAYLOAD, CALLBACK)).toThrowError(
-      new BadResponseError('moduleA', 'null')
-    );
-  });
   it('throws error if user throws error', async () => {
     const error = new Error('test error');
     const config: ModulesConfig = {
@@ -71,7 +60,7 @@ describe('handleModule', () => {
     const handler = createExtensionHandler(handleModules(config));
     expect(() => handler(PAYLOAD, CALLBACK)).toThrowError(error);
   });
-  it('returns when response is undefined', async () => {
+  it('returns when response is void', async () => {
     const config: ModulesConfig = {
       modules: {
         moduleA: () => {},
@@ -83,4 +72,19 @@ describe('handleModule', () => {
       status: 0,
     });
   });
+  it.each([null, undefined] as any[])(
+    'returns when response is %s',
+    async result => {
+      const config: ModulesConfig = {
+        modules: {
+          moduleA: () => result,
+        },
+      };
+      const handler = createExtensionHandler(handleModules(config));
+      expect(() => handler(PAYLOAD, CALLBACK)).not.toThrow();
+      expect(CALLBACK).toBeCalledWith(null, {
+        status: 0,
+      });
+    }
+  );
 });

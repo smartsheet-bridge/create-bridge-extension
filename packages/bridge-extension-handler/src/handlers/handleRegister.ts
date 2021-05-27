@@ -1,10 +1,17 @@
 import {
-  ExtensionFunction,
   ExtensionHandlerEnhancer,
+  SerializableObject,
 } from '@smartsheet-extensions/handler';
+import { AbstractResponse } from '../responses/AbstractResponse';
+import { BridgeFunction } from '../types';
 
+// TODO: Change AbstractResponse to RegisterResponse once built.
+export type RegisterFunction<
+  Params extends SerializableObject = SerializableObject,
+  Settings extends SerializableObject = SerializableObject
+> = BridgeFunction<AbstractResponse, Params, Settings>;
 export interface RegisterConfig {
-  onRegister?: ExtensionFunction;
+  onRegister?: RegisterFunction;
 }
 
 export const PLUGIN_REGISTER = 'PLUGIN_REGISTER';
@@ -12,7 +19,7 @@ export const PLUGIN_REGISTER = 'PLUGIN_REGISTER';
 export interface RegisterPayload {
   event: typeof PLUGIN_REGISTER;
   payload: {
-    registrationData: object;
+    registrationData: SerializableObject;
   };
 }
 
@@ -28,7 +35,10 @@ export const handleRegister = (
       const registrationData =
         (body.payload && body.payload.registrationData) || {};
 
-      next(config.onRegister(registrationData, { registrationData }), callback);
+      next(
+        config.onRegister(registrationData, { settings: registrationData }),
+        callback
+      );
     } else {
       next(body, callback);
     }

@@ -1,10 +1,17 @@
 import {
-  ExtensionFunction,
   ExtensionHandlerEnhancer,
+  SerializableObject,
 } from '@smartsheet-extensions/handler';
+import { AbstractResponse } from '../responses/AbstractResponse';
+import { BridgeFunction } from '../types';
 
+// TODO: Change AbstractResponse to UnregisterResponse once built.
+export type UnregisterFunction<
+  Params extends SerializableObject = SerializableObject,
+  Settings extends SerializableObject = SerializableObject
+> = BridgeFunction<AbstractResponse, Params, Settings>;
 export interface UnregisterConfig {
-  onUnregister?: ExtensionFunction;
+  onUnregister?: UnregisterFunction;
 }
 
 export const PLUGIN_UNREGISTER = 'PLUGIN_UNREGISTER';
@@ -12,7 +19,7 @@ export const PLUGIN_UNREGISTER = 'PLUGIN_UNREGISTER';
 export interface UnregisterPayload {
   event: typeof PLUGIN_UNREGISTER;
   payload: {
-    registrationData: object;
+    registrationData: SerializableObject;
   };
 }
 
@@ -32,7 +39,7 @@ export const handleUnregister = (
         (body.payload && body.payload.registrationData) || {};
 
       next(
-        config.onUnregister(registrationData, { registrationData }),
+        config.onUnregister(registrationData, { settings: registrationData }),
         callback
       );
     } else {

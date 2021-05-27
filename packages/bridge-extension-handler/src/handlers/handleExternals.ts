@@ -1,12 +1,19 @@
 import {
   BadRequestError,
-  ExtensionFunction,
   ExtensionHandlerEnhancer,
   NotFoundError,
+  SerializableObject,
 } from '@smartsheet-extensions/handler';
+import { AbstractResponse } from '../responses/AbstractResponse';
+import { BridgeFunction } from '../types';
 
+// TODO: Change AbstractResponse to ExternalResponse once built.
+export type ExternalFunction<
+  Params extends SerializableObject = SerializableObject,
+  Settings extends SerializableObject = SerializableObject
+> = BridgeFunction<AbstractResponse, Params, Settings>;
 export interface ExternalsConfig {
-  externals?: { [externalId: string]: ExtensionFunction };
+  externals?: { [externalId: string]: ExternalFunction };
 }
 
 export const EXTERNAL_CALL = 'EXTERNAL_CALL';
@@ -16,9 +23,9 @@ export interface ExternalPayload {
   payload: {
     call: string;
     method: 'POST' | 'GET';
-    registrationData: object;
+    registrationData: SerializableObject;
     inboundHeaders: { [key: string]: string };
-    bodyData: object;
+    bodyData: SerializableObject;
   };
 }
 
@@ -36,7 +43,11 @@ export const handleExternals = (
       );
     }
 
-    const { call: externalId, bodyData, registrationData } = body.payload;
+    const {
+      call: externalId,
+      bodyData,
+      registrationData: settings = {},
+    } = body.payload;
 
     if (externalId === undefined) {
       throw new BadRequestError(
@@ -54,9 +65,6 @@ export const handleExternals = (
       );
     }
 
-    next(
-      config.externals[externalId](bodyData, { registrationData }),
-      callback
-    );
+    next(config.externals[externalId](bodyData, { settings }), callback);
   };
 };

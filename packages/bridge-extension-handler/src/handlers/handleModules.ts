@@ -1,16 +1,21 @@
 import {
   BadRequestError,
-  ExtensionFunction,
   ExtensionHandlerEnhancer,
   isSerializableEmpty,
   isSerializableObject,
   NotFoundError,
+  SerializableObject,
 } from '@smartsheet-extensions/handler';
 import { BadResponseError } from '../errors/BadResponseError';
 import { ModuleResponse } from '../responses/ModuleResponse';
+import { BridgeFunction } from '../types';
 
+export type ModuleFunction<
+  Params extends SerializableObject = SerializableObject,
+  Settings extends SerializableObject = SerializableObject
+> = BridgeFunction<ModuleResponse, Params, Settings>;
 export interface ModulesConfig {
-  modules?: { [moduleId: string]: ExtensionFunction };
+  modules?: { [moduleId: string]: ModuleFunction };
 }
 
 export const MODULE_EXEC = 'MODULE_EXEC';
@@ -19,8 +24,8 @@ export interface ModulePayload {
   event: typeof MODULE_EXEC;
   payload: {
     moduleId: string;
-    moduleParam: object;
-    registrationData: object;
+    moduleParam: SerializableObject;
+    registrationData: SerializableObject;
   };
 }
 
@@ -38,7 +43,11 @@ export const handleModules = (
       );
     }
 
-    const { moduleId, moduleParam, registrationData } = body.payload;
+    const {
+      moduleId,
+      moduleParam,
+      registrationData: settings = {},
+    } = body.payload;
 
     if (moduleId === undefined) {
       throw new BadRequestError(
@@ -56,7 +65,7 @@ export const handleModules = (
 
     next(
       config.modules[moduleId](moduleParam, {
-        registrationData,
+        settings,
       }),
       (err?: Error, result?: unknown) => {
         if (result instanceof ModuleResponse) {

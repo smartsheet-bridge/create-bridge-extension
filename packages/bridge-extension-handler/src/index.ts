@@ -38,6 +38,29 @@ export {
   SerializablePrimitive,
   SerializableValue,
 } from '@smartsheet-extensions/handler';
+export {
+  // TODO: Export once built
+  // ExternalFunction,
+  ExternalsConfig,
+  handleExternals,
+} from './handlers/handleExternals';
+export {
+  handleModules,
+  ModuleFunction,
+  ModulesConfig,
+} from './handlers/handleModules';
+export {
+  handleRegister,
+  // TODO: Export once built
+  // RegisterFunction
+  RegisterConfig,
+} from './handlers/handleRegister';
+export {
+  handleUnregister,
+  // TODO: Export once built
+  // UnregisterFunction
+  UnregisterConfig,
+} from './handlers/handleUnregister';
 export { ModuleResponse } from './responses/ModuleResponse';
 
 export type BridgeConfiguration = RegisterConfig &

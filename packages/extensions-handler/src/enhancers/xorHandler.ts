@@ -6,13 +6,6 @@ import {
   ExtensionHandlerEnhancerCreate,
 } from '../handler';
 
-export type ExtensionFunction<
-  Params extends object = {},
-  Context extends object = {}
-> = (parameters: Params, context: Context) => any;
-
-export type HandleSwitchFunction = (payload: any) => any;
-
 export type HandlePayloadFunctions = (
   payload: any,
   callback: ExtensionHandlerCallback

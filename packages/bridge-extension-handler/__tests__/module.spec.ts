@@ -127,6 +127,11 @@ describe('integration tests - module', () => {
       respond => respond(Promise.resolve({ result: 'Hello, World!' })),
       ModuleResponse.create({ value: { result: 'Hello, World!' } }),
     ],
+    [
+      'PROMISE > PROMISE',
+      Promise.resolve(Promise.resolve({ result: 'Hello, World!' })),
+      ModuleResponse.create({ value: { result: 'Hello, World!' } }),
+    ],
   ] as Array<[string, any, any]>)(
     'should return %s module response',
     async (type, response, expectedResult) => {
@@ -144,7 +149,7 @@ describe('integration tests - module', () => {
           param2: 'param2',
         },
         {
-          registrationData: {
+          settings: {
             reg1: 'reg1',
             reg2: 'reg2',
           },

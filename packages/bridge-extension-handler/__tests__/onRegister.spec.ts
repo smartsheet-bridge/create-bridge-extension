@@ -43,7 +43,7 @@ describe('integration tests - onRegister', () => {
           reg2: 'reg2',
         },
         {
-          registrationData: {
+          settings: {
             reg1: 'reg1',
             reg2: 'reg2',
           },
@@ -75,7 +75,7 @@ describe('integration tests - onRegister', () => {
           reg2: 'reg2',
         },
         {
-          registrationData: {
+          settings: {
             reg1: 'reg1',
             reg2: 'reg2',
           },

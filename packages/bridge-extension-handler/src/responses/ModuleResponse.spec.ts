@@ -5,7 +5,7 @@ import {
 import { ModuleResponse } from './ModuleResponse';
 
 describe('ModuleResponse', () => {
-  describe('constuctor', () => {
+  describe('constructor', () => {
     it('accepts when constructor given empty', () => {
       expect(new ModuleResponse()).toEqual({
         status: 0,
@@ -66,7 +66,7 @@ describe('ModuleResponse', () => {
       const response = new ModuleResponse();
       expect(() => response.setExit(given)).toThrowError(
         new InternalError(
-          `\`exit\` must be of type \`string\`. Recieved \`${typeof given}\`.`
+          `\`exit\` must be of type \`string\`. Received \`${typeof given}\`.`
         )
       );
     });
@@ -107,7 +107,7 @@ describe('ModuleResponse', () => {
       const response = new ModuleResponse();
       expect(() => response.setValue(given)).toThrowError(
         new InternalError(
-          `\`value\` must be of type \`SerializableObject\`. Recieved \`${typeof given}\`.`
+          `\`value\` must be of type \`SerializableObject\`. Received \`${typeof given}\`.`
         )
       );
     });

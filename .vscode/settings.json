@@ -1,7 +1,6 @@
 {
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
-  "tslint.autoFixOnSave": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": true,
     "source.fixAll.eslint": true
@@ -14,5 +13,19 @@
   "[mdx]": {
     "editor.wordWrap": "wordWrapColumn",
     "editor.wordWrapColumn": 120
-  }
+  },
+  "[typescript]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+      }
+  },
+  "[javascript]": {
+      "editor.formatOnSave": false,
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+      }
+  },
 }

@@ -4,14 +4,14 @@ import {
   NotFoundError,
   SerializableObject,
 } from '@smartsheet-extensions/handler';
-import { AbstractResponse } from '../responses/AbstractResponse';
+import { ExternalResponse } from '../responses/ExternalResponse';
 import { BridgeFunction } from '../types';
 
 // TODO: Change AbstractResponse to ExternalResponse once built.
 export type ExternalFunction<
   Params extends SerializableObject = SerializableObject,
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<AbstractResponse, Params, Settings>;
+> = BridgeFunction<ExternalResponse, Params, Settings>;
 export interface ExternalsConfig {
   externals?: { [externalId: string]: ExternalFunction };
 }

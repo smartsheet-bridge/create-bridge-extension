@@ -40,7 +40,7 @@ export class ModuleResponse extends AbstractResponse {
   public setValue(value?: SerializableObject) {
     if (!isSerializableEmpty(value) && !isSerializableObject(value)) {
       throw new InternalError(
-        `\`value\` must be of type \`SerializableObject\`. Recieved \`${typeof value}\`.`
+        `\`value\` must be of type \`SerializableObject\`. Received \`${typeof value}\`.`
       );
     }
     this.value = value;
@@ -53,7 +53,7 @@ export class ModuleResponse extends AbstractResponse {
   public setExit(exit?: string) {
     if (exit !== undefined && typeof exit !== 'string') {
       throw new InternalError(
-        `\`exit\` must be of type \`string\`. Recieved \`${typeof exit}\`.`
+        `\`exit\` must be of type \`string\`. Received \`${typeof exit}\`.`
       );
     }
     this.exit = exit;

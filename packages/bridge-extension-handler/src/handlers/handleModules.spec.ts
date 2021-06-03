@@ -18,22 +18,26 @@ describe('handleModule', () => {
     jest.resetAllMocks();
   });
 
-  it.each([{}, { hello: 'world' }, { a: ['b'] }, { a: null }] as any[])(
-    'returns when response is %s',
-    async result => {
-      const config: ModulesConfig = {
-        modules: {
-          moduleA: () => result,
-        },
-      };
-      const handler = createExtensionHandler(handleModules(config));
-      expect(() => handler(PAYLOAD, CALLBACK)).not.toThrow();
-      expect(CALLBACK).toBeCalledWith(null, {
-        status: 0,
-        value: result,
-      });
-    }
-  );
+  it.each([
+    {},
+    { hello: 'world' },
+    { a: ['b'] },
+    { a: null },
+    null,
+    undefined,
+  ] as any[])('returns when response is %s', async result => {
+    const config: ModulesConfig = {
+      modules: {
+        moduleA: () => result,
+      },
+    };
+    const handler = createExtensionHandler(handleModules(config));
+    expect(() => handler(PAYLOAD, CALLBACK)).not.toThrow();
+    expect(CALLBACK).toBeCalledWith(null, {
+      status: 0,
+      value: result,
+    });
+  });
   it.each([100, 'string', true, false, ['an', 'array']] as any[])(
     'throws error when response is %s',
     async result => {
@@ -72,19 +76,4 @@ describe('handleModule', () => {
       status: 0,
     });
   });
-  it.each([null, undefined] as any[])(
-    'returns when response is %s',
-    async result => {
-      const config: ModulesConfig = {
-        modules: {
-          moduleA: () => result,
-        },
-      };
-      const handler = createExtensionHandler(handleModules(config));
-      expect(() => handler(PAYLOAD, CALLBACK)).not.toThrow();
-      expect(CALLBACK).toBeCalledWith(null, {
-        status: 0,
-      });
-    }
-  );
 });

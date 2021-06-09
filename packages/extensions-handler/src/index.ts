@@ -2,6 +2,7 @@ export * from './enhancers/handleHasProperty';
 export * from './enhancers/handlePing';
 export * from './enhancers/handlePromises';
 export * from './enhancers/handleThunks';
+export * from './enhancers/toSerializableObject';
 export * from './enhancers/xorHandler';
 export * from './errors/AbstractError';
 export * from './errors/BadRequestError';

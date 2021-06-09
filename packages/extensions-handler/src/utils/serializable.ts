@@ -28,8 +28,43 @@ export const isSerializableObject = (o: unknown): o is SerializableObject =>
   !isSerializableArray(o) &&
   Object.values(o).every(isSerializable);
 
-export const isSerializable = (o: unknown): o is SerializableObject =>
+export const isSerializable = (o: unknown): o is SerializableValue =>
   isSerializableEmpty(o) ||
   isSerializablePrimitive(o) ||
   isSerializableArray(o) ||
   isSerializableObject(o);
+
+export interface SerializableClass {
+  toSerializableObject: () => SerializableObject;
+}
+
+export const isSerializableClass = (o: unknown): o is SerializableClass =>
+  typeof o === 'object' &&
+  typeof (o as SerializableClass).toSerializableObject === 'function';
+
+export const serialize = (o: unknown): SerializableValue => {
+  if (isSerializablePrimitive(o) || isSerializableEmpty(o)) {
+    return o;
+  }
+
+  if (isSerializableClass(o)) {
+    return o.toSerializableObject();
+  }
+
+  if (Array.isArray(o)) {
+    return serializeArray(o);
+  }
+
+  if (typeof o === 'object' && !Array.isArray(o) && typeof o !== 'function') {
+    return serializeObject(o);
+  }
+};
+
+export const serializeArray = (a: any[]): SerializableArray =>
+  a.map(serialize).filter(e => e !== undefined);
+
+export const serializeObject = (o: object): SerializableObject =>
+  Object.entries(o).reduce(
+    (json, [key, value]) => ({ ...json, [key]: serialize(value) }),
+    {}
+  );

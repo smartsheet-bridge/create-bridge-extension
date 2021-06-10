@@ -1,5 +1,5 @@
 import { createExtensionHandler } from '@smartsheet-extensions/handler';
-import { BadResponseError } from '../errors/BadResponseError';
+import { BadModuleResponseError } from '../errors/BadModuleResponseError';
 import { handleModules, ModulePayload, ModulesConfig } from './handleModules';
 
 describe('handleModule', () => {
@@ -48,7 +48,7 @@ describe('handleModule', () => {
       };
       const handler = createExtensionHandler(handleModules(config));
       expect(() => handler(PAYLOAD, CALLBACK)).toThrowError(
-        new BadResponseError('moduleA', typeof result)
+        new BadModuleResponseError('moduleA', typeof result)
       );
     }
   );

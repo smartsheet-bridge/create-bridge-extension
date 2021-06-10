@@ -1,5 +1,7 @@
 import { createBridgeHandler } from '../src';
+import { BadRegisterResponseError } from '../src/errors/BadRegisterResponseError';
 import { RegisterPayload } from '../src/handlers/handleRegister';
+import { RegisterResponse } from '../src/responses/RegisterResponse';
 import { serve } from './express';
 
 describe('integration tests - onRegister', () => {
@@ -7,59 +9,89 @@ describe('integration tests - onRegister', () => {
     jest.resetAllMocks();
   });
 
-  const PAYLOAD: RegisterPayload = {
+  const SETTINGS = {
+    reg1: 'reg1',
+    reg2: 'reg2',
+  };
+
+  const RESPONSE = {
+    settings: SETTINGS,
+  };
+
+  const SERIALIZED_RESPONSE = RegisterResponse.create(
+    RESPONSE
+  ).toSerializableObject();
+
+  const BODY: RegisterPayload = {
     event: 'PLUGIN_REGISTER',
     payload: {
-      registrationData: {
-        reg1: 'reg1',
-        reg2: 'reg2',
-      },
+      registrationData: SETTINGS,
     },
   };
 
   it('should return SUCCESS', async () => {
     const handler = createBridgeHandler({});
-    const res = await serve(handler).post('/').send(PAYLOAD);
+    const res = await serve(handler).post('/').send(BODY);
+    expect(res.status).toBe(200);
+  });
+
+  it('should return SUCCESS with no registrationData given', async () => {
+    const mockFn = jest.fn(() => ({ settings: {} }));
+    const handler = createBridgeHandler({ onRegister: mockFn });
+    const res = await serve(handler).post('/').send({
+      event: 'PLUGIN_REGISTER',
+      payload: {},
+    });
+    expect(res.status).toBe(200);
+  });
+
+  it('should return SUCCESS with no registrationData given', async () => {
+    const mockFn = jest.fn(() => ({ settings: {} }));
+    const handler = createBridgeHandler({ onRegister: mockFn });
+    const res = await serve(handler).post('/').send({
+      event: 'PLUGIN_REGISTER',
+    });
     expect(res.status).toBe(200);
   });
 
   it.each([
-    ['NUMBER', 1],
-    ['STRING', 'Hello, World!'],
-    ['ARRAY', [1, 2, 3]],
-    ['OBJECT', { hello: 'world!' }],
-  ] as Array<[string, any]>)(
-    'should return %s onRegister response',
-    async (type, expectedResult) => {
-      const mockFn = jest.fn(() => expectedResult);
+    ['UNDEFINED', undefined, 'undefined'],
+    ['NULL', null, 'null'],
+    ['NUMBER', 1, 'number'],
+    ['STRING', 'Hello, World!', 'string'],
+    ['ARRAY', [1, 2, 3], 'object'],
+    ['THUNK', respond => respond('hello'), 'string'],
+    ['PROMISE', Promise.resolve('hello'), 'string'],
+    ['PROMISE UNDEFINED', Promise.resolve(), 'undefined'],
+    ['THUNK UNDEFINED', respond => respond(), 'undefined'],
+  ] as Array<[string, any, any?]>)(
+    'should return BAD_RESPONSE for %s',
+    async (name, response, type) => {
+      const mockFn = jest.fn(() => response);
+      const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const expectedResult = new BadRegisterResponseError(
+        type || typeof response
+      );
       const handler = createBridgeHandler({
         onRegister: mockFn,
       });
-      const res = await serve(handler).post('/').send(PAYLOAD);
-      expect(mockFn).toBeCalledTimes(1);
-      expect(mockFn).toBeCalledWith(
-        {
-          reg1: 'reg1',
-          reg2: 'reg2',
-        },
-        {
-          settings: {
-            reg1: 'reg1',
-            reg2: 'reg2',
-          },
-        }
-      );
+      const res = await serve(handler).post('/').send(BODY);
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res.body).toEqual(expectedResult.toJSON());
+      expect(stderr).toBeCalledTimes(1);
+      expect(stderr).toBeCalledWith(expectedResult);
     }
   );
 
   it.each([
-    ['UNDEFINED', undefined, ''],
-    ['THUNK', respond => respond('Hello, World!'), 'Hello, World!'],
-    ['PROMISE', Promise.resolve('Hello, World!'), 'Hello, World!'],
-    ['PROMISE UNDEFINED', Promise.resolve(), ''],
-    ['THUNK UNDEFINED', respond => respond(), ''],
+    ['INTERFACE_RESPONSE', RESPONSE, SERIALIZED_RESPONSE],
+    [
+      'REGISTER_RESPONSE',
+      RegisterResponse.create(RESPONSE),
+      SERIALIZED_RESPONSE,
+    ],
+    ['THUNK', respond => respond(RESPONSE), SERIALIZED_RESPONSE],
+    ['PROMISE', Promise.resolve(RESPONSE), SERIALIZED_RESPONSE],
   ] as Array<[string, any, any]>)(
     'should return %s onRegister response',
     async (type, response, expectedResult) => {
@@ -67,20 +99,11 @@ describe('integration tests - onRegister', () => {
       const handler = createBridgeHandler({
         onRegister: mockFn,
       });
-      const res = await serve(handler).post('/').send(PAYLOAD);
+      const res = await serve(handler).post('/').send(BODY);
       expect(mockFn).toBeCalledTimes(1);
-      expect(mockFn).toBeCalledWith(
-        {
-          reg1: 'reg1',
-          reg2: 'reg2',
-        },
-        {
-          settings: {
-            reg1: 'reg1',
-            reg2: 'reg2',
-          },
-        }
-      );
+      expect(mockFn).toBeCalledWith(SETTINGS, {
+        settings: SETTINGS,
+      });
       expect(res.status).toBe(200);
       expect(res.body).toEqual(expectedResult);
     }

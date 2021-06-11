@@ -6,7 +6,7 @@ import {
   NotFoundError,
   SerializableObject,
 } from '@smartsheet-extensions/handler';
-import { BadResponseError } from '../errors/BadResponseError';
+import { BadModuleResponseError } from '../errors/BadModuleResponseError';
 import { ModuleResponse } from '../responses/ModuleResponse';
 import { BridgeFunction } from '../types';
 
@@ -68,7 +68,9 @@ export const handleModules = (
         settings,
       }),
       (err?: Error, result?: unknown) => {
-        if (result instanceof ModuleResponse) {
+        if (err) {
+          callback(err);
+        } else if (result instanceof ModuleResponse) {
           callback(err, result);
         } else if (
           isSerializableObject(result) ||
@@ -76,7 +78,7 @@ export const handleModules = (
         ) {
           callback(err, ModuleResponse.create({ value: result }));
         } else {
-          throw new BadResponseError(moduleId, typeof result);
+          throw new BadModuleResponseError(moduleId, typeof result);
         }
       }
     );

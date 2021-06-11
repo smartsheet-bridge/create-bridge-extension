@@ -1,6 +1,6 @@
 import { BadRequestError, NotFoundError } from '@smartsheet-extensions/handler';
 import { createBridgeHandler } from '../src';
-import { BadResponseError } from '../src/errors/BadResponseError';
+import { BadModuleResponseError } from '../src/errors/BadModuleResponseError';
 import { ModulePayload } from '../src/handlers/handleModules';
 import { ModuleResponse } from '../src/responses/ModuleResponse';
 import { serve } from './express';
@@ -65,7 +65,7 @@ describe('integration tests - module', () => {
     async (name, response, type) => {
       const mockFn = jest.fn(() => response);
       const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
-      const expectedResult = new BadResponseError(
+      const expectedResult = new BadModuleResponseError(
         'abc',
         type || typeof response
       );
@@ -122,6 +122,19 @@ describe('integration tests - module', () => {
     ],
     ['PROMISE UNDEFINED', Promise.resolve(), ModuleResponse.create()],
     ['THUNK UNDEFINED', respond => respond(), ModuleResponse.create()],
+    [
+      'THUNK MODULE_RESPONSE',
+      respond =>
+        respond(ModuleResponse.create({ value: { result: 'Hello, World!' } })),
+      ModuleResponse.create({ value: { result: 'Hello, World!' } }),
+    ],
+    [
+      'PROMISE MODULE_RESPONSE',
+      Promise.resolve(
+        ModuleResponse.create({ value: { result: 'Hello, World!' } })
+      ),
+      ModuleResponse.create({ value: { result: 'Hello, World!' } }),
+    ],
     [
       'THUNK > PROMISE',
       respond => respond(Promise.resolve({ result: 'Hello, World!' })),

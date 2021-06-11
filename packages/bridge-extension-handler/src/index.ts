@@ -6,6 +6,7 @@ import {
   handlePromises,
   handleThunks,
   httpTransport,
+  toSerializableObject,
   xorHandler,
 } from '@smartsheet-extensions/handler';
 import {
@@ -51,9 +52,8 @@ export {
 } from './handlers/handleModules';
 export {
   handleRegister,
-  // TODO: Export once built
-  // RegisterFunction
   RegisterConfig,
+  RegisterFunction,
 } from './handlers/handleRegister';
 export {
   handleUnregister,
@@ -70,6 +70,7 @@ export type BridgeConfiguration = RegisterConfig &
 
 export const createBridgeHandler = (config: BridgeConfiguration) => {
   const payloadHandler = xorHandler({
+    PING: handlePing(),
     [PLUGIN_REGISTER]: handleRegister(config),
     [PLUGIN_UNREGISTER]: handleUnregister(config),
     [MODULE_EXEC]: handleModules(config),
@@ -78,8 +79,8 @@ export const createBridgeHandler = (config: BridgeConfiguration) => {
 
   const enhancer = compose(
     httpTransport,
+    toSerializableObject,
     handleHasProperty('event'),
-    handlePing(),
     payloadHandler,
     handlePromises,
     handleThunks

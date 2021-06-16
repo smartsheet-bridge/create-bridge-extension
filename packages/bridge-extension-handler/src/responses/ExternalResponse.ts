@@ -37,7 +37,7 @@ export class ExternalResponse extends AbstractResponse {
    * Sets the HTTP response data for the challenge response.
    * @param httpResponse the HTTP response data.
    */
-  setHTTPResponse(httpResponse: HttpResponse) {
+  public setHTTPResponse(httpResponse: HttpResponse) {
     this.httpResponse = httpResponse;
   }
 
@@ -45,7 +45,7 @@ export class ExternalResponse extends AbstractResponse {
    * Sets the channel output for the response.
    * @param channelOutput An array of channel output definitions.
    */
-  setChannelOutput(channelOutput: ChannelOutput[]) {
+  public setChannelOutput(channelOutput: ChannelOutput[]) {
     this.channelOutput = channelOutput;
   }
 
@@ -53,7 +53,7 @@ export class ExternalResponse extends AbstractResponse {
    * Adds one or more channel outputs to the response.
    * @param channelOutput One or more channel output definitions.
    */
-  addChannelOutput(...channelOutput: ChannelOutput[]) {
+  public addChannelOutput(...channelOutput: ChannelOutput[]) {
     if (this.channelOutput === undefined) {
       this.channelOutput = [];
     }

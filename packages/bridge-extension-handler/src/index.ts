@@ -20,6 +20,21 @@ import {
   MODULE_EXEC,
 } from './handlers/handleModules';
 import {
+  HandleOAuth2CodeConfig,
+  handleOAuth2HandleCode,
+  OAUTH2_HANDLE_CODE,
+} from './handlers/handleOAuth2HandleCode';
+import {
+  handleOAuth2RenewToken,
+  OAuth2RenewTokenConfig,
+  OAUTH2_RENEW_TOKEN,
+} from './handlers/handleOAuth2RenewToken';
+import {
+  handleOAuth2Start,
+  OAuth2StartConfig,
+  OAUTH2_START,
+} from './handlers/handleOAuthStart';
+import {
   handleRegister,
   PLUGIN_REGISTER,
   RegisterConfig,
@@ -40,8 +55,7 @@ export {
   SerializableValue,
 } from '@smartsheet-extensions/handler';
 export {
-  // TODO: Export once built
-  // ExternalFunction,
+  ExternalFunction,
   ExternalsConfig,
   handleExternals,
 } from './handlers/handleExternals';
@@ -50,6 +64,21 @@ export {
   ModuleFunction,
   ModulesConfig,
 } from './handlers/handleModules';
+export {
+  HandleOAuth2CodeConfig,
+  HandleOAuth2CodeFunction,
+  handleOAuth2HandleCode,
+} from './handlers/handleOAuth2HandleCode';
+export {
+  handleOAuth2RenewToken,
+  OAuth2RenewTokenConfig,
+  RenewOAuth2TokenFunction,
+} from './handlers/handleOAuth2RenewToken';
+export {
+  handleOAuth2Start,
+  OAuth2StartConfig,
+  StartOAuth2Function,
+} from './handlers/handleOAuthStart';
 export {
   handleRegister,
   RegisterConfig,
@@ -66,11 +95,17 @@ export { ModuleResponse } from './responses/ModuleResponse';
 export type BridgeConfiguration = RegisterConfig &
   UnregisterConfig &
   ModulesConfig &
-  ExternalsConfig;
+  ExternalsConfig &
+  OAuth2StartConfig &
+  HandleOAuth2CodeConfig &
+  OAuth2RenewTokenConfig;
 
 export const createBridgeHandler = (config: BridgeConfiguration) => {
   const payloadHandler = xorHandler({
     PING: handlePing(),
+    [OAUTH2_START]: handleOAuth2Start(config),
+    [OAUTH2_HANDLE_CODE]: handleOAuth2HandleCode(config),
+    [OAUTH2_RENEW_TOKEN]: handleOAuth2RenewToken(config),
     [PLUGIN_REGISTER]: handleRegister(config),
     [PLUGIN_UNREGISTER]: handleUnregister(config),
     [MODULE_EXEC]: handleModules(config),

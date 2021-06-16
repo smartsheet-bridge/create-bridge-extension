@@ -4,6 +4,7 @@ import {
   SerializableObject,
 } from '@smartsheet-extensions/handler';
 import { BadRegisterResponseError } from '../errors/BadRegisterResponseError';
+import { Caller } from '../models/Caller';
 import { RegisterResponse } from '../responses/RegisterResponse';
 import { BridgeFunction } from '../types';
 
@@ -19,6 +20,7 @@ export const PLUGIN_REGISTER = 'PLUGIN_REGISTER';
 
 export interface RegisterPayload {
   event: typeof PLUGIN_REGISTER;
+  caller: Caller;
   payload: {
     registrationData: SerializableObject;
   };
@@ -35,9 +37,13 @@ export const handleRegister = (
     if (isRegisterPayload(body) && typeof config.onRegister === 'function') {
       const registrationData =
         (body.payload && body.payload.registrationData) || {};
+      const { caller } = body;
 
       next(
-        config.onRegister(registrationData, { settings: registrationData }),
+        config.onRegister(registrationData, {
+          caller,
+          settings: registrationData,
+        }),
         (err?: Error, result?: unknown) => {
           if (err) {
             callback(err);

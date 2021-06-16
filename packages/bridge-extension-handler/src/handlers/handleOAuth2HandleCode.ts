@@ -5,6 +5,7 @@ import {
   SerializableObject,
 } from '@smartsheet-extensions/handler';
 import { BadHandleOAuth2CodeResponseError } from '../errors/BadHandleOAuth2CodeResponseError';
+import { Caller } from '../models/Caller';
 import { OAuth2Data } from '../models/OAuth2Data';
 import { OAuthType } from '../models/OAuthType';
 import { HandleOAuth2CodeResponse } from '../responses/HandleOAuth2CodeResponse';
@@ -23,6 +24,7 @@ export const OAUTH2_HANDLE_CODE = 'OAUTH2_HANDLE_CODE';
 
 export interface HandleOAuth2CodePayload {
   event: typeof OAUTH2_HANDLE_CODE;
+  caller: Caller;
   payload: {
     scope?: string;
     state?: string;
@@ -58,6 +60,7 @@ export const handleOAuth2HandleCode = (
       );
     }
     const settings = (body.payload && body.payload.registrationData) || {};
+    const { caller } = body;
 
     next(
       config.onOAuthHandleCode(
@@ -68,7 +71,7 @@ export const handleOAuth2HandleCode = (
           oauthType: body.payload.oauthType,
           redirectURI: body.payload.redirectURI,
         },
-        { settings }
+        { settings, caller }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

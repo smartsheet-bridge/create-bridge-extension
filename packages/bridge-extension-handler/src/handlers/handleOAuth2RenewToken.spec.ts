@@ -21,6 +21,24 @@ describe('handleOAuth2RenewToken - onOAuthRenewToken', () => {
 
   const PAYLOAD: RenewOAuth2TokenPayload = {
     event: 'OAUTH2_RENEW_TOKEN',
+    caller: {
+      callTime: 0,
+      callToken: {
+        signature: '',
+        validUntil: 0,
+      },
+      installUUID: '',
+      invoker: {
+        userUUID: '',
+      },
+      msgid: '',
+      pluginUUID: '',
+      provider: {
+        providerUUID: '',
+      },
+      revision: '',
+      instanceID: '',
+    },
     payload: {
       oauthType: OAuthType.Provider,
       redirectURI: 'api.bridge.smartsheet.com/oauth2/callback',

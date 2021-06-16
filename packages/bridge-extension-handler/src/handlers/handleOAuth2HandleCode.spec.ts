@@ -21,6 +21,24 @@ describe('handleHandleOAuth2Code - onOAuthHandleCode', () => {
 
   const PAYLOAD: HandleOAuth2CodePayload = {
     event: 'OAUTH2_HANDLE_CODE',
+    caller: {
+      callTime: 0,
+      callToken: {
+        signature: '',
+        validUntil: 0,
+      },
+      installUUID: '',
+      invoker: {
+        userUUID: '',
+      },
+      msgid: '',
+      pluginUUID: '',
+      provider: {
+        providerUUID: '',
+      },
+      revision: '',
+      instanceID: '',
+    },
     payload: {
       oauthType: OAuthType.Provider,
       redirectURI: 'api.bridge.smartsheet.com/oauth2/callback',

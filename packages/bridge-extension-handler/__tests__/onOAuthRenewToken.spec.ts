@@ -2,6 +2,7 @@ import { BadRequestError } from '@smartsheet-extensions/handler';
 import { createBridgeHandler } from '../src';
 import { BadRenewOAuth2TokenResponseError } from '../src/errors/BadRenewOAuth2TokenResponseError';
 import { RenewOAuth2TokenPayload } from '../src/handlers/handleOAuth2RenewToken';
+import { Caller } from '../src/models/Caller';
 import { OAuthType } from '../src/models/OAuthType';
 import { HandleOAuth2CodeResponse } from '../src/responses/HandleOAuth2CodeResponse';
 import { serve } from './express';
@@ -10,6 +11,26 @@ describe('integration tests - onOAuthRenewToken', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
+
+  const CALLER: Caller = {
+    callTime: 0,
+    callToken: {
+      signature: '',
+      validUntil: 0,
+    },
+    installUUID: '',
+    invoker: {
+      userUUID: '',
+    },
+    msgid: '',
+    pluginUUID: '',
+    provider: {
+      providerDomain: '',
+      providerUUID: '',
+      workspaceUUID: '',
+    },
+    revision: '',
+  };
 
   const SETTINGS = {
     reg1: 'reg1',
@@ -31,6 +52,7 @@ describe('integration tests - onOAuthRenewToken', () => {
 
   const BODY: RenewOAuth2TokenPayload = {
     event: 'OAUTH2_RENEW_TOKEN',
+    caller: CALLER,
     payload: {
       renewToken: 'REFRESH',
       oauthType: OAuthType.Provider,
@@ -117,6 +139,7 @@ describe('integration tests - onOAuthRenewToken', () => {
           redirectURI: 'example.com/redirect',
         },
         {
+          caller: CALLER,
           settings: SETTINGS,
         }
       );

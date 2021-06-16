@@ -1,5 +1,6 @@
 import { createBridgeHandler } from '../src';
 import { UnregisterPayload } from '../src/handlers/handleUnregister';
+import { Caller } from '../src/models/Caller';
 import { serve } from './express';
 
 describe('integration tests - onUnregister', () => {
@@ -7,8 +8,29 @@ describe('integration tests - onUnregister', () => {
     jest.resetAllMocks();
   });
 
+  const CALLER: Caller = {
+    callTime: 0,
+    callToken: {
+      signature: '',
+      validUntil: 0,
+    },
+    installUUID: '',
+    invoker: {
+      userUUID: '',
+    },
+    msgid: '',
+    pluginUUID: '',
+    provider: {
+      providerDomain: '',
+      providerUUID: '',
+      workspaceUUID: '',
+    },
+    revision: '',
+  };
+
   const PAYLOAD: UnregisterPayload = {
     event: 'PLUGIN_UNREGISTER',
+    caller: CALLER,
     payload: {
       registrationData: {
         reg1: 'reg1',
@@ -43,6 +65,7 @@ describe('integration tests - onUnregister', () => {
           reg2: 'reg2',
         },
         {
+          caller: CALLER,
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',
@@ -75,6 +98,7 @@ describe('integration tests - onUnregister', () => {
           reg2: 'reg2',
         },
         {
+          caller: CALLER,
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',

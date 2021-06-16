@@ -21,6 +21,24 @@ describe('handleOAuth2Start - onOAuthStart', () => {
 
   const PAYLOAD: StartOAuth2Payload = {
     event: 'OAUTH2_START',
+    caller: {
+      callTime: 0,
+      callToken: {
+        signature: '',
+        validUntil: 0,
+      },
+      installUUID: '',
+      invoker: {
+        userUUID: '',
+      },
+      msgid: '',
+      pluginUUID: '',
+      provider: {
+        providerUUID: '',
+      },
+      revision: '',
+      instanceID: '',
+    },
     payload: {
       oauthType: OAuthType.Provider,
       redirectURI: 'api.bridge.smartsheet.com/oauth2/callback',

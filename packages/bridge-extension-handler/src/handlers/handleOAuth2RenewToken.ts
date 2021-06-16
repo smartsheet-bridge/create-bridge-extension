@@ -5,6 +5,7 @@ import {
   SerializableObject,
 } from '@smartsheet-extensions/handler';
 import { BadRenewOAuth2TokenResponseError } from '../errors/BadRenewOAuth2TokenResponseError';
+import { Caller } from '../models/Caller';
 import { OAuth2Data } from '../models/OAuth2Data';
 import { OAuthType } from '../models/OAuthType';
 import { HandleOAuth2CodeResponse } from '../responses/HandleOAuth2CodeResponse';
@@ -24,6 +25,7 @@ export const OAUTH2_RENEW_TOKEN = 'OAUTH2_RENEW_TOKEN';
 
 export interface RenewOAuth2TokenPayload {
   event: typeof OAUTH2_RENEW_TOKEN;
+  caller: Caller;
   payload: {
     renewToken: string;
     oauthType: OAuthType;
@@ -59,6 +61,7 @@ export const handleOAuth2RenewToken = (
     }
 
     const settings = (body.payload && body.payload.registrationData) || {};
+    const { caller } = body;
 
     next(
       config.onOAuthRenewToken(
@@ -67,7 +70,7 @@ export const handleOAuth2RenewToken = (
           oauthType: body.payload.oauthType,
           redirectURI: body.payload.redirectURI,
         },
-        { settings }
+        { settings, caller }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

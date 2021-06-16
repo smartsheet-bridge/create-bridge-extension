@@ -2,6 +2,7 @@ import { BadRequestError, NotFoundError } from '@smartsheet-extensions/handler';
 import { createBridgeHandler } from '../src';
 import { BadModuleResponseError } from '../src/errors/BadModuleResponseError';
 import { ModulePayload } from '../src/handlers/handleModules';
+import { Caller } from '../src/models/Caller';
 import { ModuleResponse } from '../src/responses/ModuleResponse';
 import { serve } from './express';
 
@@ -10,8 +11,29 @@ describe('integration tests - module', () => {
     jest.resetAllMocks();
   });
 
+  const CALLER: Caller = {
+    callTime: 0,
+    callToken: {
+      signature: '',
+      validUntil: 0,
+    },
+    installUUID: '',
+    invoker: {
+      userUUID: '',
+    },
+    msgid: '',
+    pluginUUID: '',
+    provider: {
+      providerDomain: '',
+      providerUUID: '',
+      workspaceUUID: '',
+    },
+    revision: '',
+  };
+
   const PAYLOAD: ModulePayload = {
     event: 'MODULE_EXEC',
+    caller: CALLER,
     payload: {
       moduleId: 'abc',
       moduleParam: {
@@ -162,6 +184,7 @@ describe('integration tests - module', () => {
           param2: 'param2',
         },
         {
+          caller: CALLER,
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',

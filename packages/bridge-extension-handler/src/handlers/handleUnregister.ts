@@ -2,6 +2,7 @@ import {
   ExtensionHandlerEnhancer,
   SerializableObject,
 } from '@smartsheet-extensions/handler';
+import { Caller } from '../models/Caller';
 import { AbstractResponse } from '../responses/AbstractResponse';
 import { BridgeFunction } from '../types';
 
@@ -18,6 +19,7 @@ export const PLUGIN_UNREGISTER = 'PLUGIN_UNREGISTER';
 
 export interface UnregisterPayload {
   event: typeof PLUGIN_UNREGISTER;
+  caller: Caller;
   payload: {
     registrationData: SerializableObject;
   };
@@ -37,9 +39,13 @@ export const handleUnregister = (
     ) {
       const registrationData =
         (body.payload && body.payload.registrationData) || {};
+      const { caller } = body;
 
       next(
-        config.onUnregister(registrationData, { settings: registrationData }),
+        config.onUnregister(registrationData, {
+          caller,
+          settings: registrationData,
+        }),
         callback
       );
     } else {

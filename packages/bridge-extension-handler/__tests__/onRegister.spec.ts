@@ -2,6 +2,7 @@ import { createBridgeHandler } from '../src';
 import { BadRegisterResponseError } from '../src/errors/BadRegisterResponseError';
 import { RegisterPayload } from '../src/handlers/handleRegister';
 import { Caller } from '../src/models/Caller';
+import { WorkflowTriggerSpec } from '../src/models/WorkflowTriggerSpec';
 import { RegisterResponse } from '../src/responses/RegisterResponse';
 import { serve } from './express';
 
@@ -37,6 +38,9 @@ describe('integration tests - onRegister', () => {
 
   const RESPONSE = {
     settings: SETTINGS,
+    workflowTriggers: [
+      WorkflowTriggerSpec.create({ workflowID: 'workflowUUID' }),
+    ],
   };
 
   const SERIALIZED_RESPONSE = RegisterResponse.create(

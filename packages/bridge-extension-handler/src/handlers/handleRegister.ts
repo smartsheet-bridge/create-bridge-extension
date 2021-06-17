@@ -8,7 +8,6 @@ import { Caller } from '../models/Caller';
 import { RegisterResponse } from '../responses/RegisterResponse';
 import { BridgeFunction } from '../types';
 
-// TODO: Change AbstractResponse to RegisterResponse once built.
 export type RegisterFunction<
   Settings extends SerializableObject = SerializableObject
 > = BridgeFunction<RegisterResponse<Settings>, Settings, Settings>;

@@ -1,6 +1,44 @@
+import { WorkflowTriggerSpec } from '../models/WorkflowTriggerSpec';
 import { RegisterResponse } from './RegisterResponse';
 
-describe('ResgisterResponse', () => {
+describe('RegisterResponse', () => {
+  describe('setSettings', () => {
+    const response = RegisterResponse.create();
+    response.setSettings({ key: 'value' });
+
+    expect(response).toHaveProperty('settings');
+    expect(response.settings).toHaveProperty('key');
+    expect(response.settings.key).toEqual('value');
+  });
+
+  describe('addWorkflowTriggers', () => {
+    const tests = [
+      {
+        triggers: [{ workflowID: 'value' }],
+        expected: [{ workflowID: 'value' }],
+      },
+      {
+        triggers: [
+          { workflowID: 'value' },
+          { workflowID: 'other', stateValues: { key: 'value' } },
+        ],
+        expected: [
+          { workflowID: 'value' },
+          { workflowID: 'other', stateValues: { key: 'value' } },
+        ],
+      },
+    ];
+
+    tests.forEach(test => {
+      const response = RegisterResponse.create();
+      response.addWorkflowTriggers(...test.triggers);
+
+      expect(response).toHaveProperty('workflowTriggers');
+      expect(response.workflowTriggers).toHaveLength(test.expected.length);
+      expect(response.workflowTriggers).toEqual(test.expected);
+    });
+  });
+
   describe('constructor', () => {
     const PROPS = {
       status: 1,
@@ -26,21 +64,59 @@ describe('ResgisterResponse', () => {
     });
   });
   describe('toSerializableObject', () => {
-    const GIVEN = {
-      settings: {
-        a: 'a',
+    const tests = [
+      {
+        given: {
+          settings: {
+            a: 'a',
+          },
+        },
+        expected: {
+          status: 0,
+          registrationData: {
+            a: 'a',
+          },
+        },
       },
-    };
-    const EXPECTED = {
-      status: 0,
-      registrationData: {
-        a: 'a',
+      {
+        given: {
+          settings: {
+            a: 'a',
+          },
+          workflowTriggers: [
+            WorkflowTriggerSpec.create({
+              workflowID: 'WORKFLOW',
+            }),
+            WorkflowTriggerSpec.create({
+              workflowID: 'OTHER',
+              stateValues: { key: 'value' },
+            }),
+          ],
+        },
+        expected: {
+          status: 0,
+          registrationData: {
+            a: 'a',
+          },
+          workflowTriggers: [
+            {
+              intent: 'WORKFLOW',
+            },
+            {
+              intent: 'OTHER',
+              entityData: { key: 'value' },
+            },
+          ],
+        },
       },
-    };
-    it('serializes to expected result', () => {
-      expect(new RegisterResponse(GIVEN).toSerializableObject()).toEqual(
-        EXPECTED
-      );
+    ];
+
+    tests.forEach((test, index) => {
+      it(`serializes to expected result ${index}`, () => {
+        expect(new RegisterResponse(test.given).toSerializableObject()).toEqual(
+          test.expected
+        );
+      });
     });
   });
 });

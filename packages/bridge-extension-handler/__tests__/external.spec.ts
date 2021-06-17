@@ -5,6 +5,7 @@ import {
 } from '@smartsheet-extensions/handler';
 import { createBridgeHandler } from '../src';
 import { ExternalPayload } from '../src/handlers/handleExternals';
+import { Caller } from '../src/models/Caller';
 import { ChannelOutput } from '../src/models/ChannelOutput';
 import { HttpResponse } from '../src/models/HttpResponse';
 import { TextChannelMessage } from '../src/models/TextChannelMessage';
@@ -17,8 +18,29 @@ describe('integration tests - external', () => {
     jest.resetAllMocks();
   });
 
+  const CALLER: Caller = {
+    callTime: 0,
+    callToken: {
+      signature: '',
+      validUntil: 0,
+    },
+    installUUID: '',
+    invoker: {
+      userUUID: '',
+    },
+    msgid: '',
+    pluginUUID: '',
+    provider: {
+      providerDomain: '',
+      providerUUID: '',
+      workspaceUUID: '',
+    },
+    revision: '',
+  };
+
   const PAYLOAD: ExternalPayload = {
     event: 'EXTERNAL_CALL',
+    caller: CALLER,
     payload: {
       call: 'abc',
       method: 'GET',
@@ -87,6 +109,7 @@ describe('integration tests - external', () => {
           param2: 'param2',
         },
         {
+          caller: CALLER,
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',
@@ -121,6 +144,7 @@ describe('integration tests - external', () => {
           param2: 'param2',
         },
         {
+          caller: CALLER,
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',
@@ -234,6 +258,7 @@ describe('integration tests - external', () => {
           ...bodyData,
         },
         {
+          caller: CALLER,
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',

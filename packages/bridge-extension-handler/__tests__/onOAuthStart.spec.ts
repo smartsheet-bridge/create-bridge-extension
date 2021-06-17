@@ -2,6 +2,7 @@ import { BadRequestError } from '@smartsheet-extensions/handler';
 import { createBridgeHandler } from '../src';
 import { BadStartOAuth2ResponseError } from '../src/errors/BadStartOAuth2ResponseError';
 import { StartOAuth2Payload } from '../src/handlers/handleOAuthStart';
+import { Caller } from '../src/models/Caller';
 import { OAuthType } from '../src/models/OAuthType';
 import { StartOAuth2Response } from '../src/responses/StartOAuth2Response';
 import { serve } from './express';
@@ -10,6 +11,26 @@ describe('integration tests - onOAuthStart', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
+
+  const CALLER: Caller = {
+    callTime: 0,
+    callToken: {
+      signature: '',
+      validUntil: 0,
+    },
+    installUUID: '',
+    invoker: {
+      userUUID: '',
+    },
+    msgid: '',
+    pluginUUID: '',
+    provider: {
+      providerDomain: '',
+      providerUUID: '',
+      workspaceUUID: '',
+    },
+    revision: '',
+  };
 
   const SETTINGS = {
     reg1: 'reg1',
@@ -31,6 +52,7 @@ describe('integration tests - onOAuthStart', () => {
 
   const BODY: StartOAuth2Payload = {
     event: 'OAUTH2_START',
+    caller: CALLER,
     payload: {
       oauthType: OAuthType.Provider,
       redirectURI: 'example.com/redirect',
@@ -115,6 +137,7 @@ describe('integration tests - onOAuthStart', () => {
           redirectURI: 'example.com/redirect',
         },
         {
+          caller: CALLER,
           settings: SETTINGS,
         }
       );

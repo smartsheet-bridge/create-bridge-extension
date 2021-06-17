@@ -5,6 +5,7 @@ import {
   SerializableObject,
 } from '@smartsheet-extensions/handler';
 import { BadStartOAuth2ResponseError } from '../errors/BadStartOAuth2ResponseError';
+import { Caller } from '../models/Caller';
 import { OAuth2SetupData } from '../models/OAuth2SetupData';
 import { OAuthType } from '../models/OAuthType';
 import { StartOAuth2Response } from '../responses/StartOAuth2Response';
@@ -23,6 +24,7 @@ export const OAUTH2_START = 'OAUTH2_START';
 
 export interface StartOAuth2Payload {
   event: typeof OAUTH2_START;
+  caller: Caller;
   payload: {
     oauthType: OAuthType;
     redirectURI: string;
@@ -56,6 +58,7 @@ export const handleOAuth2Start = (
       );
     }
     const settings = (body.payload && body.payload.registrationData) || {};
+    const { caller } = body;
 
     next(
       config.onOAuthStart(
@@ -63,7 +66,7 @@ export const handleOAuth2Start = (
           oauthType: body.payload.oauthType,
           redirectURI: body.payload.redirectURI,
         },
-        { settings }
+        { caller, settings }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

@@ -2,6 +2,7 @@ import { BadRequestError } from '@smartsheet-extensions/handler';
 import { createBridgeHandler } from '../src';
 import { BadHandleOAuth2CodeResponseError } from '../src/errors/BadHandleOAuth2CodeResponseError';
 import { HandleOAuth2CodePayload } from '../src/handlers/handleOAuth2HandleCode';
+import { Caller } from '../src/models/Caller';
 import { OAuthType } from '../src/models/OAuthType';
 import { HandleOAuth2CodeResponse } from '../src/responses/HandleOAuth2CodeResponse';
 import { serve } from './express';
@@ -10,6 +11,26 @@ describe('integration tests - onOAuthHandleCode', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
+
+  const CALLER: Caller = {
+    callTime: 0,
+    callToken: {
+      signature: '',
+      validUntil: 0,
+    },
+    installUUID: '',
+    invoker: {
+      userUUID: '',
+    },
+    msgid: '',
+    pluginUUID: '',
+    provider: {
+      providerDomain: '',
+      providerUUID: '',
+      workspaceUUID: '',
+    },
+    revision: '',
+  };
 
   const SETTINGS = {
     reg1: 'reg1',
@@ -31,6 +52,7 @@ describe('integration tests - onOAuthHandleCode', () => {
 
   const BODY: HandleOAuth2CodePayload = {
     event: 'OAUTH2_HANDLE_CODE',
+    caller: CALLER,
     payload: {
       code: 'CODE',
       oauthType: OAuthType.Provider,
@@ -117,6 +139,7 @@ describe('integration tests - onOAuthHandleCode', () => {
           redirectURI: 'example.com/redirect',
         },
         {
+          caller: CALLER,
           settings: SETTINGS,
         }
       );

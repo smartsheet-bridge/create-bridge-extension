@@ -4,6 +4,7 @@ import {
   NotFoundError,
   SerializableObject,
 } from '@smartsheet-extensions/handler';
+import { Caller } from '../models/Caller';
 import { ExternalResponse } from '../responses/ExternalResponse';
 import { BridgeFunction } from '../types';
 
@@ -20,6 +21,7 @@ export const EXTERNAL_CALL = 'EXTERNAL_CALL';
 
 export interface ExternalPayload {
   event: typeof EXTERNAL_CALL;
+  caller: Caller;
   payload: {
     call: string;
     method: 'POST' | 'GET';
@@ -48,6 +50,7 @@ export const handleExternals = (
       bodyData,
       registrationData: settings = {},
     } = body.payload;
+    const { caller } = body;
 
     if (externalId === undefined) {
       throw new BadRequestError(
@@ -65,6 +68,9 @@ export const handleExternals = (
       );
     }
 
-    next(config.externals[externalId](bodyData, { settings }), callback);
+    next(
+      config.externals[externalId](bodyData, { caller, settings }),
+      callback
+    );
   };
 };

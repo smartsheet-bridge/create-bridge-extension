@@ -2,6 +2,7 @@ import type {
   SerializableObject,
   ThunkFunction,
 } from '@smartsheet-extensions/handler';
+import { Caller } from './models/Caller';
 import { AbstractResponse } from './responses/AbstractResponse';
 
 type BridgeFunctionResponseUnion<Response extends AbstractResponse> =
@@ -16,6 +17,7 @@ export type BridgeFunctionResponse<Response extends AbstractResponse> =
 export interface BridgeContext<
   Settings extends SerializableObject = SerializableObject
 > {
+  caller: Caller;
   settings: Settings;
 }
 

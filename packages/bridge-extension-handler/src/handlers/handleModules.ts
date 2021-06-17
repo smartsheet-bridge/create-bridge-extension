@@ -7,6 +7,7 @@ import {
   SerializableObject,
 } from '@smartsheet-extensions/handler';
 import { BadModuleResponseError } from '../errors/BadModuleResponseError';
+import { Caller } from '../models/Caller';
 import { ModuleResponse } from '../responses/ModuleResponse';
 import { BridgeFunction } from '../types';
 
@@ -22,6 +23,7 @@ export const MODULE_EXEC = 'MODULE_EXEC';
 
 export interface ModulePayload {
   event: typeof MODULE_EXEC;
+  caller: Caller;
   payload: {
     moduleId: string;
     moduleParam: SerializableObject;
@@ -48,6 +50,7 @@ export const handleModules = (
       moduleParam,
       registrationData: settings = {},
     } = body.payload;
+    const { caller } = body;
 
     if (moduleId === undefined) {
       throw new BadRequestError(
@@ -65,6 +68,7 @@ export const handleModules = (
 
     next(
       config.modules[moduleId](moduleParam, {
+        caller,
         settings,
       }),
       (err?: Error, result?: unknown) => {

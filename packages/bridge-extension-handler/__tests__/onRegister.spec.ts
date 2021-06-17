@@ -1,6 +1,7 @@
 import { createBridgeHandler } from '../src';
 import { BadRegisterResponseError } from '../src/errors/BadRegisterResponseError';
 import { RegisterPayload } from '../src/handlers/handleRegister';
+import { Caller } from '../src/models/Caller';
 import { RegisterResponse } from '../src/responses/RegisterResponse';
 import { serve } from './express';
 
@@ -8,6 +9,26 @@ describe('integration tests - onRegister', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
+
+  const CALLER: Caller = {
+    callTime: 0,
+    callToken: {
+      signature: '',
+      validUntil: 0,
+    },
+    installUUID: '',
+    invoker: {
+      userUUID: '',
+    },
+    msgid: '',
+    pluginUUID: '',
+    provider: {
+      providerDomain: '',
+      providerUUID: '',
+      workspaceUUID: '',
+    },
+    revision: '',
+  };
 
   const SETTINGS = {
     reg1: 'reg1',
@@ -24,6 +45,7 @@ describe('integration tests - onRegister', () => {
 
   const BODY: RegisterPayload = {
     event: 'PLUGIN_REGISTER',
+    caller: CALLER,
     payload: {
       registrationData: SETTINGS,
     },
@@ -102,6 +124,7 @@ describe('integration tests - onRegister', () => {
       const res = await serve(handler).post('/').send(BODY);
       expect(mockFn).toBeCalledTimes(1);
       expect(mockFn).toBeCalledWith(SETTINGS, {
+        caller: CALLER,
         settings: SETTINGS,
       });
       expect(res.status).toBe(200);

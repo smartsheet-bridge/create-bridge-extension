@@ -5,6 +5,24 @@ import { handleModules, ModulePayload, ModulesConfig } from './handleModules';
 describe('handleModule', () => {
   const PAYLOAD: ModulePayload = {
     event: 'MODULE_EXEC',
+    caller: {
+      callTime: 0,
+      callToken: {
+        signature: '',
+        validUntil: 0,
+      },
+      installUUID: '',
+      invoker: {
+        userUUID: '',
+      },
+      msgid: '',
+      pluginUUID: '',
+      provider: {
+        providerUUID: '',
+      },
+      revision: '',
+      instanceID: '',
+    },
     payload: {
       moduleId: 'moduleA',
       moduleParam: {},

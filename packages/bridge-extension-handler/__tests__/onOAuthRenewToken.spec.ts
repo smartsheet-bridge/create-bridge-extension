@@ -3,6 +3,7 @@ import { createBridgeHandler } from '../src';
 import { BadRenewOAuth2TokenResponseError } from '../src/errors/BadRenewOAuth2TokenResponseError';
 import { RenewOAuth2TokenPayload } from '../src/handlers/handleOAuth2RenewToken';
 import { Caller } from '../src/models/Caller';
+import { OAuth2Data } from '../src/models/OAuth2Data';
 import { OAuthType } from '../src/models/OAuthType';
 import { HandleOAuth2CodeResponse } from '../src/responses/HandleOAuth2CodeResponse';
 import { serve } from './express';
@@ -121,6 +122,7 @@ describe('integration tests - onOAuthRenewToken', () => {
       HandleOAuth2CodeResponse.create(RESPONSE),
       SERIALIZED_RESPONSE,
     ],
+    ['OAUTH2_DATA_RESPONSE', OAuth2Data.create(RESPONSE), SERIALIZED_RESPONSE],
     ['THUNK', respond => respond(RESPONSE), SERIALIZED_RESPONSE],
     ['PROMISE', Promise.resolve(RESPONSE), SERIALIZED_RESPONSE],
   ] as Array<[string, any, any]>)(

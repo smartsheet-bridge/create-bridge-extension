@@ -35,6 +35,7 @@ describe('handleHandleOAuth2Code - onOAuthHandleCode', () => {
       pluginUUID: '',
       provider: {
         providerUUID: '',
+        workspaceUUID: '',
       },
       revision: '',
       instanceID: '',

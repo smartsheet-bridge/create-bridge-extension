@@ -35,6 +35,7 @@ describe('handleOAuth2RenewToken - onOAuthRenewToken', () => {
       pluginUUID: '',
       provider: {
         providerUUID: '',
+        workspaceUUID: '',
       },
       revision: '',
       instanceID: '',

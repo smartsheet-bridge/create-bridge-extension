@@ -1,6 +1,6 @@
 export interface HttpResponse {
-  body: string;
-  headers: Record<string, string>;
+  body?: string;
+  headers?: Record<string, string>;
   httpStatus: number;
 }
 
@@ -8,12 +8,12 @@ export class HttpResponse {
   /**
    * The HTTP response expressed as a string.
    */
-  body: string;
+  body?: string;
 
   /**
    * The HTTP response headers.
    */
-  headers: Record<string, string>;
+  headers?: Record<string, string>;
 
   /**
    * The HTTP response code.

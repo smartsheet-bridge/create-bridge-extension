@@ -3,6 +3,7 @@ import { createBridgeHandler } from '../src';
 import { BadStartOAuth2ResponseError } from '../src/errors/BadStartOAuth2ResponseError';
 import { StartOAuth2Payload } from '../src/handlers/handleOAuthStart';
 import { Caller } from '../src/models/Caller';
+import { OAuth2SetupData } from '../src/models/OAuth2SetupData';
 import { OAuthType } from '../src/models/OAuthType';
 import { StartOAuth2Response } from '../src/responses/StartOAuth2Response';
 import { serve } from './express';
@@ -118,6 +119,11 @@ describe('integration tests - onOAuthStart', () => {
     [
       'START_OAUTH_RESPONSE',
       StartOAuth2Response.create(RESPONSE),
+      SERIALIZED_RESPONSE,
+    ],
+    [
+      'OAUTH_SETUP_DATA_RESPONSE',
+      OAuth2SetupData.create(RESPONSE),
       SERIALIZED_RESPONSE,
     ],
     ['THUNK', respond => respond(RESPONSE), SERIALIZED_RESPONSE],

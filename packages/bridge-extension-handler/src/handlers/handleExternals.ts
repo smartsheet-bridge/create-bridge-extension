@@ -1,14 +1,17 @@
 import {
   BadRequestError,
   ExtensionHandlerEnhancer,
+  isSerializableObject,
   NotFoundError,
   SerializableObject,
 } from '@smartsheet-extensions/handler';
+import { BadExternalResponseError } from '../errors/BadExternalResponseError';
 import { Caller } from '../models/Caller';
+import { ChannelOutput } from '../models/ChannelOutput';
+import { HttpResponse } from '../models/HttpResponse';
 import { ExternalResponse } from '../responses/ExternalResponse';
 import { BridgeFunction } from '../types';
 
-// TODO: Change AbstractResponse to ExternalResponse once built.
 export type ExternalFunction<
   Params extends SerializableObject = SerializableObject,
   Settings extends SerializableObject = SerializableObject
@@ -33,6 +36,26 @@ export interface ExternalPayload {
 
 const isExternalPayload = (payload: any): payload is ExternalPayload =>
   payload.event === EXTERNAL_CALL;
+
+function isHTTPResponse(value: any): boolean {
+  return (
+    value instanceof HttpResponse ||
+    (isSerializableObject(value) && value.httpStatus !== undefined)
+  );
+}
+
+function isChannelOutput(value: any): boolean {
+  return (
+    value instanceof ChannelOutput ||
+    (isSerializableObject(value) &&
+      value.channelMessage !== undefined &&
+      value.channelSetting !== undefined)
+  );
+}
+
+function isArrayOfChannelOutput(value: any): boolean {
+  return Array.isArray(value) && value.every(item => isChannelOutput(item));
+}
 
 export const handleExternals = (
   config: ExternalsConfig
@@ -70,7 +93,38 @@ export const handleExternals = (
 
     next(
       config.externals[externalId](bodyData, { caller, settings }),
-      callback
+      (err?: Error, result?: unknown) => {
+        if (err) {
+          callback(err);
+        } else if (result instanceof ExternalResponse) {
+          callback(err, result);
+        } else if (isHTTPResponse(result)) {
+          callback(
+            err,
+            ExternalResponse.create({
+              httpResponse: HttpResponse.create(result),
+            })
+          );
+        } else if (isChannelOutput(result)) {
+          callback(
+            err,
+            ExternalResponse.create({
+              channelOutput: [ChannelOutput.create(result)],
+            })
+          );
+        } else if (isArrayOfChannelOutput(result)) {
+          callback(
+            err,
+            ExternalResponse.create({
+              channelOutput: result as ChannelOutput[],
+            })
+          );
+        } else if (result === null) {
+          throw new BadExternalResponseError(externalId, 'null');
+        } else {
+          throw new BadExternalResponseError(externalId, typeof result);
+        }
+      }
     );
   };
 };

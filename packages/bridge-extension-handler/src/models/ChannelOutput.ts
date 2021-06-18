@@ -1,19 +1,26 @@
+import {
+  SerializableClass,
+  SerializableObject,
+  serialize,
+} from '@smartsheet-extensions/handler';
 import { ChannelSettings } from './ChannelSettings';
 import { MediaChannelMessage } from './MediaChannelMessage';
+import { RestartWorkflowChannelMessage } from './RestartWorkflowChannelMessage';
 import { TextChannelMessage } from './TextChannelMessage';
-import { WorkflowChannelMessage } from './WorkflowChannelMessage';
+import { TriggerWorkflowChannelMessage } from './TriggerWorkflowChannelMessage';
 
 export type ChannelMessage =
   | TextChannelMessage
   | MediaChannelMessage
-  | WorkflowChannelMessage;
+  | TriggerWorkflowChannelMessage
+  | RestartWorkflowChannelMessage;
 
 export interface ChannelOutput {
   channelSetting: ChannelSettings;
   channelMessage: ChannelMessage;
 }
 
-export class ChannelOutput {
+export class ChannelOutput implements SerializableClass {
   channelSetting: ChannelSettings;
   channelMessage: ChannelMessage;
 
@@ -33,7 +40,7 @@ export class ChannelOutput {
    * Sets the channel message.
    * @param channelMessage the channel message.
    */
-  setChannelMessage(channelMessage: ChannelMessage) {
+  public setChannelMessage(channelMessage: ChannelMessage) {
     this.channelMessage = channelMessage;
   }
 
@@ -41,7 +48,14 @@ export class ChannelOutput {
    * Sets the channel settings.
    * @param channelSetting the channel settings.
    */
-  setChannelSetting(channelSetting: ChannelSettings) {
+  public setChannelSetting(channelSetting: ChannelSettings) {
     this.channelSetting = channelSetting;
+  }
+
+  public toSerializableObject(): SerializableObject {
+    return {
+      channelMessage: serialize(this.channelMessage),
+      channelSetting: serialize(this.channelSetting),
+    };
   }
 }

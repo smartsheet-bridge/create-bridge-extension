@@ -1,9 +1,14 @@
+import {
+  SerializableClass,
+  SerializableObject,
+} from '@smartsheet-extensions/handler';
+
 export interface TextChannelMessage {
   uid?: string;
   text: string;
 }
 
-export class TextChannelMessage {
+export class TextChannelMessage implements SerializableClass {
   /**
    * the unique identifier for the channel message.
    */
@@ -26,7 +31,7 @@ export class TextChannelMessage {
    * Sets the unique identifier for the channel message.
    * @param uid the unique identifier for the channel message.
    */
-  setUid(uid: string) {
+  public setUid(uid: string) {
     this.uid = uid;
   }
 
@@ -34,7 +39,15 @@ export class TextChannelMessage {
    * Sets the text for the channel message.
    * @param text the text for the channel message.
    */
-  setText(text: string) {
+  public setText(text: string) {
     this.text = text;
+  }
+
+  public toSerializableObject(): SerializableObject {
+    // kinda pointless with this class but each ChannelMessage needs to implement this interface
+    return {
+      uid: this.uid,
+      text: this.text,
+    };
   }
 }

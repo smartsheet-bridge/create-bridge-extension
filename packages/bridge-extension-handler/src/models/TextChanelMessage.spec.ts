@@ -32,4 +32,17 @@ describe('model tests - TextChannelMessage', () => {
     expect(response).toHaveProperty('uid');
     expect(response.uid).toEqual('unique');
   });
+  it('toSerializableObject', async () => {
+    const response = TextChannelMessage.create({
+      uid: 'unique',
+      text: 'text message',
+    });
+
+    const actual = response.toSerializableObject();
+
+    expect(actual).toHaveProperty('text');
+    expect(actual.text).toEqual('text message');
+    expect(actual).toHaveProperty('uid');
+    expect(actual.uid).toEqual('unique');
+  });
 });

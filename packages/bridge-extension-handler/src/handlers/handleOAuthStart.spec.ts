@@ -35,6 +35,7 @@ describe('handleOAuth2Start - onOAuthStart', () => {
       pluginUUID: '',
       provider: {
         providerUUID: '',
+        workspaceUUID: '',
       },
       revision: '',
       instanceID: '',

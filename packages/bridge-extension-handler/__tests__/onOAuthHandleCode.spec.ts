@@ -3,6 +3,7 @@ import { createBridgeHandler } from '../src';
 import { BadHandleOAuth2CodeResponseError } from '../src/errors/BadHandleOAuth2CodeResponseError';
 import { HandleOAuth2CodePayload } from '../src/handlers/handleOAuth2HandleCode';
 import { Caller } from '../src/models/Caller';
+import { OAuth2Data } from '../src/models/OAuth2Data';
 import { OAuthType } from '../src/models/OAuthType';
 import { HandleOAuth2CodeResponse } from '../src/responses/HandleOAuth2CodeResponse';
 import { serve } from './express';
@@ -121,6 +122,7 @@ describe('integration tests - onOAuthHandleCode', () => {
       HandleOAuth2CodeResponse.create(RESPONSE),
       SERIALIZED_RESPONSE,
     ],
+    ['OAUTH2_DATA_RESPONSE', OAuth2Data.create(RESPONSE), SERIALIZED_RESPONSE],
     ['THUNK', respond => respond(RESPONSE), SERIALIZED_RESPONSE],
     ['PROMISE', Promise.resolve(RESPONSE), SERIALIZED_RESPONSE],
   ] as Array<[string, any, any]>)(

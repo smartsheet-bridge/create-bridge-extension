@@ -10,7 +10,7 @@ interface Invoker {
 
 interface Provider {
   providerUUID: string;
-  workspaceUUID?: string;
+  workspaceUUID: string;
   providerDomain?: string;
 }
 

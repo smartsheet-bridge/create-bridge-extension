@@ -4,12 +4,13 @@ import {
   NotFoundError,
 } from '@smartsheet-extensions/handler';
 import { createBridgeHandler } from '../src';
+import { BadExternalResponseError } from '../src/errors/BadExternalResponseError';
 import { ExternalPayload } from '../src/handlers/handleExternals';
 import { Caller } from '../src/models/Caller';
 import { ChannelOutput } from '../src/models/ChannelOutput';
 import { HttpResponse } from '../src/models/HttpResponse';
 import { TextChannelMessage } from '../src/models/TextChannelMessage';
-import { WorkflowChannelMessage } from '../src/models/WorkflowChannelMessage';
+import { TriggerWorkflowChannelMessage } from '../src/models/TriggerWorkflowChannelMessage';
 import { ExternalResponse } from '../src/responses/ExternalResponse';
 import { serve } from './express';
 
@@ -88,71 +89,34 @@ describe('integration tests - external', () => {
   });
 
   it.each([
-    ['NUMBER', 1],
-    ['STRING', 'Hello, World!'],
-    ['ARRAY', [1, 2, 3]],
-    ['OBJECT', { hello: 'world!' }],
-  ] as Array<[string, any]>)(
-    'should return %s external response',
-    async (type, expectedResult) => {
-      const mockFn = jest.fn(() => expectedResult);
-      const handler = createBridgeHandler({
-        externals: {
-          abc: mockFn,
-        },
-      });
-      const res = await serve(handler).post('/').send(PAYLOAD);
-      expect(mockFn).toBeCalledTimes(1);
-      expect(mockFn).toBeCalledWith(
-        {
-          param1: 'param1',
-          param2: 'param2',
-        },
-        {
-          caller: CALLER,
-          settings: {
-            reg1: 'reg1',
-            reg2: 'reg2',
-          },
-        }
-      );
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
-    }
-  );
-
-  it.each([
-    ['UNDEFINED', undefined, ''],
-    ['THUNK', respond => respond('Hello, World!'), 'Hello, World!'],
-    ['PROMISE', Promise.resolve('Hello, World!'), 'Hello, World!'],
-    ['PROMISE UNDEFINED', Promise.resolve(), ''],
-    ['THUNK UNDEFINED', respond => respond(), ''],
-  ] as Array<[string, any, any]>)(
-    'should return %s external response',
-    async (type, response, expectedResult) => {
+    ['UNDEFINED', undefined, 'undefined'],
+    ['NULL', null, 'null'],
+    ['NUMBER', 1, 'number'],
+    ['STRING', 'Hello, World!', 'string'],
+    ['ARRAY', [1, 2, 3], 'object'],
+    ['THUNK', respond => respond('hello'), 'string'],
+    ['PROMISE', Promise.resolve('hello'), 'string'],
+    ['PROMISE UNDEFINED', Promise.resolve(), 'undefined'],
+    ['THUNK UNDEFINED', respond => respond(), 'undefined'],
+  ] as Array<[string, any, any?]>)(
+    'should return BAD_RESPONSE for %s',
+    async (name, response, type) => {
       const mockFn = jest.fn(() => response);
+      const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const expectedResult = new BadExternalResponseError(
+        'abc',
+        type || typeof response
+      );
       const handler = createBridgeHandler({
         externals: {
           abc: mockFn,
         },
       });
       const res = await serve(handler).post('/').send(PAYLOAD);
-      expect(mockFn).toBeCalledTimes(1);
-      expect(mockFn).toBeCalledWith(
-        {
-          param1: 'param1',
-          param2: 'param2',
-        },
-        {
-          caller: CALLER,
-          settings: {
-            reg1: 'reg1',
-            reg2: 'reg2',
-          },
-        }
-      );
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res.body).toEqual(expectedResult.toJSON());
+      expect(stderr).toBeCalledTimes(1);
+      expect(stderr).toBeCalledWith(expectedResult);
     }
   );
 
@@ -190,7 +154,7 @@ describe('integration tests - external', () => {
         triggers: [
           {
             uid: 'UUID',
-            workflow: 'ping',
+            workflowId: 'ping',
           },
         ],
       },
@@ -233,9 +197,9 @@ describe('integration tests - external', () => {
 
         if (bodyData.triggers) {
           bodyData.triggers.forEach(trigger => {
-            const channelMessage = WorkflowChannelMessage.create();
+            const channelMessage = TriggerWorkflowChannelMessage.create();
             channelMessage.setUid(trigger.uid);
-            channelMessage.setWorkflow(trigger.workflow);
+            channelMessage.setWorkflowId(trigger.workflowId);
             channelOutput.push(ChannelOutput.create({ channelMessage }));
           });
         }

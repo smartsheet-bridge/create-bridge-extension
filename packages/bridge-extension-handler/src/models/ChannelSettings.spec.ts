@@ -46,12 +46,12 @@ describe('model tests - ChannelSettings', () => {
     expect(channelSettings.requestUUID).toEqual('uuid');
   });
 
-  it('setRuntimeCTX', async () => {
+  it('setRuntimeData', async () => {
     const channelSettings = new ChannelSettings();
-    channelSettings.setRuntimeCTX({ key: 'value' });
+    channelSettings.setRuntimeData({ key: 'value' });
 
-    expect(channelSettings).toHaveProperty('runtimeCTX');
-    expect(channelSettings.runtimeCTX).toEqual({ key: 'value' });
+    expect(channelSettings).toHaveProperty('runtimeData');
+    expect(channelSettings.runtimeData).toEqual({ key: 'value' });
   });
 
   it('setThreadId', async () => {
@@ -95,7 +95,7 @@ describe('model tests - ChannelSettings', () => {
       data: { key: 'value' },
       isGroup: true,
       requestUUID: 'UUID',
-      runtimeCTX: { key: 'value' },
+      runtimeData: { key: 'value' },
       sync: true,
       threadId: 'THREAD',
       userId: 'USER',
@@ -107,11 +107,39 @@ describe('model tests - ChannelSettings', () => {
     expect(channelSettings).toHaveProperty('data');
     expect(channelSettings).toHaveProperty('isGroup');
     expect(channelSettings).toHaveProperty('requestUUID');
-    expect(channelSettings).toHaveProperty('runtimeCTX');
+    expect(channelSettings).toHaveProperty('runtimeData');
     expect(channelSettings).toHaveProperty('sync');
     expect(channelSettings).toHaveProperty('threadId');
     expect(channelSettings).toHaveProperty('userId');
     expect(channelSettings).toHaveProperty('userInfo');
     expect(channelSettings).toHaveProperty('userUUID');
+  });
+
+  it('toSerializableObject', async () => {
+    const channelSettings = ChannelSettings.create({
+      channelName: 'channel',
+      data: { key: 'value' },
+      isGroup: true,
+      requestUUID: 'UUID',
+      runtimeData: { key: 'value' },
+      sync: true,
+      threadId: 'THREAD',
+      userId: 'USER',
+      userInfo: ChannelUserInfo.create(),
+      userUUID: 'UUID',
+    });
+
+    const actual = channelSettings.toSerializableObject();
+
+    expect(actual).toHaveProperty('channelName');
+    expect(actual).toHaveProperty('data');
+    expect(actual).toHaveProperty('isGroup');
+    expect(actual).toHaveProperty('requestUUID');
+    expect(actual).toHaveProperty('runtimeCTX');
+    expect(actual).toHaveProperty('sync');
+    expect(actual).toHaveProperty('threadId');
+    expect(actual).toHaveProperty('userId');
+    expect(actual).toHaveProperty('userInfo');
+    expect(actual).toHaveProperty('userUUID');
   });
 });

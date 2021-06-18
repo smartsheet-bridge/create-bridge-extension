@@ -19,6 +19,7 @@ describe('handleModule', () => {
       pluginUUID: '',
       provider: {
         providerUUID: '',
+        workspaceUUID: '',
       },
       revision: '',
       instanceID: '',

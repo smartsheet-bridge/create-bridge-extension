@@ -1,4 +1,8 @@
-import { SerializableObject } from '@smartsheet-extensions/handler';
+import {
+  SerializableClass,
+  SerializableObject,
+  serialize,
+} from '@smartsheet-extensions/handler';
 import { ChannelUserInfo } from './ChannelUserInfo';
 
 export interface ChannelSettings {
@@ -7,14 +11,14 @@ export interface ChannelSettings {
   userUUID?: string;
   requestUUID?: string;
   data?: SerializableObject;
-  runtimeCTX?: SerializableObject;
+  runtimeData?: SerializableObject;
   channelName?: string;
   userInfo?: ChannelUserInfo;
   sync?: boolean;
   isGroup?: boolean;
 }
 
-export class ChannelSettings {
+export class ChannelSettings implements SerializableClass {
   /**
    * The unique identifier for user in channel.
    */
@@ -38,7 +42,7 @@ export class ChannelSettings {
   /**
    * Additional data that is passed to the next workflow but is not persisted.
    */
-  runtimeCTX?: SerializableObject;
+  runtimeData?: SerializableObject;
   /**
    * The name of the notification or chat channel.
    */
@@ -69,7 +73,7 @@ export class ChannelSettings {
     userUUID,
     requestUUID,
     data,
-    runtimeCTX,
+    runtimeData,
     channelName,
     userInfo,
     sync,
@@ -80,7 +84,7 @@ export class ChannelSettings {
     if (userUUID) this.setUserUUID(userUUID);
     if (requestUUID) this.setRequestUUID(requestUUID);
     if (data) this.setData(data);
-    if (runtimeCTX) this.setRuntimeCTX(runtimeCTX);
+    if (runtimeData) this.setRuntimeData(runtimeData);
     if (channelName) this.setChannelName(channelName);
     if (userInfo) this.setUserInfo(userInfo);
     if (sync) this.setIsSync(sync);
@@ -91,7 +95,7 @@ export class ChannelSettings {
    * Sets the channel user identifier.
    * @param userId channel user identifier.
    */
-  setUserID(userId: string) {
+  public setUserID(userId: string) {
     this.userId = userId;
   }
 
@@ -99,7 +103,7 @@ export class ChannelSettings {
    * Sets the channel thread identifier.
    * @param threadId channel thread identifier.
    */
-  setThreadId(threadId: string) {
+  public setThreadId(threadId: string) {
     this.threadId = threadId;
   }
 
@@ -107,7 +111,7 @@ export class ChannelSettings {
    * Sets the bridge user UUID.
    * @param userUUID bridge user UUID.
    */
-  setUserUUID(userUUID: string) {
+  public setUserUUID(userUUID: string) {
     this.userUUID = userUUID;
   }
 
@@ -115,7 +119,7 @@ export class ChannelSettings {
    * Sets the bridge thread UUID.
    * @param requestUUID bridge thread UUID.
    */
-  setRequestUUID(requestUUID: string) {
+  public setRequestUUID(requestUUID: string) {
     this.requestUUID = requestUUID;
   }
 
@@ -123,23 +127,23 @@ export class ChannelSettings {
    * Sets the user data.
    * @param data user data.
    */
-  setData(data: SerializableObject) {
+  public setData(data: SerializableObject) {
     this.data = data;
   }
 
   /**
    * Sets the user runtime data.
-   * @param runtimeCTX user runtime data.
+   * @param runtimeData user runtime data.
    */
-  setRuntimeCTX(runtimeCTX: SerializableObject) {
-    this.runtimeCTX = runtimeCTX;
+  public setRuntimeData(runtimeData: SerializableObject) {
+    this.runtimeData = runtimeData;
   }
 
   /**
    * Sets the channel name.
    * @param channelName channel name.
    */
-  setChannelName(channelName: string) {
+  public setChannelName(channelName: string) {
     this.channelName = channelName;
   }
 
@@ -147,7 +151,7 @@ export class ChannelSettings {
    * Sets the channel user information.
    * @param userInfo user information.
    */
-  setUserInfo(userInfo: ChannelUserInfo) {
+  public setUserInfo(userInfo: ChannelUserInfo) {
     this.userInfo = userInfo;
   }
 
@@ -155,7 +159,7 @@ export class ChannelSettings {
    * Sets if the channel should be invoked synchronously.
    * @param isSync if the channel is synchronous.
    */
-  setIsSync(isSync: boolean) {
+  public setIsSync(isSync: boolean) {
     this.sync = isSync;
   }
 
@@ -163,7 +167,22 @@ export class ChannelSettings {
    * Sets if the channel thread is a group thread.
    * @param isGroup if the channel thread is a group thread.
    */
-  setIsGroup(isGroup: boolean) {
+  public setIsGroup(isGroup: boolean) {
     this.isGroup = isGroup;
+  }
+
+  public toSerializableObject(): SerializableObject {
+    return {
+      channelName: this.channelName,
+      data: this.data,
+      isGroup: this.isGroup,
+      requestUUID: this.requestUUID,
+      runtimeCTX: this.runtimeData,
+      sync: this.sync,
+      threadId: this.threadId,
+      userId: this.userId,
+      userInfo: serialize(this.userInfo),
+      userUUID: this.userUUID,
+    };
   }
 }

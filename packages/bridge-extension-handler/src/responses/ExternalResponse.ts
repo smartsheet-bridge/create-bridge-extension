@@ -1,4 +1,9 @@
-import { ExtensionResponse } from '@smartsheet-extensions/handler';
+import {
+  ExtensionResponse,
+  SerializableClass,
+  SerializableObject,
+  serialize,
+} from '@smartsheet-extensions/handler';
 import { ChannelOutput } from '../models/ChannelOutput';
 import { HttpResponse } from '../models/HttpResponse';
 import { AbstractResponse } from './AbstractResponse';
@@ -8,7 +13,9 @@ export interface ExternalResponse extends ExtensionResponse {
   httpResponse: HttpResponse;
 }
 
-export class ExternalResponse extends AbstractResponse {
+export class ExternalResponse
+  extends AbstractResponse
+  implements SerializableClass {
   /**
    * The HTTP Response data.
    */
@@ -53,10 +60,20 @@ export class ExternalResponse extends AbstractResponse {
    * Adds one or more channel outputs to the response.
    * @param channelOutput One or more channel output definitions.
    */
-  public addChannelOutput(...channelOutput: ChannelOutput[]) {
+  public addChannelOutput(...channelOutput: Partial<ChannelOutput>[]) {
     if (this.channelOutput === undefined) {
       this.channelOutput = [];
     }
-    this.channelOutput.push(...channelOutput);
+    channelOutput.forEach(output => {
+      this.channelOutput.push(ChannelOutput.create(output));
+    });
+  }
+
+  public toSerializableObject(): SerializableObject {
+    return {
+      status: this.status,
+      channelOutput: serialize(this.channelOutput),
+      httpResponse: serialize(this.httpResponse),
+    };
   }
 }

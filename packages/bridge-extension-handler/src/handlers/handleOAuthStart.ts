@@ -12,9 +12,8 @@ import { StartOAuth2Response } from '../responses/StartOAuth2Response';
 import { BridgeFunction } from '../types';
 
 export type StartOAuth2Function<
-  Params extends SerializableObject = SerializableObject,
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<StartOAuth2Response, Params, Settings>;
+> = BridgeFunction<StartOAuth2Response, StartOAuth2Params, Settings>;
 
 export interface OAuth2StartConfig {
   onOAuthStart?: StartOAuth2Function;
@@ -30,6 +29,11 @@ export interface StartOAuth2Payload {
     redirectURI: string;
     registrationData: SerializableObject;
   };
+}
+
+export interface StartOAuth2Params extends SerializableObject {
+  oauthType: OAuthType;
+  redirectURI: string;
 }
 
 const isStartOAuth2Payload = (payload: any): payload is StartOAuth2Payload =>

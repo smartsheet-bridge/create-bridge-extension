@@ -12,12 +12,19 @@ import { HandleOAuth2CodeResponse } from '../responses/HandleOAuth2CodeResponse'
 import { BridgeFunction } from '../types';
 
 export type HandleOAuth2CodeFunction<
-  Params extends SerializableObject = SerializableObject,
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<HandleOAuth2CodeResponse, Params, Settings>;
+> = BridgeFunction<HandleOAuth2CodeResponse, HandleOAuth2CodeParams, Settings>;
 
 export interface HandleOAuth2CodeConfig {
   onOAuthHandleCode?: HandleOAuth2CodeFunction;
+}
+
+export interface HandleOAuth2CodeParams extends SerializableObject {
+  scope?: string;
+  state?: string;
+  code: string;
+  oauthType: OAuthType;
+  redirectURI: string;
 }
 
 export const OAUTH2_HANDLE_CODE = 'OAUTH2_HANDLE_CODE';

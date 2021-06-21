@@ -222,7 +222,9 @@ describe('integration tests - external', () => {
       expect(mockFn).toBeCalledTimes(1);
       expect(mockFn).toBeCalledWith(
         {
-          ...bodyData,
+          method: 'GET',
+          inboundHeaders: {},
+          bodyData,
         },
         {
           caller: CALLER,

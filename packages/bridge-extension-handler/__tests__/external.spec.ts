@@ -6,9 +6,12 @@ import {
 import { createBridgeHandler } from '../src';
 import { BadExternalResponseError } from '../src/errors/BadExternalResponseError';
 import { ExternalPayload } from '../src/handlers/handleExternals';
+import { BridgeChannelSettings } from '../src/models/BridgeChannelSettings';
 import { Caller } from '../src/models/Caller';
 import { ChannelOutput } from '../src/models/ChannelOutput';
+import { ExternalChannelSettings } from '../src/models/ExternalChannelSettings';
 import { HttpResponse } from '../src/models/HttpResponse';
+import { RestartWorkflowChannelMessage } from '../src/models/RestartWorkflowChannelMessage';
 import { TextChannelMessage } from '../src/models/TextChannelMessage';
 import { TriggerWorkflowChannelMessage } from '../src/models/TriggerWorkflowChannelMessage';
 import { ExternalResponse } from '../src/responses/ExternalResponse';
@@ -231,6 +234,163 @@ describe('integration tests - external', () => {
       );
       expect(res.status).toBe(200);
       expect(res.body).toEqual(expectedResult);
+    }
+  );
+
+  it.each([
+    ['empty', ExternalResponse.create(), { status: 0 }],
+    [
+      '200 response',
+      HttpResponse.create({ httpStatus: 200 }),
+      { status: 0, httpResponse: { httpStatus: 200 } },
+    ],
+    [
+      'bridge-text',
+      {
+        channelMessage: TextChannelMessage.create({ text: 'input text' }),
+        channelSetting: BridgeChannelSettings.create({
+          userId: 'userUUID',
+          threadId: 'requestUUID',
+        }),
+      },
+      {
+        status: 0,
+        channelOutput: [
+          {
+            channelMessage: { text: 'input text' },
+            channelSetting: {
+              userUUID: 'userUUID',
+              requestUUID: 'requestUUID',
+            },
+          },
+        ],
+      },
+    ],
+    [
+      'external-text',
+      {
+        channelMessage: TextChannelMessage.create({ text: 'input text' }),
+        channelSetting: ExternalChannelSettings.create({
+          userId: 'USER',
+          threadId: 'THREAD',
+        }),
+      },
+      {
+        status: 0,
+        channelOutput: [
+          {
+            channelMessage: { text: 'input text' },
+            channelSetting: { userId: 'USER', threadId: 'THREAD' },
+          },
+        ],
+      },
+    ],
+    [
+      'bridge-workflow-start',
+      {
+        channelMessage: TriggerWorkflowChannelMessage.create({
+          workflowID: 'workflowID',
+        }),
+        channelSetting: BridgeChannelSettings.create({
+          userId: 'userUUID',
+          threadId: 'requestUUID',
+        }),
+      },
+      {
+        status: 0,
+        channelOutput: [
+          {
+            channelMessage: { conversation: { new: 'workflowID' } },
+            channelSetting: {
+              userUUID: 'userUUID',
+              requestUUID: 'requestUUID',
+            },
+          },
+        ],
+      },
+    ],
+    [
+      'external-workflow-start',
+      {
+        channelMessage: TriggerWorkflowChannelMessage.create({
+          workflowID: 'workflowID',
+        }),
+        channelSetting: ExternalChannelSettings.create({
+          userId: 'USER',
+          threadId: 'THREAD',
+        }),
+      },
+      {
+        status: 0,
+        channelOutput: [
+          {
+            channelMessage: { conversation: { new: 'workflowID' } },
+            channelSetting: { userId: 'USER', threadId: 'THREAD' },
+          },
+        ],
+      },
+    ],
+    [
+      'bridge-workflow-restart',
+      {
+        channelMessage: RestartWorkflowChannelMessage.create({
+          workflowRunID: 'conversation',
+        }),
+        channelSetting: BridgeChannelSettings.create({
+          userId: 'userUUID',
+          threadId: 'requestUUID',
+        }),
+      },
+      {
+        status: 0,
+        channelOutput: [
+          {
+            channelMessage: { conversation: { existing: 'conversation' } },
+            channelSetting: {
+              userUUID: 'userUUID',
+              requestUUID: 'requestUUID',
+            },
+          },
+        ],
+      },
+    ],
+    [
+      'external-workflow-restart',
+      {
+        channelMessage: RestartWorkflowChannelMessage.create({
+          workflowRunID: 'conversation',
+        }),
+        channelSetting: ExternalChannelSettings.create({
+          userId: 'USER',
+          threadId: 'THREAD',
+        }),
+      },
+      {
+        status: 0,
+        channelOutput: [
+          {
+            channelMessage: { conversation: { existing: 'conversation' } },
+            channelSetting: { userId: 'USER', threadId: 'THREAD' },
+          },
+        ],
+      },
+    ],
+  ] as Array<[string, ExternalResponse, any]>)(
+    'validate response format : %s',
+    async (name, result, expected) => {
+      const mockFn = jest.fn(() => {
+        return result;
+      });
+      const handler = createBridgeHandler({
+        externals: {
+          abc: mockFn,
+        },
+      });
+      const functionPayload = { ...PAYLOAD };
+      const res = await serve(handler).post('/').send(functionPayload);
+      expect(mockFn).toBeCalledTimes(1);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(expected);
     }
   );
 });

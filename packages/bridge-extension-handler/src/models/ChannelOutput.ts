@@ -3,11 +3,14 @@ import {
   SerializableObject,
   serialize,
 } from '@smartsheet-extensions/handler';
-import { ChannelSettings } from './ChannelSettings';
+import { BridgeChannelSettings } from './BridgeChannelSettings';
+import { ExternalChannelSettings } from './ExternalChannelSettings';
 import { MediaChannelMessage } from './MediaChannelMessage';
 import { RestartWorkflowChannelMessage } from './RestartWorkflowChannelMessage';
 import { TextChannelMessage } from './TextChannelMessage';
 import { TriggerWorkflowChannelMessage } from './TriggerWorkflowChannelMessage';
+
+export type ChannelSettings = ExternalChannelSettings | BridgeChannelSettings;
 
 export type ChannelMessage =
   | TextChannelMessage

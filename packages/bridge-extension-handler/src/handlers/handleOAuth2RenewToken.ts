@@ -13,12 +13,17 @@ import { RenewOAuth2TokenResponse } from '../responses/RenewOAuth2TokenResponse'
 import { BridgeFunction } from '../types';
 
 export type RenewOAuth2TokenFunction<
-  Params extends SerializableObject = SerializableObject,
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<RenewOAuth2TokenResponse, Params, Settings>;
+> = BridgeFunction<RenewOAuth2TokenResponse, RenewOAuth2TokenParams, Settings>;
 
 export interface OAuth2RenewTokenConfig {
   onOAuthRenewToken?: RenewOAuth2TokenFunction;
+}
+
+export interface RenewOAuth2TokenParams extends SerializableObject {
+  renewToken: string;
+  oauthType: OAuthType;
+  redirectURI: string;
 }
 
 export const OAUTH2_RENEW_TOKEN = 'OAUTH2_RENEW_TOKEN';

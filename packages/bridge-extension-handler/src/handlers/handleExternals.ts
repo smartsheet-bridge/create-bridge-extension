@@ -13,11 +13,17 @@ import { ExternalResponse } from '../responses/ExternalResponse';
 import { BridgeFunction } from '../types';
 
 export type ExternalFunction<
-  Params extends SerializableObject = SerializableObject,
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<ExternalResponse, Params, Settings>;
+> = BridgeFunction<ExternalResponse, ExternalsParams, Settings>;
+
 export interface ExternalsConfig {
   externals?: { [externalId: string]: ExternalFunction };
+}
+
+export interface ExternalsParams extends SerializableObject {
+  method: 'POST' | 'GET' | 'PUT' | 'DELETE';
+  inboundHeaders: Record<string, string>;
+  bodyData: SerializableObject;
 }
 
 export const EXTERNAL_CALL = 'EXTERNAL_CALL';
@@ -29,7 +35,7 @@ export interface ExternalPayload {
     call: string;
     method: 'POST' | 'GET';
     registrationData: SerializableObject;
-    inboundHeaders: { [key: string]: string };
+    inboundHeaders: Record<string, string>;
     bodyData: SerializableObject;
   };
 }
@@ -72,6 +78,8 @@ export const handleExternals = (
       call: externalId,
       bodyData,
       registrationData: settings = {},
+      inboundHeaders,
+      method,
     } = body.payload;
     const { caller } = body;
 
@@ -92,7 +100,14 @@ export const handleExternals = (
     }
 
     next(
-      config.externals[externalId](bodyData, { caller, settings }),
+      config.externals[externalId](
+        {
+          bodyData,
+          inboundHeaders,
+          method,
+        },
+        { caller, settings }
+      ),
       (err?: Error, result?: unknown) => {
         if (err) {
           callback(err);

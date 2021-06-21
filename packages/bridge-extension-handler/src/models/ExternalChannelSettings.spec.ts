@@ -1,13 +1,13 @@
-import { ChannelSettings } from './ChannelSettings';
 import { ChannelUserInfo } from './ChannelUserInfo';
+import { ExternalChannelSettings } from './ExternalChannelSettings';
 
-describe('model tests - ChannelSettings', () => {
+describe('model tests - ExternalChannelSettings', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
 
   it('setChannelName', async () => {
-    const channelSettings = new ChannelSettings();
+    const channelSettings = new ExternalChannelSettings();
     channelSettings.setChannelName('bridge');
 
     expect(channelSettings).toHaveProperty('channelName');
@@ -15,7 +15,7 @@ describe('model tests - ChannelSettings', () => {
   });
 
   it('setData', async () => {
-    const channelSettings = new ChannelSettings();
+    const channelSettings = new ExternalChannelSettings();
     channelSettings.setData({ key: 'value' });
 
     expect(channelSettings).toHaveProperty('data');
@@ -23,7 +23,7 @@ describe('model tests - ChannelSettings', () => {
   });
 
   it('setIsSync', async () => {
-    const channelSettings = new ChannelSettings();
+    const channelSettings = new ExternalChannelSettings();
     channelSettings.setIsSync(true);
 
     expect(channelSettings).toHaveProperty('sync');
@@ -31,23 +31,15 @@ describe('model tests - ChannelSettings', () => {
   });
 
   it('setIsGroup', async () => {
-    const channelSettings = new ChannelSettings();
+    const channelSettings = new ExternalChannelSettings();
     channelSettings.setIsGroup(true);
 
     expect(channelSettings).toHaveProperty('isGroup');
     expect(channelSettings.isGroup).toEqual(true);
   });
 
-  it('setRequestUUID', async () => {
-    const channelSettings = new ChannelSettings();
-    channelSettings.setRequestUUID('uuid');
-
-    expect(channelSettings).toHaveProperty('requestUUID');
-    expect(channelSettings.requestUUID).toEqual('uuid');
-  });
-
   it('setRuntimeData', async () => {
-    const channelSettings = new ChannelSettings();
+    const channelSettings = new ExternalChannelSettings();
     channelSettings.setRuntimeData({ key: 'value' });
 
     expect(channelSettings).toHaveProperty('runtimeData');
@@ -55,7 +47,7 @@ describe('model tests - ChannelSettings', () => {
   });
 
   it('setThreadId', async () => {
-    const channelSettings = new ChannelSettings();
+    const channelSettings = new ExternalChannelSettings();
     channelSettings.setThreadId('DB_THREAD');
 
     expect(channelSettings).toHaveProperty('threadId');
@@ -63,7 +55,7 @@ describe('model tests - ChannelSettings', () => {
   });
 
   it('setUserID', async () => {
-    const channelSettings = new ChannelSettings();
+    const channelSettings = ExternalChannelSettings.create();
     channelSettings.setUserID('USER_ID');
 
     expect(channelSettings).toHaveProperty('userId');
@@ -73,7 +65,7 @@ describe('model tests - ChannelSettings', () => {
   it('setUserInfo', async () => {
     const userInfo = ChannelUserInfo.create({ email: 'user@example.com' });
 
-    const channelSettings = new ChannelSettings();
+    const channelSettings = new ExternalChannelSettings();
     channelSettings.setUserInfo(userInfo);
 
     expect(channelSettings).toHaveProperty('userInfo');
@@ -81,52 +73,38 @@ describe('model tests - ChannelSettings', () => {
     expect(channelSettings.userInfo.email).toEqual('user@example.com');
   });
 
-  it('setUserUUID', async () => {
-    const channelSettings = ChannelSettings.create();
-    channelSettings.setUserUUID('UUID');
-
-    expect(channelSettings).toHaveProperty('userUUID');
-    expect(channelSettings.userUUID).toEqual('UUID');
-  });
-
   it('create', async () => {
-    const channelSettings = ChannelSettings.create({
+    const channelSettings = ExternalChannelSettings.create({
       channelName: 'channel',
       data: { key: 'value' },
       isGroup: true,
-      requestUUID: 'UUID',
       runtimeData: { key: 'value' },
       sync: true,
       threadId: 'THREAD',
       userId: 'USER',
       userInfo: ChannelUserInfo.create(),
-      userUUID: 'UUID',
     });
 
     expect(channelSettings).toHaveProperty('channelName');
     expect(channelSettings).toHaveProperty('data');
     expect(channelSettings).toHaveProperty('isGroup');
-    expect(channelSettings).toHaveProperty('requestUUID');
     expect(channelSettings).toHaveProperty('runtimeData');
     expect(channelSettings).toHaveProperty('sync');
     expect(channelSettings).toHaveProperty('threadId');
     expect(channelSettings).toHaveProperty('userId');
     expect(channelSettings).toHaveProperty('userInfo');
-    expect(channelSettings).toHaveProperty('userUUID');
   });
 
   it('toSerializableObject', async () => {
-    const channelSettings = ChannelSettings.create({
+    const channelSettings = ExternalChannelSettings.create({
       channelName: 'channel',
       data: { key: 'value' },
       isGroup: true,
-      requestUUID: 'UUID',
       runtimeData: { key: 'value' },
       sync: true,
       threadId: 'THREAD',
       userId: 'USER',
       userInfo: ChannelUserInfo.create(),
-      userUUID: 'UUID',
     });
 
     const actual = channelSettings.toSerializableObject();
@@ -134,12 +112,10 @@ describe('model tests - ChannelSettings', () => {
     expect(actual).toHaveProperty('channelName');
     expect(actual).toHaveProperty('data');
     expect(actual).toHaveProperty('isGroup');
-    expect(actual).toHaveProperty('requestUUID');
     expect(actual).toHaveProperty('runtimeCTX');
     expect(actual).toHaveProperty('sync');
     expect(actual).toHaveProperty('threadId');
     expect(actual).toHaveProperty('userId');
     expect(actual).toHaveProperty('userInfo');
-    expect(actual).toHaveProperty('userUUID');
   });
 });

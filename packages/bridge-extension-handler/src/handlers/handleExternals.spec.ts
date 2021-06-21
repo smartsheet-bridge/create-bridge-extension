@@ -3,8 +3,8 @@ import {
   createExtensionHandler,
 } from '@smartsheet-extensions/handler';
 import { BadExternalResponseError } from '../errors/BadExternalResponseError';
+import { BridgeChannelSettings } from '../models/BridgeChannelSettings';
 import { ChannelOutput } from '../models/ChannelOutput';
-import { ChannelSettings } from '../models/ChannelSettings';
 import { HttpResponse } from '../models/HttpResponse';
 import { TextChannelMessage } from '../models/TextChannelMessage';
 import { ExternalResponse } from '../responses/ExternalResponse';
@@ -55,13 +55,13 @@ describe('handleExternals', () => {
     ExternalResponse.create({
       channelOutput: [
         ChannelOutput.create({
-          channelSetting: ChannelSettings.create(),
+          channelSetting: BridgeChannelSettings.create(),
           channelMessage: TextChannelMessage.create({ text: 'sample text' }),
         }),
       ],
     }),
     ChannelOutput.create({
-      channelSetting: ChannelSettings.create(),
+      channelSetting: BridgeChannelSettings.create(),
       channelMessage: TextChannelMessage.create({ text: 'sample text' }),
     }),
     {
@@ -72,7 +72,7 @@ describe('handleExternals', () => {
     },
     [
       ChannelOutput.create({
-        channelSetting: ChannelSettings.create(),
+        channelSetting: BridgeChannelSettings.create(),
         channelMessage: TextChannelMessage.create({ text: 'sample text' }),
       }),
     ],

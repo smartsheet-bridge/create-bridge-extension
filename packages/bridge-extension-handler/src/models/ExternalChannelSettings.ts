@@ -5,11 +5,9 @@ import {
 } from '@smartsheet-extensions/handler';
 import { ChannelUserInfo } from './ChannelUserInfo';
 
-export interface ChannelSettings {
-  userId?: string;
-  threadId?: string;
-  userUUID?: string;
-  requestUUID?: string;
+export interface ExternalChannelSettings {
+  userId: string;
+  threadId: string;
   data?: SerializableObject;
   runtimeData?: SerializableObject;
   channelName?: string;
@@ -18,29 +16,25 @@ export interface ChannelSettings {
   isGroup?: boolean;
 }
 
-export class ChannelSettings implements SerializableClass {
+export class ExternalChannelSettings implements SerializableClass {
   /**
    * The unique identifier for user in channel.
    */
-  userId?: string;
+  userId: string;
   /**
    * The unique identifier for the thread in the channel.
    */
-  threadId?: string;
-  /**
-   * The bridge identifier for the user.
-   */
-  userUUID?: string;
-  /**
-   * The bridge identifier for the thread.
-   */
-  requestUUID?: string;
+  threadId: string;
+
   /**
    * Additional data stored against the user.
    */
   data?: SerializableObject;
   /**
    * Additional data that is passed to the next workflow but is not persisted.
+   *
+   * This is used if the extension requires unique data in order to respond or process which
+   * should not, or is pointless, to persist.
    */
   runtimeData?: SerializableObject;
   /**
@@ -63,26 +57,22 @@ export class ChannelSettings implements SerializableClass {
    */
   isGroup?: boolean;
 
-  public static create(props: Partial<ChannelSettings> = {}) {
-    return new ChannelSettings(props);
+  public static create(props: Partial<ExternalChannelSettings> = {}) {
+    return new ExternalChannelSettings(props);
   }
 
   public constructor({
     userId,
     threadId,
-    userUUID,
-    requestUUID,
     data,
     runtimeData,
     channelName,
     userInfo,
     sync,
     isGroup,
-  }: Partial<ChannelSettings> = {}) {
+  }: Partial<ExternalChannelSettings> = {}) {
     if (userId) this.setUserID(userId);
     if (threadId) this.setThreadId(threadId);
-    if (userUUID) this.setUserUUID(userUUID);
-    if (requestUUID) this.setRequestUUID(requestUUID);
     if (data) this.setData(data);
     if (runtimeData) this.setRuntimeData(runtimeData);
     if (channelName) this.setChannelName(channelName);
@@ -108,22 +98,6 @@ export class ChannelSettings implements SerializableClass {
   }
 
   /**
-   * Sets the bridge user UUID.
-   * @param userUUID bridge user UUID.
-   */
-  public setUserUUID(userUUID: string) {
-    this.userUUID = userUUID;
-  }
-
-  /**
-   * Sets the bridge thread UUID.
-   * @param requestUUID bridge thread UUID.
-   */
-  public setRequestUUID(requestUUID: string) {
-    this.requestUUID = requestUUID;
-  }
-
-  /**
    * Sets the user data.
    * @param data user data.
    */
@@ -133,6 +107,8 @@ export class ChannelSettings implements SerializableClass {
 
   /**
    * Sets the user runtime data.
+   *
+   * Additional data that is passed to the next workflow but is not persisted.
    * @param runtimeData user runtime data.
    */
   public setRuntimeData(runtimeData: SerializableObject) {
@@ -176,13 +152,11 @@ export class ChannelSettings implements SerializableClass {
       channelName: this.channelName,
       data: this.data,
       isGroup: this.isGroup,
-      requestUUID: this.requestUUID,
       runtimeCTX: this.runtimeData,
       sync: this.sync,
       threadId: this.threadId,
       userId: this.userId,
       userInfo: serialize(this.userInfo),
-      userUUID: this.userUUID,
     };
   }
 }

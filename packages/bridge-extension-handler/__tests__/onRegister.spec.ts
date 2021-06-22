@@ -52,6 +52,7 @@ describe('integration tests - onRegister', () => {
     caller: CALLER,
     payload: {
       registrationData: SETTINGS,
+      inboundURI: 'https://api.bridge.smartsheet.com/v2/inbound',
     },
   };
 
@@ -130,6 +131,7 @@ describe('integration tests - onRegister', () => {
       expect(mockFn).toBeCalledWith(SETTINGS, {
         caller: CALLER,
         settings: SETTINGS,
+        inboundURI: 'https://api.bridge.smartsheet.com/v2/inbound',
       });
       expect(res.status).toBe(200);
       expect(res.body).toEqual(expectedResult);

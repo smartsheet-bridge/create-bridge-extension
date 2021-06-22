@@ -138,10 +138,10 @@ describe('integration tests - onOAuthRenewToken', () => {
         {
           renewToken: 'REFRESH',
           oauthType: OAuthType.Provider,
-          redirectURI: 'example.com/redirect',
         },
         {
           caller: CALLER,
+          redirectURI: 'example.com/redirect',
           settings: SETTINGS,
         }
       );

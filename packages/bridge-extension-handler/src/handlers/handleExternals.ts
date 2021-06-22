@@ -10,20 +10,26 @@ import { Caller } from '../models/Caller';
 import { ChannelOutput } from '../models/ChannelOutput';
 import { HttpResponse } from '../models/HttpResponse';
 import { ExternalResponse } from '../responses/ExternalResponse';
-import { BridgeFunction } from '../types';
+import { BridgeContext, BridgeFunction } from '../types';
 
 export type ExternalFunction<
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<ExternalResponse, ExternalsParams, Settings>;
+> = BridgeFunction<ExternalResponse, ExternalParams, ExternalContext<Settings>>;
+
+export interface ExternalContext<
+  Settings extends SerializableObject = SerializableObject
+> extends BridgeContext<Settings> {}
 
 export interface ExternalsConfig {
   externals?: { [externalId: string]: ExternalFunction };
 }
 
-export interface ExternalsParams extends SerializableObject {
-  method: 'POST' | 'GET' | 'PUT' | 'DELETE';
-  inboundHeaders: Record<string, string>;
+export interface ExternalParams extends SerializableObject {
   bodyData: SerializableObject;
+  formData?: Record<string, string[]>;
+  inboundHeaders: Record<string, string>;
+  method: 'POST' | 'GET' | 'PUT' | 'DELETE';
+  queryParam?: Record<string, string[]>;
 }
 
 export const EXTERNAL_CALL = 'EXTERNAL_CALL';
@@ -33,10 +39,12 @@ export interface ExternalPayload {
   caller: Caller;
   payload: {
     call: string;
-    method: 'POST' | 'GET';
     registrationData: SerializableObject;
-    inboundHeaders: Record<string, string>;
     bodyData: SerializableObject;
+    formData?: Record<string, string[]>;
+    inboundHeaders: Record<string, string>;
+    method: 'POST' | 'GET' | 'PUT' | 'DELETE';
+    queryParam?: Record<string, string[]>;
   };
 }
 
@@ -80,6 +88,8 @@ export const handleExternals = (
       registrationData: settings = {},
       inboundHeaders,
       method,
+      formData,
+      queryParam,
     } = body.payload;
     const { caller } = body;
 
@@ -105,6 +115,8 @@ export const handleExternals = (
           bodyData,
           inboundHeaders,
           method,
+          formData,
+          queryParam,
         },
         { caller, settings }
       ),

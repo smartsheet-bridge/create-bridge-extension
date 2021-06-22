@@ -8,13 +8,30 @@ import {
 } from '@smartsheet-extensions/handler';
 import { BadModuleResponseError } from '../errors/BadModuleResponseError';
 import { Caller } from '../models/Caller';
+import {
+  ExternalChannelSettings,
+  parseExternalChannelSettingsPayload,
+} from '../models/ExternalChannelSettings';
+import {
+  getWorkflowRunFromPayloadObject,
+  WorkflowRun,
+} from '../models/WorkflowRun';
 import { ModuleResponse } from '../responses/ModuleResponse';
-import { BridgeFunction } from '../types';
+import { BridgeContext, BridgeFunction } from '../types';
 
 export type ModuleFunction<
   Params extends SerializableObject = SerializableObject,
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<ModuleResponse, Params, Settings>;
+> = BridgeFunction<ModuleResponse, Params, ModuleContext<Settings>>;
+
+export interface ModuleContext<
+  Settings extends SerializableObject = SerializableObject
+> extends BridgeContext<Settings> {
+  channelSettings?: Readonly<ExternalChannelSettings>;
+  retryCount: number;
+  workflowRun: Readonly<WorkflowRun>;
+}
+
 export interface ModulesConfig {
   modules?: { [moduleId: string]: ModuleFunction };
 }
@@ -25,9 +42,12 @@ export interface ModulePayload {
   event: typeof MODULE_EXEC;
   caller: Caller;
   payload: {
+    conversation: SerializableObject;
+    channelSetting?: SerializableObject;
     moduleId: string;
     moduleParam: SerializableObject;
     registrationData: SerializableObject;
+    retryCount?: number;
   };
 }
 
@@ -49,6 +69,9 @@ export const handleModules = (
       moduleId,
       moduleParam,
       registrationData: settings = {},
+      retryCount,
+      channelSetting,
+      conversation,
     } = body.payload;
     const { caller } = body;
 
@@ -66,10 +89,16 @@ export const handleModules = (
       throw new NotFoundError(`Module \`${moduleId}\` does not exist.`);
     }
 
+    const channelSettings = parseExternalChannelSettingsPayload(channelSetting);
+    const workflowRun = getWorkflowRunFromPayloadObject(conversation);
+
     next(
       config.modules[moduleId](moduleParam, {
         caller,
         settings,
+        retryCount: retryCount || 0,
+        workflowRun,
+        channelSettings,
       }),
       (err?: Error, result?: unknown) => {
         if (err) {

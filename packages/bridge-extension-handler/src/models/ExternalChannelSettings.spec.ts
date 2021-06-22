@@ -1,5 +1,8 @@
 import { ChannelUserInfo } from './ChannelUserInfo';
-import { ExternalChannelSettings } from './ExternalChannelSettings';
+import {
+  ExternalChannelSettings,
+  parseExternalChannelSettingsPayload,
+} from './ExternalChannelSettings';
 
 describe('model tests - ExternalChannelSettings', () => {
   afterEach(() => {
@@ -118,4 +121,40 @@ describe('model tests - ExternalChannelSettings', () => {
     expect(actual).toHaveProperty('userId');
     expect(actual).toHaveProperty('userInfo');
   });
+
+  const TEST = [
+    [undefined, undefined],
+    [null, undefined],
+    [
+      {},
+      {
+        userId: '',
+        threadId: '',
+        isGroup: false,
+        sync: false,
+      },
+    ],
+    [
+      {
+        userUUID: 'USER',
+        requestUUID: 'REQUEST',
+        runtimeCtx: { key: 'value' },
+      },
+      {
+        userId: 'USER',
+        threadId: 'REQUEST',
+        isGroup: false,
+        sync: false,
+        runtimeData: { key: 'value' },
+      },
+    ],
+  ] as Array<[any, any]>;
+
+  it.each(TEST)(
+    'parseExternalChannelSettingsPayload accepts given %s, returns %s',
+    (given, expected) => {
+      const actual = parseExternalChannelSettingsPayload(given);
+      expect(actual).toEqual(expected);
+    }
+  );
 });

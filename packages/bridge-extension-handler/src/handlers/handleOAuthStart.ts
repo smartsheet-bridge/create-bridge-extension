@@ -9,11 +9,21 @@ import { Caller } from '../models/Caller';
 import { OAuth2SetupData } from '../models/OAuth2SetupData';
 import { OAuthType } from '../models/OAuthType';
 import { StartOAuth2Response } from '../responses/StartOAuth2Response';
-import { BridgeFunction } from '../types';
+import { BridgeContext, BridgeFunction } from '../types';
 
 export type StartOAuth2Function<
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<StartOAuth2Response, StartOAuth2Params, Settings>;
+> = BridgeFunction<
+  StartOAuth2Response,
+  StartOAuth2Params,
+  OAuth2StartContext<Settings>
+>;
+
+export interface OAuth2StartContext<
+  Settings extends SerializableObject = SerializableObject
+> extends BridgeContext<Settings> {
+  redirectURI: string;
+}
 
 export interface OAuth2StartConfig {
   onOAuthStart?: StartOAuth2Function;
@@ -33,7 +43,6 @@ export interface StartOAuth2Payload {
 
 export interface StartOAuth2Params extends SerializableObject {
   oauthType: OAuthType;
-  redirectURI: string;
 }
 
 const isStartOAuth2Payload = (payload: any): payload is StartOAuth2Payload =>
@@ -68,9 +77,8 @@ export const handleOAuth2Start = (
       config.onOAuthStart(
         {
           oauthType: body.payload.oauthType,
-          redirectURI: body.payload.redirectURI,
         },
-        { caller, settings }
+        { caller, settings, redirectURI: body.payload.redirectURI }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

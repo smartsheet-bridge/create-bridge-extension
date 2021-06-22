@@ -138,10 +138,10 @@ describe('integration tests - onOAuthHandleCode', () => {
         {
           code: 'CODE',
           oauthType: OAuthType.Provider,
-          redirectURI: 'example.com/redirect',
         },
         {
           caller: CALLER,
+          redirectURI: 'example.com/redirect',
           settings: SETTINGS,
         }
       );

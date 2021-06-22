@@ -16,6 +16,31 @@ export interface ExternalChannelSettings {
   isGroup?: boolean;
 }
 
+/**
+ * Parse the classic bridge payload into a more manageable format.
+ * @param payload the classic bridge payload
+ * @returns external channel settings.
+ */
+export function parseExternalChannelSettingsPayload(
+  payload: any
+): ExternalChannelSettings {
+  if (payload === undefined || payload == null) {
+    return undefined;
+  }
+
+  const settings = new ExternalChannelSettings();
+  settings.setChannelName(payload.channelName || undefined);
+  settings.setData(payload.data || undefined);
+  settings.setIsGroup(payload.isGroup || false);
+  settings.setIsSync(payload.sync || false);
+  settings.setRuntimeData(payload.runtimeCtx || undefined);
+  settings.setThreadId(payload.threadId || payload.requestUUID || '');
+  settings.setUserID(payload.userId || payload.userUUID || '');
+  settings.setUserInfo(payload.userInfo || undefined);
+
+  return settings;
+}
+
 export class ExternalChannelSettings implements SerializableClass {
   /**
    * The unique identifier for user in channel.

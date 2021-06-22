@@ -9,14 +9,24 @@ import { Caller } from '../models/Caller';
 import { OAuth2Data } from '../models/OAuth2Data';
 import { OAuthType } from '../models/OAuthType';
 import { HandleOAuth2CodeResponse } from '../responses/HandleOAuth2CodeResponse';
-import { BridgeFunction } from '../types';
+import { BridgeContext, BridgeFunction } from '../types';
 
 export type HandleOAuth2CodeFunction<
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<HandleOAuth2CodeResponse, HandleOAuth2CodeParams, Settings>;
+> = BridgeFunction<
+  HandleOAuth2CodeResponse,
+  HandleOAuth2CodeParams,
+  HandleOAuth2CodeContext<Settings>
+>;
 
 export interface HandleOAuth2CodeConfig {
   onOAuthHandleCode?: HandleOAuth2CodeFunction;
+}
+
+export interface HandleOAuth2CodeContext<
+  Settings extends SerializableObject = SerializableObject
+> extends BridgeContext<Settings> {
+  redirectURI: string;
 }
 
 export interface HandleOAuth2CodeParams extends SerializableObject {
@@ -24,7 +34,6 @@ export interface HandleOAuth2CodeParams extends SerializableObject {
   state?: string;
   code: string;
   oauthType: OAuthType;
-  redirectURI: string;
 }
 
 export const OAUTH2_HANDLE_CODE = 'OAUTH2_HANDLE_CODE';
@@ -76,9 +85,8 @@ export const handleOAuth2HandleCode = (
           state: body.payload.state,
           scope: body.payload.scope,
           oauthType: body.payload.oauthType,
-          redirectURI: body.payload.redirectURI,
         },
-        { settings, caller }
+        { settings, caller, redirectURI: body.payload.redirectURI }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

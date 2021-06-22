@@ -14,6 +14,7 @@ type BridgeFunctionResponseUnion<Response extends AbstractResponse> =
 export type BridgeFunctionResponse<Response extends AbstractResponse> =
   | BridgeFunctionResponseUnion<Response>
   | ThunkFunction<BridgeFunctionResponseUnion<Response>>;
+
 export interface BridgeContext<
   Settings extends SerializableObject = SerializableObject
 > {
@@ -24,8 +25,8 @@ export interface BridgeContext<
 export type BridgeFunction<
   Response extends AbstractResponse,
   Params extends SerializableObject = SerializableObject,
-  Settings extends SerializableObject = SerializableObject
+  Context extends BridgeContext = BridgeContext
 > = (
   parameters: Readonly<Params>,
-  context: Readonly<BridgeContext<Readonly<Settings>>>
+  context: Readonly<Context>
 ) => BridgeFunctionResponse<Response>;

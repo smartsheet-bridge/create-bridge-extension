@@ -4,15 +4,23 @@ import {
 } from '@smartsheet-extensions/handler';
 import { Caller } from '../models/Caller';
 import { AbstractResponse } from '../responses/AbstractResponse';
-import { BridgeFunction } from '../types';
+import { BridgeContext, BridgeFunction } from '../types';
 
 // TODO: Change AbstractResponse to UnregisterResponse once built.
 export type UnregisterFunction<
-  Params extends SerializableObject = SerializableObject,
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<AbstractResponse, Params, Settings>;
+> = BridgeFunction<AbstractResponse, Settings, UnregisterContext<Settings>>;
+
 export interface UnregisterConfig {
   onUnregister?: UnregisterFunction;
+}
+
+export interface UnregisterContext<
+  Settings extends SerializableObject = SerializableObject
+> extends BridgeContext<Settings> {
+  externalURI?: Record<string, string>;
+  inboundURI?: string;
+  webhookURI?: Record<string, string>;
 }
 
 export const PLUGIN_UNREGISTER = 'PLUGIN_UNREGISTER';
@@ -21,7 +29,10 @@ export interface UnregisterPayload {
   event: typeof PLUGIN_UNREGISTER;
   caller: Caller;
   payload: {
+    externalURI?: Record<string, string>;
+    inboundURI?: string;
     registrationData: SerializableObject;
+    webhookURI?: Record<string, string>;
   };
 }
 
@@ -37,14 +48,17 @@ export const handleUnregister = (
       isUnregisterPayload(body) &&
       typeof config.onUnregister === 'function'
     ) {
-      const registrationData =
-        (body.payload && body.payload.registrationData) || {};
+      const settings = (body.payload && body.payload.registrationData) || {};
       const { caller } = body;
+      const { externalURI, inboundURI, webhookURI } = body.payload || {};
 
       next(
-        config.onUnregister(registrationData, {
+        config.onUnregister(settings, {
           caller,
-          settings: registrationData,
+          externalURI,
+          inboundURI,
+          webhookURI,
+          settings,
         }),
         callback
       );

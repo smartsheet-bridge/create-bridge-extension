@@ -28,6 +28,14 @@ describe('handleModule', () => {
       moduleId: 'moduleA',
       moduleParam: {},
       registrationData: {},
+      conversation: {},
+      retryCount: 1,
+      channelSetting: {
+        channelName: 'not-bridge',
+        threadId: 'thread',
+        userId: 'user',
+        runtimeCtx: { key: 'value' },
+      },
     },
   };
 

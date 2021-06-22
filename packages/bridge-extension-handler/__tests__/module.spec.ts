@@ -44,6 +44,17 @@ describe('integration tests - module', () => {
         reg1: 'reg1',
         reg2: 'reg2',
       },
+      conversation: {
+        conversationUUID: 'runUUID',
+        requestUUID: 'threadUUID',
+      },
+      retryCount: 1,
+      channelSetting: {
+        channelName: 'not-bridge',
+        threadId: 'thread',
+        userId: 'user',
+        runtimeCtx: { key: 'value' },
+      },
     },
   };
 
@@ -188,6 +199,24 @@ describe('integration tests - module', () => {
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',
+          },
+          retryCount: 1,
+          workflowRun: {
+            currentState: '',
+            states: {},
+            threadId: 'threadUUID',
+            workflowRunId: 'runUUID',
+            workspaceId: '',
+          },
+          channelSettings: {
+            channelName: 'not-bridge',
+            userId: 'user',
+            threadId: 'thread',
+            runtimeData: { key: 'value' },
+            data: undefined,
+            isGroup: false,
+            sync: false,
+            userInfo: undefined,
           },
         }
       );

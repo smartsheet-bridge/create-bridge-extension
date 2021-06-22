@@ -140,10 +140,10 @@ describe('integration tests - onOAuthStart', () => {
       expect(mockFn).toBeCalledWith(
         {
           oauthType: OAuthType.Provider,
-          redirectURI: 'example.com/redirect',
         },
         {
           caller: CALLER,
+          redirectURI: 'example.com/redirect',
           settings: SETTINGS,
         }
       );

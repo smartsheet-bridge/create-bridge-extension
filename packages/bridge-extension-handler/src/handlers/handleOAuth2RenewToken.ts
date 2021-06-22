@@ -10,11 +10,21 @@ import { OAuth2Data } from '../models/OAuth2Data';
 import { OAuthType } from '../models/OAuthType';
 import { HandleOAuth2CodeResponse } from '../responses/HandleOAuth2CodeResponse';
 import { RenewOAuth2TokenResponse } from '../responses/RenewOAuth2TokenResponse';
-import { BridgeFunction } from '../types';
+import { BridgeContext, BridgeFunction } from '../types';
 
 export type RenewOAuth2TokenFunction<
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<RenewOAuth2TokenResponse, RenewOAuth2TokenParams, Settings>;
+> = BridgeFunction<
+  RenewOAuth2TokenResponse,
+  RenewOAuth2TokenParams,
+  RenewOAuth2TokenContext<Settings>
+>;
+
+export interface RenewOAuth2TokenContext<
+  Settings extends SerializableObject = SerializableObject
+> extends BridgeContext<Settings> {
+  redirectURI: string;
+}
 
 export interface OAuth2RenewTokenConfig {
   onOAuthRenewToken?: RenewOAuth2TokenFunction;
@@ -23,7 +33,6 @@ export interface OAuth2RenewTokenConfig {
 export interface RenewOAuth2TokenParams extends SerializableObject {
   renewToken: string;
   oauthType: OAuthType;
-  redirectURI: string;
 }
 
 export const OAUTH2_RENEW_TOKEN = 'OAUTH2_RENEW_TOKEN';
@@ -73,9 +82,8 @@ export const handleOAuth2RenewToken = (
         {
           renewToken: body.payload.renewToken,
           oauthType: body.payload.oauthType,
-          redirectURI: body.payload.redirectURI,
         },
-        { settings, caller }
+        { settings, caller, redirectURI: body.payload.redirectURI }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

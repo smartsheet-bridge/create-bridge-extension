@@ -32,6 +32,7 @@ describe('integration tests - onUnregister', () => {
     event: 'PLUGIN_UNREGISTER',
     caller: CALLER,
     payload: {
+      inboundURI: 'https://api.bridge.smartsheet.com/v2/inbound',
       registrationData: {
         reg1: 'reg1',
         reg2: 'reg2',
@@ -66,6 +67,7 @@ describe('integration tests - onUnregister', () => {
         },
         {
           caller: CALLER,
+          inboundURI: 'https://api.bridge.smartsheet.com/v2/inbound',
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',
@@ -99,6 +101,7 @@ describe('integration tests - onUnregister', () => {
         },
         {
           caller: CALLER,
+          inboundURI: 'https://api.bridge.smartsheet.com/v2/inbound',
           settings: {
             reg1: 'reg1',
             reg2: 'reg2',

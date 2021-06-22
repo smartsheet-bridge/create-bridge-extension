@@ -6,11 +6,24 @@ import {
 import { BadRegisterResponseError } from '../errors/BadRegisterResponseError';
 import { Caller } from '../models/Caller';
 import { RegisterResponse } from '../responses/RegisterResponse';
-import { BridgeFunction } from '../types';
+import { BridgeContext, BridgeFunction } from '../types';
+
+export interface RegisterContext<
+  Settings extends SerializableObject = SerializableObject
+> extends BridgeContext<Settings> {
+  externalURI?: Record<string, string>;
+  inboundURI?: string;
+  webhookURI?: Record<string, string>;
+}
 
 export type RegisterFunction<
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<RegisterResponse<Settings>, Settings, Settings>;
+> = BridgeFunction<
+  RegisterResponse<Settings>,
+  Settings,
+  RegisterContext<Settings>
+>;
+
 export interface RegisterConfig {
   onRegister?: RegisterFunction;
 }
@@ -21,7 +34,10 @@ export interface RegisterPayload {
   event: typeof PLUGIN_REGISTER;
   caller: Caller;
   payload: {
+    externalURI?: Record<string, string>;
+    inboundURI?: string;
     registrationData: SerializableObject;
+    webhookURI?: Record<string, string>;
   };
 }
 
@@ -34,14 +50,17 @@ export const handleRegister = (
   const next = create();
   return (body, callback) => {
     if (isRegisterPayload(body) && typeof config.onRegister === 'function') {
-      const registrationData =
-        (body.payload && body.payload.registrationData) || {};
+      const settings = (body.payload && body.payload.registrationData) || {};
       const { caller } = body;
+      const { externalURI, inboundURI, webhookURI } = body.payload || {};
 
       next(
-        config.onRegister(registrationData, {
+        config.onRegister(settings, {
           caller,
-          settings: registrationData,
+          settings,
+          externalURI,
+          inboundURI,
+          webhookURI,
         }),
         (err?: Error, result?: unknown) => {
           if (err) {

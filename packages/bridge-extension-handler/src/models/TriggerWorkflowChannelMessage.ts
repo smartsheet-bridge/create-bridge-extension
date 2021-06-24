@@ -80,7 +80,6 @@ export class TriggerWorkflowChannelMessage implements SerializableClass {
   }
 
   public toSerializableObject(): SerializableObject {
-    // kinda pointless with this class but each ChannelMessage needs to implement this interface
     return {
       uid: this.uid,
       conversation: {

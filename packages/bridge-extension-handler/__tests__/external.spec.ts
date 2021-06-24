@@ -377,6 +377,71 @@ describe('integration tests - external', () => {
         ],
       },
     ],
+    [
+      'response with trigger',
+      ExternalResponse.create({
+        channelOutput: [
+          ChannelOutput.create({
+            channelSetting: ExternalChannelSettings.create({
+              userId: 'USER',
+              threadId: 'THREAD',
+            }),
+            channelMessage: TriggerWorkflowChannelMessage.create({
+              workflowID: 'NEW',
+            }),
+          }),
+        ],
+      }),
+      {
+        status: 0,
+        channelOutput: [
+          {
+            channelMessage: { conversation: { new: 'NEW' } },
+            channelSetting: { userId: 'USER', threadId: 'THREAD' },
+          },
+        ],
+      },
+    ],
+    [
+      'channel out array',
+      [
+        ChannelOutput.create({
+          channelMessage: TriggerWorkflowChannelMessage.create({
+            uid: 'bleh',
+            workflowID: 'intent',
+            runtimeData: {
+              sheetID: 'sheetID',
+              event: 'EVENT',
+              isInternalUpdate: true,
+            },
+          }),
+          channelSetting: BridgeChannelSettings.create({
+            userId: 'USER UUID',
+          }),
+        }),
+      ],
+      {
+        status: 0,
+        channelOutput: [
+          {
+            channelMessage: {
+              uid: 'bleh',
+              conversation: {
+                new: 'intent',
+                runtimeCTX: {
+                  sheetID: 'sheetID',
+                  event: 'EVENT',
+                  isInternalUpdate: true,
+                },
+              },
+            },
+            channelSetting: {
+              userUUID: 'USER UUID',
+            },
+          },
+        ],
+      },
+    ],
   ] as Array<[string, ExternalResponse, any]>)(
     'validate response format : %s',
     async (name, result, expected) => {

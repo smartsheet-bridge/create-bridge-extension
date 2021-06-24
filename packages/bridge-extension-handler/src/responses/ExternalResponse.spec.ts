@@ -1,4 +1,4 @@
-import { ExtensionStatus } from '@smartsheet-extensions/handler';
+import { ExtensionStatus, serialize } from '@smartsheet-extensions/handler';
 import { ChannelOutput } from '../models/ChannelOutput';
 import { HttpResponse } from '../models/HttpResponse';
 import { TextChannelMessage } from '../models/TextChannelMessage';
@@ -86,5 +86,38 @@ describe('ExternalResponse', () => {
     expect(response.status).toEqual(ExtensionStatus.SUCCESS);
     expect(response).toHaveProperty('channelOutput');
     expect(response.channelOutput).toHaveLength(1);
+  });
+
+  it('addChannelOutput workflow', async () => {
+    const response = ExternalResponse.create();
+    response.addChannelOutput({
+      channelMessage: TriggerWorkflowChannelMessage.create({
+        uid: 'bleh',
+        workflowID: 'intent',
+      }),
+    });
+
+    expect(response).toHaveProperty('status');
+    expect(response.status).toEqual(ExtensionStatus.SUCCESS);
+    expect(response).toHaveProperty('channelOutput');
+    expect(response.channelOutput).toHaveLength(1);
+
+    const serializable = serialize(response) as any;
+    expect(serializable).toHaveProperty('status');
+    expect(serializable.status).toEqual(ExtensionStatus.SUCCESS);
+    expect(serializable).toHaveProperty('channelOutput');
+    expect(serializable.channelOutput).toHaveLength(1);
+    expect(serializable.channelOutput[0]).toHaveProperty('channelMessage');
+    expect(serializable.channelOutput[0].channelMessage).toHaveProperty('uid');
+    expect(serializable.channelOutput[0].channelMessage.uid).toEqual('bleh');
+    expect(serializable.channelOutput[0].channelMessage).toHaveProperty(
+      'conversation'
+    );
+    expect(
+      serializable.channelOutput[0].channelMessage.conversation
+    ).toHaveProperty('new');
+    expect(
+      serializable.channelOutput[0].channelMessage.conversation.new
+    ).toEqual('intent');
   });
 });

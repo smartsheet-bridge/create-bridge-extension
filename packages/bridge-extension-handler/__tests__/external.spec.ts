@@ -129,7 +129,7 @@ describe('integration tests - external', () => {
       {},
       {
         status: ExtensionStatus.SUCCESS,
-        httpResponse: { httpStatus: 200 },
+        externalCallReturn: { httpStatus: 200 },
         channelOutput: [],
       },
     ],
@@ -140,7 +140,7 @@ describe('integration tests - external', () => {
       },
       {
         status: ExtensionStatus.SUCCESS,
-        httpResponse: { httpStatus: 200 },
+        externalCallReturn: { httpStatus: 200 },
         channelOutput: [
           {
             channelMessage: { uid: '0', text: 'one' },
@@ -163,7 +163,7 @@ describe('integration tests - external', () => {
       },
       {
         status: ExtensionStatus.SUCCESS,
-        httpResponse: { httpStatus: 200 },
+        externalCallReturn: { httpStatus: 200 },
         channelOutput: [
           {
             channelMessage: {
@@ -244,7 +244,7 @@ describe('integration tests - external', () => {
     [
       '200 response',
       HttpResponse.create({ httpStatus: 200 }),
-      { status: 0, httpResponse: { httpStatus: 200 } },
+      { status: 0, externalCallReturn: { httpStatus: 200 } },
     ],
     [
       'bridge-text',

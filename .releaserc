@@ -1,10 +1,7 @@
 {
   "extends": "semantic-release-monorepo",
   "branches": [
-    {
-      "name": "mainline",
-      "channel": "latest"
-    },
+    "mainline",
     "next",
     {
       "name": "beta",
@@ -13,7 +10,8 @@
     },
     {
       "name": "alpha",
-      "prerelease": true
+      "prerelease": true,
+      "channel": false
     }
   ],
   "plugins": [

@@ -61,9 +61,9 @@ describe('ExternalResponse', () => {
     const serializable = response.toSerializableObject();
     expect(serializable).toHaveProperty('status');
     expect(serializable.status).toEqual(ExtensionStatus.FAIL);
-    expect(serializable).toHaveProperty('httpResponse');
-    expect(serializable.httpResponse).toHaveProperty('httpStatus');
-    expect((serializable.httpResponse as any).httpStatus).toEqual(200);
+    expect(serializable).toHaveProperty('externalCallReturn');
+    expect(serializable.externalCallReturn).toHaveProperty('httpStatus');
+    expect((serializable.externalCallReturn as any).httpStatus).toEqual(200);
     expect(serializable).toHaveProperty('channelOutput');
     expect(serializable.channelOutput).toHaveLength(2);
     expect(serializable.channelOutput).toEqual([

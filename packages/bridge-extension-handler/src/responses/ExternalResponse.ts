@@ -17,7 +17,7 @@ export class ExternalResponse
   extends AbstractResponse
   implements SerializableClass {
   /**
-   * The HTTP Response data.
+   * The HTTP Response data to the originating HTTP request.
    */
   httpResponse: HttpResponse;
 
@@ -44,8 +44,10 @@ export class ExternalResponse
    * Sets the HTTP response data for the challenge response.
    * @param httpResponse the HTTP response data.
    */
-  public setHTTPResponse(httpResponse: HttpResponse) {
-    this.httpResponse = httpResponse;
+  public setHTTPResponse(
+    httpResponse: Pick<HttpResponse, 'body' | 'headers' | 'httpStatus'>
+  ) {
+    this.httpResponse = HttpResponse.create(httpResponse);
   }
 
   /**
@@ -73,7 +75,7 @@ export class ExternalResponse
     return {
       status: this.status,
       channelOutput: serialize(this.channelOutput),
-      httpResponse: serialize(this.httpResponse),
+      externalCallReturn: serialize(this.httpResponse),
     };
   }
 }

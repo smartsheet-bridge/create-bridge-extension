@@ -1,17 +1,23 @@
 {
   "extends": "semantic-release-monorepo",
   "branches": [
-    "mainline",
-    "next",
     {
-      "name": "beta",
-      "prerelease": true,
+      "name": "mainline",
       "channel": false
     },
     {
+      "name": "next",
+      "channel": "next"
+    },
+    {
+      "name": "beta",
+      "channel": "beta",
+      "prerelease": true
+    },
+    {
       "name": "alpha",
-      "prerelease": true,
-      "channel": false
+      "channel": "alpha",
+      "prerelease": true
     }
   ],
   "plugins": [
@@ -50,7 +56,6 @@
       }
     ],
     "@semantic-release/npm",
-    "@semantic-release/release-notes-generator",
-    "@semantic-release/gitlab"
+    "@semantic-release/release-notes-generator"
   ]
 }

@@ -22,6 +22,9 @@ class LoggerInstance extends Base {
 
 export const Logger = LoggerInstance.getInstance();
 
+/**
+ * Creates a basic terminal logger to log to a terminal.
+ */
 export const createBasicTTY = ({
   debugPattern,
   levelFilter = 'info',
@@ -35,6 +38,9 @@ export const createBasicTTY = ({
     format: Winston.format.combine(regexp({ pattern: debugPattern }), tty()),
   });
 
+/**
+ * Creates a basic file system logger to log to a file.
+ */
 export const createBasicFS = ({ path }: { path: string }): Writable =>
   new Winston.transports.File({
     options: { flags: 'w' },

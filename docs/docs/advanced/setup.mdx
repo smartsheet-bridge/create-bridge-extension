@@ -55,7 +55,7 @@ values={[
     "logs": "extension-scripts logs",
     "deploy": "extension-scripts deploy",
     "deploy:verbose": "extension-scripts deploy -l verbose"
-  },
+  }
 }
 ```
 
@@ -76,7 +76,7 @@ values={[
     "logs": "extension-scripts logs",
     "deploy": "extension-scripts deploy",
     "deploy:verbose": "extension-scripts deploy -l verbose"
-  },
+  }
 }
 ```
 
@@ -299,7 +299,7 @@ _The property of the module must equal the name defined in the spec file describ
 
 Finally, you must create a spec file to help describe the extension to the user interface. This is the same regardless of the language used to create the extension.
 
-```json
+```json title="extension.json"
 {
   "name": "helloworld",
   "displayName": "Hello World",
@@ -312,11 +312,11 @@ Finally, you must create a spec file to help describe the extension to the user 
         {
           "param": "input",
           "displayName": "Your name",
-          "type": "STRING",
+          "type": "STRING"
         }
       ]
     }
-  ],
+  ]
 }
 ```
 

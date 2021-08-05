@@ -6,13 +6,25 @@ sidebar_label: Quick Start
 
 ## Create Extension
 
+:::warning
+
+This page is incomplete!
+
+Thank you for your patience as the team works to improve extension onboarding. 
+
+Please refer to the [Manual Setup](/advanced/setup) page to get started.
+
+:::
+
 :::note
 
 To start developing locally you will need [`NodeJS`](https://nodejs.org/en/) installed on your development machine along with either `npm` or `yarn` and good knowledge of developing `JavaScript` or `TypeScript` applications and services.
 
 :::
 
-The recommended way to start developing a new Extension is to use the official `create-bridge-extension` tool along with either `npm` or `yarn` to scaffold a new extension project.
+Please refer to the [Manual Setup](/advanced/setup) page.
+
+<!-- The recommended way to start developing a new Extension is to use the official `create-bridge-extension` tool along with either `npm` or `yarn` to scaffold a new extension project.
 
 <Tabs
 groupId="js2ts"
@@ -57,18 +69,6 @@ yarn create @smartsheet-bridge/extension hello_world --template=ts
 </Tabs>
 
 
-The tool will scaffold a very basic, but complete, extension project in the folder `hello_world`. This extension is ready to be deployed.
+The tool will scaffold a very basic, but complete, extension project in the folder `hello_world`. This extension is ready to be deployed. -->
 
-## Deploy Extension
 
-:::note
-
-To deploy an extension on Bridge by Smartsheet you will need an account.
-
-:::
-
-To deploy an extension created with the `create-bridge-extension` tool simply run the following command from the project directory where `<insert url here>` is the url of your Bridge by Smartsheet account that you can find in the browser when viewing the application, and `<insert key here>` is an API key that can be generated in your Bridge by Smartsheet account.
-
-```bash npm2yarn
-npm run deploy --url=<insert url here> --key=<insert key here>
-```

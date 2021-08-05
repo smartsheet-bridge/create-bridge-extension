@@ -60,8 +60,6 @@ module.exports = {
         docs: {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl: `${gitURL}/edit/alpha/docs/`,
           remarkPlugins: [
             [npm2yarn, { sync: true }],
             remarkShortcuts,

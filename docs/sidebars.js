@@ -1,6 +1,6 @@
 module.exports = {
   docs: {
-    'Getting Started': ['intro', 'quick_start'],
+    'Getting Started': ['getting_started/intro', 'getting_started/quick_start'],
     'Main Concepts': [
       'concepts/introduction',
       'concepts/entry',
@@ -13,7 +13,7 @@ module.exports = {
       // { Recipes: ['bridge/callback'] },
     ],
     'Advanced Guides': [
-      // 'advanced/setup',
+      'advanced/setup',
       'advanced/thunks',
       // 'advanced/best_practices',
       // 'advanced/typescript',

@@ -40,7 +40,7 @@ jobs:
         env:
           USE_SSH: true
           GIT_USER: smartsheet-bridge-team
-          GIT_URL: ${{ secrets.GITHUB_SERVER_URL }}/${{ secrets.GITHUB_REPOSITORY }}
+          GIT_URL: https://github.com/smartsheet-bridge/create-bridge-extension
           BASE_URL: /create-bridge-extension/
           CURRENT_BRANCH: beta
         run: |

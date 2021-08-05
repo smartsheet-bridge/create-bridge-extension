@@ -3287,7 +3287,7 @@
     "@grpc/proto-loader" "^0.6.2"
     axios "^0.21.1"
 
-"@smartsheet-bridge/extension-cli-logger@^0.1.0-alpha.2":
+"@smartsheet-bridge/extension-cli-logger@^0.1.0-beta.1":
   version "0.0.0-development.0"
   dependencies:
     chalk "^3.0.0"
@@ -3299,7 +3299,7 @@
   version "0.0.0-development.0"
   dependencies:
     "@smartsheet-bridge/bridge-sdk" "^1.0.0-beta.6"
-    "@smartsheet-bridge/extension-cli-logger" "^0.1.0-alpha.2"
+    "@smartsheet-bridge/extension-cli-logger" "^0.1.0-beta.1"
     archiver "^3.1.1"
     cosmiconfig "^6.0.0"
     dotpref "^1.0.0"
@@ -3321,7 +3321,7 @@
   resolved "https://registry.yarnpkg.com/@smartsheet-bridge/extensionrc-legacy/-/extensionrc-legacy-0.1.0-alpha.0.tgz#ba512080a05cee7030abde983e1958822eea5624"
   integrity sha512-rvBwyLARnlUY3LBXgs948Cf7KqqU4IteoyZBjx5dnEFR7UDHyHAYpOamhVvIkFiSxdz3svyRo1Q4wvWhmjrvsA==
 
-"@smartsheet-extensions/handler@^0.1.0-alpha.0":
+"@smartsheet-extensions/handler@^0.1.0-beta.1":
   version "0.0.0-development.0"
   dependencies:
     "@types/express" "^4.17.0"

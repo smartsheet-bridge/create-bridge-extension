@@ -17,7 +17,9 @@ import { createRevokeService } from './services/revokeService';
 export * from './types';
 
 const configSearch = sync(RC_NAME).search();
-let config = {};
+let config = {
+  extends: '@smartsheet-bridge/extensionrc-standard',
+};
 
 if (configSearch && configSearch.config) {
   config = configSearch.config;

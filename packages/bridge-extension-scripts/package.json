@@ -34,6 +34,7 @@
   "dependencies": {
     "@smartsheet-bridge/bridge-sdk": "^1.0.0-beta.6",
     "@smartsheet-bridge/extension-cli-logger": "^0.1.0-beta.1",
+    "@smartsheet-bridge/extensionrc-standard": "^0.1.0-beta.1",
     "archiver": "^3.1.1",
     "cosmiconfig": "^6.0.0",
     "dotpref": "^1.0.0",

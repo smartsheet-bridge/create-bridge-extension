@@ -39,6 +39,9 @@
     },
     {
       "path": "configs/legacy/tsconfig.build.json"
+    },
+    {
+      "path": "configs/standard/tsconfig.build.json"
     }
   ]
 }

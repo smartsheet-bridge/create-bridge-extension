@@ -9,14 +9,13 @@
     "docs"
   ],
   "scripts": {
-    "start": "lerna run start",
     "lint": "eslint . -c .eslintrc.json  --ext .ts",
     "test": "jest --runInBand",
     "test:watch": "jest --watchAll --no-coverage",
-    "build": "lerna run clean && tsc --build tsconfig.build.json",
+    "build": "yarn run clean && tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch ",
-    "clean": "lerna run clean && rm -rf node_modules",
-    "release": "yarn workspaces run release",
+    "clean": "yarn workspaces foreach --topological-dev --exclude 'docs' exec 'rm -rf lib'",
+    "release": "yarn workspaces foreach --topological-dev --exclude 'docs' exec 'semantic-release'",
     "docs": "yarn workspace docs",
     "prepare": "husky install"
   },
@@ -39,7 +38,6 @@
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^6.0.0",
     "jest": "^26.6.3",
-    "lerna": "^3.10.5",
     "prettier": "^2.1.2",
     "prettier-eslint": "^11.0.0",
     "semantic-release": "^17.1.2",

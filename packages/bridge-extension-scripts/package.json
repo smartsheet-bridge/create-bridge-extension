@@ -10,10 +10,6 @@
     "access": "public"
   },
   "bin": "./lib/index.js",
-  "scripts": {
-    "clean": "rm -rf lib",
-    "release": "semantic-release"
-  },
   "author": "graeme.cassels@smartsheet.com",
   "devDependencies": {
     "@npm/types": "^1.0.1",

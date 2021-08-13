@@ -10,7 +10,7 @@
       "name": "Attach by Process ID",
       "processId": "${command:PickProcess}",
       "sourceMaps": true,
-      "outFiles": ["${workspaceFolder}/[packages,examples]/**/lib/**/*.js"]
+      "outFiles": ["${workspaceFolder}/[packages]/**/lib/**/*.js"]
     },
     {
       "name": "Jest",

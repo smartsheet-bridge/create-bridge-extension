@@ -3,32 +3,34 @@ import yargs from 'yargs';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { CreateRevokeServiceFn } from '../services/revokeService';
-import { revokeCommand } from './revokeCommand';
+import { createRevokeCommand } from './revokeCommand';
 
+const COMMAND_ALIASES = ['remove', 'r', 'delete', 'remove', 'unpublish'];
 const spyError = jest.spyOn(Logger, 'error');
+jest.spyOn(console, 'error').mockImplementation(() => {});
 const mockRevoke = jest.fn(() => Promise.resolve());
 const mockCreateRevokeService: CreateRevokeServiceFn = jest.fn(() => {
   return mockRevoke as ReturnType<CreateRevokeServiceFn>;
 });
 
-describe('revokeCommand', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
-
+afterEach(() => {
+  jest.clearAllMocks();
+});
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+describe.each(COMMAND_ALIASES)('revokeCommand %s', cmd => {
   it('Will revoke successfully', () => {
     expect(() =>
       yargs([
-        'revoke',
+        cmd,
         '--url',
         'https://extension.example.com',
         '--key',
         'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
       ])
-        .command(revokeCommand(mockCreateRevokeService))
+        .command(createRevokeCommand(mockCreateRevokeService))
+        .exitProcess(false)
         .parse()
     ).not.toThrow();
     expect(spyError).not.toHaveBeenCalled();
@@ -48,7 +50,7 @@ describe('revokeCommand', () => {
   it('Will revoke successfully w/ args', () => {
     expect(() =>
       yargs([
-        'revoke',
+        cmd,
         '--url',
         'https://extension.example.com',
         '--key',
@@ -59,7 +61,8 @@ describe('revokeCommand', () => {
         '--extension',
         'Filename',
       ])
-        .command(revokeCommand(mockCreateRevokeService))
+        .command(createRevokeCommand(mockCreateRevokeService))
+        .exitProcess(false)
         .parse()
     ).not.toThrow();
     expect(spyError).not.toHaveBeenCalled();
@@ -78,13 +81,16 @@ describe('revokeCommand', () => {
 
   it('Will revoke successfully w/ default force', () => {
     expect(() =>
-      revokeCommand(mockCreateRevokeService).handler({
-        $0: '',
-        _: [''],
-        url: 'https://extension.example.com',
-        key: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-        force: 'hello',
-      })
+      yargs([
+        cmd,
+        '--url',
+        'https://extension.example.com',
+        '--key',
+        'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      ])
+        .command(createRevokeCommand(mockCreateRevokeService))
+        .exitProcess(false)
+        .parse()
     ).not.toThrow();
     expect(spyError).not.toHaveBeenCalled();
     expect(mockCreateRevokeService).toBeCalledTimes(1);
@@ -93,6 +99,7 @@ describe('revokeCommand', () => {
       auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
       options: {
         force: false,
+        specFile: 'extension.json',
       },
     });
     expect(mockRevoke).toBeCalledTimes(1);
@@ -100,25 +107,19 @@ describe('revokeCommand', () => {
 
   it('Will fail to revoke when no url given', () => {
     expect(() =>
-      revokeCommand(mockCreateRevokeService).handler({
-        $0: '',
-        _: [''],
-        key: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new URLNotFoundError('account abc'));
+      yargs([cmd, '--key', 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx'])
+        .command(createRevokeCommand(mockCreateRevokeService))
+        .exitProcess(false)
+        .parse()
+    ).toThrowError(new URLNotFoundError('account abc'));
   });
 
   it('Will fail to revoke when no key given', () => {
     expect(() =>
-      revokeCommand(mockCreateRevokeService).handler({
-        $0: '',
-        _: [''],
-        url: 'https://extension.example.com',
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new KeyNotFoundError('account abc'));
+      yargs([cmd, '--url', 'https://extension.example.com'])
+        .command(createRevokeCommand(mockCreateRevokeService))
+        .exitProcess(false)
+        .parse()
+    ).toThrowError(new KeyNotFoundError('account abc'));
   });
 });

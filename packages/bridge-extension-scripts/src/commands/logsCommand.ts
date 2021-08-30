@@ -1,11 +1,5 @@
-import {
-  Chalk,
-  Logger,
-  UserError,
-} from '@smartsheet-bridge/extension-cli-logger';
+import { Chalk, UserError } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandBuilder, CommandModule } from 'yargs';
-import { KeyNotFoundError } from '../errors/KeyNotFoundError';
-import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, extension, key, specFile, url } from '../options';
 import { CreateLogsServiceFn } from '../services/logsService';
@@ -22,6 +16,25 @@ const SECONDS_PER_MINUTE = 60;
 const SECOND = MILLISECONDS_PER_SECOND;
 const MINUTE = SECOND * SECONDS_PER_MINUTE;
 
+class MinutesUserError extends UserError {
+  public constructor() {
+    super(
+      `Parameter 'minutes' must be a number!`,
+      `You can use the ${Chalk.cyan(
+        '--minutes'
+      )} flag to travel back in time and view logs from up to 60 minutes ago.`,
+      {
+        items: [
+          `extension-scripts logs --minutes=${Chalk.cyan(
+            '[insert minutes here]'
+          )}`,
+          `extension-scripts logs -m ${Chalk.cyan('[insert minutes here]')}`,
+        ],
+      }
+    );
+  }
+}
+
 const logsOptions = {
   url,
   key,
@@ -33,8 +46,12 @@ const logsOptions = {
     alias: 'm',
     description:
       'The number of minutes in the past to start streaming the logs from.',
-    coerce: (num?: number) =>
-      typeof num === 'number' && !Number.isNaN(num) ? Math.abs(num) : num,
+    coerce: (num?: number) => {
+      if (typeof num !== 'number' || Number.isNaN(num)) {
+        throw new MinutesUserError();
+      }
+      return Math.abs(num);
+    },
   },
 };
 
@@ -52,56 +69,27 @@ const builder: CommandBuilder = yargs => {
     .options(logsOptions);
 };
 
-const handler = (createLogsService: CreateLogsServiceFn) => async (
+const createLogsHandler = (createLogsService: CreateLogsServiceFn) => async (
   argv: CLIArguments<LogsArguments>
 ) => {
-  try {
-    if (typeof argv.url !== 'string') {
-      throw new URLNotFoundError('logs');
-    }
-
-    if (typeof argv.key !== 'string') {
-      throw new KeyNotFoundError('logs');
-    }
-
-    if (typeof argv.minutes !== 'number' || Number.isNaN(argv.minutes)) {
-      throw new UserError(
-        `Parameter 'minutes' must be a number!`,
-        `You can use the ${Chalk.cyan(
-          '--minutes'
-        )} flag to travel back in time and view logs from up to 60 minutes ago.`,
-        {
-          items: [
-            `extension-scripts logs --minutes=${Chalk.cyan(
-              '[insert minutes here]'
-            )}`,
-            `extension-scripts logs -m ${Chalk.cyan('[insert minutes here]')}`,
-          ],
-        }
-      );
-    }
-
-    const logs = createLogsService({
-      host: argv.url,
-      auth: argv.key,
-      options: {
-        milliseconds: Math.abs(argv.minutes) * MINUTE,
-        specFile: argv.specFile,
-        name: argv.extension,
-      },
-    });
-    await logs();
-  } catch (e) {
-    Logger.error(e);
-  }
+  const logs = createLogsService({
+    host: argv.url,
+    auth: argv.key,
+    options: {
+      milliseconds: Math.abs(argv.minutes) * MINUTE,
+      specFile: argv.specFile,
+      name: argv.extension,
+    },
+  });
+  await logs();
 };
 
-export const logsCommand = (
+export const createLogsCommand = (
   createLogsService: CreateLogsServiceFn
 ): CommandModule => ({
   command: 'logs [alias]',
   aliases: ['l', 'log', 'stream-log', 'stream-logs'],
   describe: 'Stream logs from production.',
   builder,
-  handler: handler(createLogsService),
+  handler: createLogsHandler(createLogsService),
 });

@@ -138,7 +138,7 @@ export const createDeployService = ({
               semver.clean(process.version)
           ) {
             Logger.warn(
-              `Your development environment (Node.js ${process.version}) does not match Converse.AI's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for supported versions of Node.js.`
+              `Your development environment (Node.js ${process.version}) does not match Bridge by Smartsheet's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for supported versions of Node.js.`
             );
           }
           return resolve();

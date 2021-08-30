@@ -1,10 +1,10 @@
 import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import yargs from 'yargs';
-import { AliasNotFoundError } from '../../errors/AliasNotFoundError';
 import { CreateAccountServiceFn } from '../../services/accountService';
-import { accountCommand } from '../accountCommand';
-import { removeAccountCommand } from './removeAccountCommand';
+import { createRemoveAccountCommand } from './removeAccountCommand';
 
+jest.spyOn(console, 'error').mockImplementation(() => {});
+const COMMAND_ALIASES = ['remove', 'rm'];
 const spyInfo = jest.spyOn(Logger, 'info');
 const spyError = jest.spyOn(Logger, 'error');
 const mockRemoveAccount = jest.fn();
@@ -16,23 +16,25 @@ const mockCreateAccountService: CreateAccountServiceFn = () => {
   } as unknown) as ReturnType<CreateAccountServiceFn>;
 };
 
-describe('removeAccountCommand', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-    mockGetAccount.mockReset();
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
+afterEach(() => {
+  jest.clearAllMocks();
+  mockRemoveAccount.mockReset();
+  mockGetAccount.mockReset();
+});
+afterAll(() => {
+  jest.restoreAllMocks();
+});
 
+describe.each(COMMAND_ALIASES)('removeAccountCommand %s', cmd => {
   it('Will remove alias successfully', () => {
     mockGetAccount.mockReturnValue({
       url: 'https://existing.example.com',
       key: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
     });
     expect(() =>
-      yargs(['account', 'remove', 'abc'])
-        .command(accountCommand(mockCreateAccountService))
+      yargs([cmd, 'abc'])
+        .command(createRemoveAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
         .parse()
     ).not.toThrow();
     expect(spyError).not.toHaveBeenCalled();
@@ -43,8 +45,9 @@ describe('removeAccountCommand', () => {
 
   it("Will not remove alias if it doesn't exit", () => {
     expect(() =>
-      yargs(['alias', 'remove', 'abc'])
-        .command(accountCommand(mockCreateAccountService))
+      yargs([cmd, 'abc'])
+        .command(createRemoveAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
         .parse()
     ).not.toThrow();
     expect(spyError).not.toHaveBeenCalled();
@@ -54,12 +57,10 @@ describe('removeAccountCommand', () => {
 
   it('Will fail to remove alias when no alias given', () => {
     expect(() =>
-      removeAccountCommand(mockCreateAccountService).handler({
-        $0: '',
-        _: [''],
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new AliasNotFoundError());
+      yargs([cmd])
+        .command(createRemoveAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
+        .parse()
+    ).toThrow();
   });
 });

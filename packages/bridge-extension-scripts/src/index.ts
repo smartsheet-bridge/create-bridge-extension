@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
+import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { cosmiconfigSync as sync } from 'cosmiconfig';
 import yargs from 'yargs';
-import { accountCommand } from './commands/accountCommand';
-import { deployCommand } from './commands/deployCommand';
-import { logsCommand } from './commands/logsCommand';
-import { revokeCommand } from './commands/revokeCommand';
+import { createAccountCommand } from './commands/accountCommand';
+import { createDeployCommand } from './commands/deployCommand';
+import { createLogsCommand } from './commands/logsCommand';
+import { createRevokeCommand } from './commands/revokeCommand';
 import { middlewareLogger } from './middleware/middlewareLogger';
 import { middlewareVersionCheck } from './middleware/middlewareVersionCheck';
 import options, { RC_NAME } from './options';
@@ -24,6 +25,8 @@ let config = {
 if (configSearch && configSearch.config) {
   config = configSearch.config;
 }
+
+const handleFail = (msg: string, err: Error) => Logger.error(err);
 
 /**
  * Priority
@@ -45,13 +48,14 @@ yargs
   .middleware(middlewareLogger, true)
   .middleware(middlewareVersionCheck)
   .options(options)
-  .command(accountCommand(createAccountService))
-  .command(deployCommand(createDeployService))
-  .command(revokeCommand(createRevokeService))
-  .command(logsCommand(createLogsService))
+  .command(createAccountCommand(createAccountService))
+  .command(createDeployCommand(createDeployService))
+  .command(createRevokeCommand(createRevokeService))
+  .command(createLogsCommand(createLogsService))
   .demandCommand()
   .recommendCommands()
   .help()
   .alias('h', 'help')
   .alias('v', 'version')
+  .fail(handleFail)
   .parse();

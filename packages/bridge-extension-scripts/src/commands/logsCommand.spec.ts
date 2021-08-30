@@ -3,32 +3,35 @@ import yargs from 'yargs';
 import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { CreateLogsServiceFn } from '../services/logsService';
-import { logsCommand } from './logsCommand';
+import { createLogsCommand } from './logsCommand';
 
+const COMMAND_ALIASES = ['logs', 'l', 'log', 'stream-log', 'stream-logs'];
 const spyError = jest.spyOn(Logger, 'error');
+jest.spyOn(console, 'error').mockImplementation(() => {});
 const mockLogs = jest.fn(() => Promise.resolve());
 const mockCreateLogsService: CreateLogsServiceFn = jest.fn(() => {
   return mockLogs as ReturnType<CreateLogsServiceFn>;
 });
 
-describe('logsCommand', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
+afterEach(() => {
+  jest.clearAllMocks();
+});
+afterAll(() => {
+  jest.restoreAllMocks();
+});
 
+describe.each(COMMAND_ALIASES)('logsCommand %s', cmd => {
   it('Will logs successfully', () => {
     expect(() =>
       yargs([
-        'logs',
+        cmd,
         '--url',
         'https://extension.example.com',
         '--key',
         'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
       ])
-        .command(logsCommand(mockCreateLogsService))
+        .command(createLogsCommand(mockCreateLogsService))
+        .exitProcess(false)
         .parse()
     ).not.toThrow();
     expect(spyError).not.toHaveBeenCalled();
@@ -48,7 +51,7 @@ describe('logsCommand', () => {
   it('Will logs successfully w/ args', () => {
     expect(() =>
       yargs([
-        'logs',
+        cmd,
         '--url',
         'https://extension.example.com',
         '--key',
@@ -60,7 +63,8 @@ describe('logsCommand', () => {
         '--extension',
         'Filename',
       ])
-        .command(logsCommand(mockCreateLogsService))
+        .command(createLogsCommand(mockCreateLogsService))
+        .exitProcess(false)
         .parse()
     ).not.toThrow();
     expect(spyError).not.toHaveBeenCalled();
@@ -79,40 +83,36 @@ describe('logsCommand', () => {
 
   it('Will fail to logs when no url given', () => {
     expect(() =>
-      logsCommand(mockCreateLogsService).handler({
-        $0: '',
-        _: [''],
-        key: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new URLNotFoundError('account abc'));
+      yargs([cmd, '--key', 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx'])
+        .command(createLogsCommand(mockCreateLogsService))
+        .exitProcess(false)
+        .parse()
+    ).toThrowError(new URLNotFoundError('logs'));
   });
 
   it('Will fail to logs when no key given', () => {
     expect(() =>
-      logsCommand(mockCreateLogsService).handler({
-        $0: '',
-        _: [''],
-        url: 'https://extension.example.com',
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new KeyNotFoundError('account abc'));
+      yargs([cmd, '--url', 'https://extension.example.com'])
+        .command(createLogsCommand(mockCreateLogsService))
+        .exitProcess(false)
+        .parse()
+    ).toThrowError(new KeyNotFoundError('logs'));
   });
 
   it('Will fail to logs when minutes is not number', () => {
     expect(() =>
-      logsCommand(mockCreateLogsService).handler({
-        $0: '',
-        _: [''],
-        url: 'https://extension.example.com',
-        key: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(
-      new UserError("Parameter 'minutes' must be a number!", '')
-    );
+      yargs([
+        cmd,
+        '--url',
+        'https://extension.example.com',
+        '--key',
+        'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+        '--minutes',
+        'NaN',
+      ])
+        .command(createLogsCommand(mockCreateLogsService))
+        .exitProcess(false)
+        .parse()
+    ).toThrowError(new UserError("Parameter 'minutes' must be a number!", ''));
   });
 });

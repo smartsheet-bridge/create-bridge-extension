@@ -1,7 +1,4 @@
-import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandBuilder, CommandModule } from 'yargs';
-import { KeyNotFoundError } from '../errors/KeyNotFoundError';
-import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, key, specFile, url } from '../options';
 import { CreateDeployServiceFn } from '../services/deployService';
@@ -46,52 +43,36 @@ const deployArguments = {
 export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
 type DeployArguments = InferArgumentsOut<typeof deployArguments>;
 
-const builder: CommandBuilder = yargs => {
+const createDeployBuilder: CommandBuilder = yargs => {
   return yargs
     .middleware(middlewareAuth)
     .positional('alias', alias)
     .options(deployArguments);
 };
 
-const handler = (createDeployService: CreateDeployServiceFn) => async (
-  argv: CLIArguments<DeployArguments>
-) => {
-  try {
-    if (typeof argv.url !== 'string') {
-      throw new URLNotFoundError('deploy');
-    }
-
-    if (typeof argv.key !== 'string') {
-      throw new KeyNotFoundError('deploy');
-    }
-
-    if (typeof argv.include !== 'string') {
-      argv.include = '**/**';
-    }
-
-    const deploy = createDeployService({
-      host: argv.url,
-      auth: argv.key,
-      options: {
-        exclude: argv.exclude,
-        include: argv.include,
-        symlinks: argv.symlinks,
-        specFile: argv.specFile,
-        env: argv.env,
-      },
-    });
-    await deploy();
-  } catch (e) {
-    Logger.error(e);
-  }
+const createDeployHandler = (
+  createDeployService: CreateDeployServiceFn
+) => async (argv: CLIArguments<DeployArguments>) => {
+  const deploy = createDeployService({
+    host: argv.url,
+    auth: argv.key,
+    options: {
+      exclude: argv.exclude,
+      include: argv.include,
+      symlinks: argv.symlinks,
+      specFile: argv.specFile,
+      env: argv.env,
+    },
+  });
+  await deploy();
 };
 
-export const deployCommand = (
+export const createDeployCommand = (
   createDeployService: CreateDeployServiceFn
 ): CommandModule => ({
   command: 'deploy [alias]',
   aliases: ['d', 'publish'],
   describe: 'Deploy to production.',
-  builder,
-  handler: handler(createDeployService),
+  builder: createDeployBuilder,
+  handler: createDeployHandler(createDeployService),
 });

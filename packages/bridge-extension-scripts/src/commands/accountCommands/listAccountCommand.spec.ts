@@ -1,14 +1,9 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import yargs from 'yargs';
 import { CreateAccountServiceFn } from '../../services/accountService';
-import { accountCommand } from '../accountCommand';
+import { createListAccountCommand } from './listAccountCommand';
 
-const ARG_LISTS = [
-  [
-    ['account', 'list'],
-    ['user', 'ls'],
-  ],
-];
+const COMMAND_ALIASES = ['list', 'ls'];
 
 const spyInfo = jest.spyOn(Logger, 'info');
 const mockListAccounts = jest.fn();
@@ -18,18 +13,22 @@ const mockCreateAccountService: CreateAccountServiceFn = () => {
   } as unknown) as ReturnType<CreateAccountServiceFn>;
 };
 
-describe('listAccountCommand', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
+afterEach(() => {
+  jest.clearAllMocks();
+  mockListAccounts.mockReset();
+});
+afterAll(() => {
+  jest.restoreAllMocks();
+});
 
-  it.each(ARG_LISTS)('no accounts found with %s', async cmd => {
+describe.each(COMMAND_ALIASES)('listAccountCommand %s', cmd => {
+  it('no accounts found with %s', async () => {
     mockListAccounts.mockReturnValue([]);
     expect(() =>
-      yargs(cmd).command(accountCommand(mockCreateAccountService)).parse()
+      yargs([cmd])
+        .command(createListAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
+        .parse()
     ).not.toThrow();
     expect(mockListAccounts).toBeCalledTimes(1);
     expect(spyInfo).toBeCalledWith(
@@ -37,7 +36,7 @@ describe('listAccountCommand', () => {
     );
   });
 
-  it.each(ARG_LISTS)('One account found with %s', async cmd => {
+  it('One account found with %s', async () => {
     mockListAccounts.mockReturnValue([
       {
         alias: 'abc',
@@ -46,7 +45,10 @@ describe('listAccountCommand', () => {
       },
     ]);
     expect(() =>
-      yargs(cmd).command(accountCommand(mockCreateAccountService)).parse()
+      yargs([cmd])
+        .command(createListAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
+        .parse()
     ).not.toThrow();
     expect(mockListAccounts).toBeCalledTimes(1);
     expect(spyInfo).toBeCalledWith(
@@ -56,7 +58,7 @@ describe('listAccountCommand', () => {
     );
   });
 
-  it.each(ARG_LISTS)('Two accounts found with %s', async cmd => {
+  it('Two accounts found with %s', async () => {
     mockListAccounts.mockReturnValue([
       {
         alias: 'abc',
@@ -70,7 +72,10 @@ describe('listAccountCommand', () => {
       },
     ]);
     expect(() =>
-      yargs(cmd).command(accountCommand(mockCreateAccountService)).parse()
+      yargs([cmd])
+        .command(createListAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
+        .parse()
     ).not.toThrow();
     expect(mockListAccounts).toBeCalledTimes(1);
     expect(spyInfo).toHaveBeenNthCalledWith(

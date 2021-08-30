@@ -1,13 +1,13 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import yargs from 'yargs';
 import { AliasAlreadyExistsError } from '../../errors/AliasAlreadyExistsError';
-import { AliasNotFoundError } from '../../errors/AliasNotFoundError';
 import { KeyNotFoundError } from '../../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../../errors/URLNotFoundError';
 import { CreateAccountServiceFn } from '../../services/accountService';
-import { accountCommand } from '../accountCommand';
-import { addAccountCommand } from './addAccountCommand';
+import { createAddAccountCommand } from './addAccountCommand';
 
+const COMMAND_ALIASES = ['add', 'a'];
+jest.spyOn(console, 'error').mockImplementation(() => {});
 const spyInfo = jest.spyOn(Logger, 'info');
 const spyError = jest.spyOn(Logger, 'error');
 const mockSaveAccount = jest.fn();
@@ -19,27 +19,27 @@ const mockCreateAccountService: CreateAccountServiceFn = () => {
   } as unknown) as ReturnType<CreateAccountServiceFn>;
 };
 
-describe('addAccountCommand', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-    mockGetAccount.mockReset();
-  });
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
+afterEach(() => {
+  jest.clearAllMocks();
+  mockGetAccount.mockReset();
+});
+afterAll(() => {
+  jest.restoreAllMocks();
+});
 
+describe.each(COMMAND_ALIASES)('addAccountCommand %s', cmd => {
   it('Will add alias successfully', () => {
     expect(() =>
       yargs([
-        'account',
-        'add',
+        cmd,
         'abc',
         '--url',
         'https://extension.example.com',
         '--key',
         'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
       ])
-        .command(accountCommand(mockCreateAccountService))
+        .command(createAddAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
         .parse()
     ).not.toThrow();
     expect(spyError).not.toHaveBeenCalled();
@@ -55,6 +55,32 @@ describe('addAccountCommand', () => {
     );
   });
 
+  it('Will add default alias successfully when no alias given', () => {
+    expect(() =>
+      yargs([
+        cmd,
+        '--url',
+        'https://extension.example.com',
+        '--key',
+        'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      ])
+        .command(createAddAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
+        .parse()
+    ).not.toThrow();
+    expect(spyError).not.toHaveBeenCalled();
+    expect(mockSaveAccount).toBeCalledTimes(1);
+    expect(mockSaveAccount).toBeCalledWith('default', {
+      url: 'https://extension.example.com',
+      key: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+    });
+    expect(spyInfo).toBeCalledWith(
+      'Added account alias',
+      "'default'",
+      Chalk.cyan.underline('https://extension.example.com')
+    );
+  });
+
   it('Will overwrite alias successfully if `--overwrite` is given', () => {
     mockGetAccount.mockReturnValue({
       url: 'https://existing.example.com',
@@ -62,8 +88,7 @@ describe('addAccountCommand', () => {
     });
     expect(() =>
       yargs([
-        'alias',
-        'add',
+        cmd,
         'abc',
         '--url',
         'https://extension.example.com',
@@ -71,7 +96,8 @@ describe('addAccountCommand', () => {
         'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
         '--overwrite',
       ])
-        .command(accountCommand(mockCreateAccountService))
+        .command(createAddAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
         .parse()
     ).not.toThrow();
     expect(mockSaveAccount).toBeCalledWith('abc', {
@@ -92,57 +118,34 @@ describe('addAccountCommand', () => {
     });
     expect(() =>
       yargs([
-        'user',
-        'add',
+        cmd,
         'abc',
         '--url',
         'https://extension.example.com',
         '--key',
         'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
       ])
-        .command(accountCommand(mockCreateAccountService))
+        .command(createAddAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
         .parse()
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new AliasAlreadyExistsError('abc'));
-  });
-
-  it('Will fail to add alias when no alias given', () => {
-    expect(() =>
-      addAccountCommand(mockCreateAccountService).handler({
-        $0: '',
-        _: [''],
-        url: 'https://extension.example.com',
-        key: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new AliasNotFoundError());
+    ).toThrowError(new AliasAlreadyExistsError('abc'));
   });
 
   it('Will fail to add alias when no url given', () => {
     expect(() =>
-      addAccountCommand(mockCreateAccountService).handler({
-        $0: '',
-        _: [''],
-        alias: 'abc',
-        key: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new URLNotFoundError('account abc'));
+      yargs([cmd, 'abc', '--key', 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx'])
+        .command(createAddAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
+        .parse()
+    ).toThrowError(new URLNotFoundError('account abc'));
   });
 
   it('Will fail to add alias when no key given', () => {
     expect(() =>
-      addAccountCommand(mockCreateAccountService).handler({
-        $0: '',
-        _: [''],
-        alias: 'abc',
-        url: 'https://extension.example.com',
-      })
-    ).not.toThrow();
-    expect(spyError).toHaveBeenCalledTimes(1);
-    expect(spyError).toBeCalledWith(new KeyNotFoundError('account abc'));
+      yargs([cmd, 'abc', '--url', 'https://extension.example.com'])
+        .command(createAddAccountCommand(mockCreateAccountService))
+        .exitProcess(false)
+        .parse()
+    ).toThrowError(new KeyNotFoundError('account abc'));
   });
 });

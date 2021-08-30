@@ -1,5 +1,7 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { InferredOptionTypes, MiddlewareFunction } from 'yargs';
+import { KeyNotFoundError } from '../errors/KeyNotFoundError';
+import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { alias as aliasOption, AuthOptions } from '../options';
 import { createAccountService } from '../services/accountService';
 import { CLIArguments } from '../types';
@@ -21,14 +23,14 @@ export const middlewareAuth: MiddlewareFunction<CLIArguments<
   argv.url = url || (account && account.url);
   argv.key = key || (account && account.key);
 
-  if (argv.url) {
+  if (typeof argv.url === 'string') {
     Logger.verbose('Account url:', Chalk.cyan(argv.url));
   } else {
-    Logger.verbose('No account url given');
+    throw new URLNotFoundError(argv._[0]);
   }
-  if (argv.key) {
+  if (typeof argv.key === 'string') {
     Logger.verbose('Account key:', Chalk.cyan(maskKey(argv.key)));
   } else {
-    Logger.verbose('No account key given');
+    throw new KeyNotFoundError(argv._[0]);
   }
 };

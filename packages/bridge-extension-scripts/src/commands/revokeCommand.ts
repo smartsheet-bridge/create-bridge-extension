@@ -1,7 +1,4 @@
-import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { CommandBuilder, CommandModule } from 'yargs';
-import { KeyNotFoundError } from '../errors/KeyNotFoundError';
-import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { middlewareAuth } from '../middleware/middlewareAuth';
 import { alias, extension, key, specFile, url } from '../options';
 import { CreateRevokeServiceFn } from '../services/revokeService';
@@ -39,43 +36,27 @@ const builder: CommandBuilder = yargs => {
     .options(revokeOptions);
 };
 
-const handler = (createRevokeService: CreateRevokeServiceFn) => async (
-  argv: CLIArguments<RevokeArguments>
-) => {
-  try {
-    if (typeof argv.url !== 'string') {
-      throw new URLNotFoundError('revoke');
-    }
-
-    if (typeof argv.key !== 'string') {
-      throw new KeyNotFoundError('revoke');
-    }
-
-    if (typeof argv.force !== 'boolean') {
-      argv.force = false;
-    }
-
-    const revoke = createRevokeService({
-      host: argv.url,
-      auth: argv.key,
-      options: {
-        force: argv.force,
-        specFile: argv.specFile,
-        name: argv.extension,
-      },
-    });
-    await revoke();
-  } catch (e) {
-    Logger.error(e);
-  }
+const createRevokeHandler = (
+  createRevokeService: CreateRevokeServiceFn
+) => async (argv: CLIArguments<RevokeArguments>) => {
+  const revoke = createRevokeService({
+    host: argv.url,
+    auth: argv.key,
+    options: {
+      force: argv.force,
+      specFile: argv.specFile,
+      name: argv.extension,
+    },
+  });
+  await revoke();
 };
 
-export const revokeCommand = (
+export const createRevokeCommand = (
   createRevokeService: CreateRevokeServiceFn
 ): CommandModule => ({
   command: 'revoke [alias]',
   aliases: ['r', 'delete', 'remove', 'unpublish'],
   describe: 'Revoke extension from production.',
   builder,
-  handler: handler(createRevokeService),
+  handler: createRevokeHandler(createRevokeService),
 });

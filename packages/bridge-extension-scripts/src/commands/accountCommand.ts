@@ -2,9 +2,9 @@ import { CommandBuilder, CommandModule } from 'yargs';
 import { alias, key, url } from '../options';
 import { CreateAccountServiceFn } from '../services/accountService';
 import type { InferArgumentsIn } from '../types';
-import { addAccountCommand } from './accountCommands/addAccountCommand';
-import { listAccountCommand } from './accountCommands/listAccountCommand';
-import { removeAccountCommand } from './accountCommands/removeAccountCommand';
+import { createAddAccountCommand } from './accountCommands/addAccountCommand';
+import { createListAccountCommand } from './accountCommands/listAccountCommand';
+import { createRemoveAccountCommand } from './accountCommands/removeAccountCommand';
 
 const accountArguments = {
   url,
@@ -14,13 +14,13 @@ const accountArguments = {
 
 export type AccountConfig = InferArgumentsIn<typeof accountArguments>;
 
-const builder = (
+const createAccountBuilder = (
   createAccountService: CreateAccountServiceFn
 ): CommandBuilder => yargs => {
   return yargs
-    .command(listAccountCommand(createAccountService))
-    .command(addAccountCommand(createAccountService))
-    .command(removeAccountCommand(createAccountService))
+    .command(createListAccountCommand(createAccountService))
+    .command(createAddAccountCommand(createAccountService))
+    .command(createRemoveAccountCommand(createAccountService))
     .demandCommand()
     .recommendCommands()
     .help();
@@ -28,12 +28,12 @@ const builder = (
 
 const handler = async () => {};
 
-export const accountCommand = (
+export const createAccountCommand = (
   createAccountService: CreateAccountServiceFn
 ): CommandModule => ({
   command: 'account',
   aliases: ['alias', 'user'],
   describe: 'Manage your saved account aliases.',
-  builder: builder(createAccountService),
+  builder: createAccountBuilder(createAccountService),
   handler,
 });

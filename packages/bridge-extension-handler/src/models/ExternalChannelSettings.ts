@@ -4,6 +4,7 @@ import {
   serialize,
 } from '@smartsheet-extensions/handler';
 import { ChannelUserInfo } from './ChannelUserInfo';
+import { OAuth2Data } from './OAuth2Data';
 
 export interface ExternalChannelSettings {
   userId: string;
@@ -22,7 +23,8 @@ export interface ExternalChannelSettings {
  * @returns external channel settings.
  */
 export function parseExternalChannelSettingsPayload(
-  payload: any
+  payload: any,
+  invokerOAuth: OAuth2Data
 ): ExternalChannelSettings {
   if (payload === undefined || payload == null) {
     return undefined;
@@ -37,6 +39,7 @@ export function parseExternalChannelSettingsPayload(
   settings.setThreadId(payload.threadId || payload.requestUUID || '');
   settings.setUserID(payload.userId || payload.userUUID || '');
   settings.setUserInfo(payload.userInfo || undefined);
+  settings.oAuthData = invokerOAuth;
 
   return settings;
 }
@@ -81,6 +84,13 @@ export class ExternalChannelSettings implements SerializableClass {
    * for example to complete a poll or survey.
    */
   isGroup?: boolean;
+
+  /**
+   * The OAuth data linked to this channel settings user.
+   *
+   * These tokens are only generated for chat channels that implement the invoker OAuth flow.
+   */
+  oAuthData?: OAuth2Data;
 
   public static create(props: Partial<ExternalChannelSettings> = {}) {
     return new ExternalChannelSettings(props);

@@ -5,6 +5,7 @@ import {
 } from '@smartsheet-extensions/handler';
 import { BadRegisterResponseError } from '../errors/BadRegisterResponseError';
 import { Caller } from '../models/Caller';
+import { OAuth2Data } from '../models/OAuth2Data';
 import { RegisterResponse } from '../responses/RegisterResponse';
 import { BridgeContext, BridgeFunction } from '../types';
 
@@ -34,6 +35,7 @@ export interface RegisterPayload {
   event: typeof PLUGIN_REGISTER;
   caller: Caller;
   payload: {
+    providerOAuth?: OAuth2Data;
     externalURI?: Record<string, string>;
     inboundURI?: string;
     registrationData: SerializableObject;
@@ -52,7 +54,8 @@ export const handleRegister = (
     if (isRegisterPayload(body) && typeof config.onRegister === 'function') {
       const settings = (body.payload && body.payload.registrationData) || {};
       const { caller } = body;
-      const { externalURI, inboundURI, webhookURI } = body.payload || {};
+      const { externalURI, inboundURI, webhookURI, providerOAuth } =
+        body.payload || {};
 
       next(
         config.onRegister(settings, {
@@ -61,6 +64,7 @@ export const handleRegister = (
           externalURI,
           inboundURI,
           webhookURI,
+          oAuthData: providerOAuth,
         }),
         (err?: Error, result?: unknown) => {
           if (err) {

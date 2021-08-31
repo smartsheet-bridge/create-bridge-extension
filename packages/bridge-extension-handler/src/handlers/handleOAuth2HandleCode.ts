@@ -42,6 +42,7 @@ export interface HandleOAuth2CodePayload {
   event: typeof OAUTH2_HANDLE_CODE;
   caller: Caller;
   payload: {
+    providerOAuth?: OAuth2Data;
     scope?: string;
     state?: string;
     code: string;
@@ -77,6 +78,7 @@ export const handleOAuth2HandleCode = (
     }
     const settings = (body.payload && body.payload.registrationData) || {};
     const { caller } = body;
+    const { providerOAuth } = body.payload;
 
     next(
       config.onOAuthHandleCode(
@@ -86,7 +88,12 @@ export const handleOAuth2HandleCode = (
           scope: body.payload.scope,
           oauthType: body.payload.oauthType,
         },
-        { settings, caller, redirectURI: body.payload.redirectURI }
+        {
+          settings,
+          caller,
+          redirectURI: body.payload.redirectURI,
+          oAuthData: providerOAuth,
+        }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

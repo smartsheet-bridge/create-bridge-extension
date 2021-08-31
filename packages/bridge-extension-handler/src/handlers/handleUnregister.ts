@@ -3,6 +3,7 @@ import {
   SerializableObject,
 } from '@smartsheet-extensions/handler';
 import { Caller } from '../models/Caller';
+import { OAuth2Data } from '../models/OAuth2Data';
 import { AbstractResponse } from '../responses/AbstractResponse';
 import { BridgeContext, BridgeFunction } from '../types';
 
@@ -29,6 +30,7 @@ export interface UnregisterPayload {
   event: typeof PLUGIN_UNREGISTER;
   caller: Caller;
   payload: {
+    providerOAuth?: OAuth2Data;
     externalURI?: Record<string, string>;
     inboundURI?: string;
     registrationData: SerializableObject;
@@ -50,7 +52,8 @@ export const handleUnregister = (
     ) {
       const settings = (body.payload && body.payload.registrationData) || {};
       const { caller } = body;
-      const { externalURI, inboundURI, webhookURI } = body.payload || {};
+      const { externalURI, inboundURI, webhookURI, providerOAuth } =
+        body.payload || {};
 
       next(
         config.onUnregister(settings, {
@@ -59,6 +62,7 @@ export const handleUnregister = (
           inboundURI,
           webhookURI,
           settings,
+          oAuthData: providerOAuth,
         }),
         callback
       );

@@ -9,6 +9,7 @@ import { BadExternalResponseError } from '../errors/BadExternalResponseError';
 import { Caller } from '../models/Caller';
 import { ChannelOutput } from '../models/ChannelOutput';
 import { HttpResponse } from '../models/HttpResponse';
+import { OAuth2Data } from '../models/OAuth2Data';
 import { ExternalResponse } from '../responses/ExternalResponse';
 import { BridgeContext, BridgeFunction } from '../types';
 
@@ -38,6 +39,7 @@ export interface ExternalPayload {
   event: typeof EXTERNAL_CALL;
   caller: Caller;
   payload: {
+    providerOAuth?: OAuth2Data;
     call: string;
     registrationData: SerializableObject;
     bodyData: SerializableObject;
@@ -90,6 +92,7 @@ export const handleExternals = (
       method,
       formData,
       queryParam,
+      providerOAuth,
     } = body.payload;
     const { caller } = body;
 
@@ -118,7 +121,7 @@ export const handleExternals = (
           formData,
           queryParam,
         },
-        { caller, settings }
+        { caller, settings, oAuthData: providerOAuth }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

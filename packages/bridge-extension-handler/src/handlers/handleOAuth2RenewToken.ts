@@ -83,7 +83,11 @@ export const handleOAuth2RenewToken = (
           renewToken: body.payload.renewToken,
           oauthType: body.payload.oauthType,
         },
-        { settings, caller, redirectURI: body.payload.redirectURI }
+        {
+          settings,
+          caller,
+          redirectURI: body.payload.redirectURI,
+        }
       ),
       (err?: Error, result?: unknown) => {
         if (err) {

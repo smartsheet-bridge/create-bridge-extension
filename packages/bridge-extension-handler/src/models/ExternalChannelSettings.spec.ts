@@ -153,7 +153,7 @@ describe('model tests - ExternalChannelSettings', () => {
   it.each(TEST)(
     'parseExternalChannelSettingsPayload accepts given %s, returns %s',
     (given, expected) => {
-      const actual = parseExternalChannelSettingsPayload(given);
+      const actual = parseExternalChannelSettingsPayload(given, undefined);
       expect(actual).toEqual(expected);
     }
   );

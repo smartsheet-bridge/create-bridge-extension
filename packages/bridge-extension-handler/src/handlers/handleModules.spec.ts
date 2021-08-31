@@ -1,5 +1,7 @@
 import { createExtensionHandler } from '@smartsheet-extensions/handler';
 import { BadModuleResponseError } from '../errors/BadModuleResponseError';
+import { parseExternalChannelSettingsPayload } from '../models/ExternalChannelSettings';
+import { OAuth2Data } from '../models/OAuth2Data';
 import { handleModules, ModulePayload, ModulesConfig } from './handleModules';
 
 describe('handleModule', () => {
@@ -26,7 +28,9 @@ describe('handleModule', () => {
     },
     payload: {
       moduleId: 'moduleA',
-      moduleParam: {},
+      moduleParam: {
+        key: 'value',
+      },
       registrationData: {},
       conversation: {},
       retryCount: 1,
@@ -36,6 +40,9 @@ describe('handleModule', () => {
         userId: 'user',
         runtimeCtx: { key: 'value' },
       },
+      providerOAuth: OAuth2Data.create({
+        access_token: 'sample_token',
+      }),
     },
   };
 
@@ -102,5 +109,40 @@ describe('handleModule', () => {
     expect(CALLBACK).toBeCalledWith(null, {
       status: 0,
     });
+  });
+
+  it('payload conversion', async () => {
+    const moduleFunc = jest.fn();
+    const config: ModulesConfig = {
+      modules: {
+        moduleA: moduleFunc,
+      },
+    };
+    const handler = createExtensionHandler(handleModules(config));
+    expect(() => handler(PAYLOAD, CALLBACK)).not.toThrow();
+    expect(CALLBACK).toBeCalledWith(null, {
+      status: 0,
+    });
+    const payload = {
+      key: 'value',
+    };
+    const context = {
+      caller: PAYLOAD.caller,
+      channelSettings: parseExternalChannelSettingsPayload(
+        PAYLOAD.payload.channelSetting,
+        undefined
+      ),
+      oAuthData: OAuth2Data.create({ access_token: 'sample_token' }),
+      retryCount: 1,
+      settings: {},
+      workflowRun: {
+        currentState: '',
+        states: {},
+        threadId: '',
+        workflowRunId: '',
+        workspaceId: '',
+      },
+    };
+    expect(moduleFunc).toBeCalledWith(payload, context);
   });
 });

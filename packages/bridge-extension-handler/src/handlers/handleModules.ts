@@ -12,6 +12,7 @@ import {
   ExternalChannelSettings,
   parseExternalChannelSettingsPayload,
 } from '../models/ExternalChannelSettings';
+import { OAuth2Data } from '../models/OAuth2Data';
 import {
   getWorkflowRunFromPayloadObject,
   WorkflowRun,
@@ -42,6 +43,8 @@ export interface ModulePayload {
   event: typeof MODULE_EXEC;
   caller: Caller;
   payload: {
+    invokerOAuth?: OAuth2Data;
+    providerOAuth?: OAuth2Data;
     conversation: SerializableObject;
     channelSetting?: SerializableObject;
     moduleId: string;
@@ -72,6 +75,8 @@ export const handleModules = (
       retryCount,
       channelSetting,
       conversation,
+      providerOAuth,
+      invokerOAuth,
     } = body.payload;
     const { caller } = body;
 
@@ -89,7 +94,10 @@ export const handleModules = (
       throw new NotFoundError(`Module \`${moduleId}\` does not exist.`);
     }
 
-    const channelSettings = parseExternalChannelSettingsPayload(channelSetting);
+    const channelSettings = parseExternalChannelSettingsPayload(
+      channelSetting,
+      invokerOAuth
+    );
     const workflowRun = getWorkflowRunFromPayloadObject(conversation);
 
     next(
@@ -99,6 +107,7 @@ export const handleModules = (
         retryCount: retryCount || 0,
         workflowRun,
         channelSettings,
+        oAuthData: providerOAuth,
       }),
       (err?: Error, result?: unknown) => {
         if (err) {

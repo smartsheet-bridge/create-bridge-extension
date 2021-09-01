@@ -5,6 +5,7 @@ import {
   PositionalOptions,
 } from 'yargs';
 import type { AccountConfig } from './commands/accountCommand';
+import type { BuildConfig } from './commands/buildCommand';
 import type { DeployConfig } from './commands/deployCommand';
 import type { LogsConfig } from './commands/logsCommand';
 import type { RevokeConfig } from './commands/revokeCommand';
@@ -36,5 +37,10 @@ export type CLIArguments<CommandArguments extends {} = {}> = YargsArgs<
 >;
 
 export type CLIConfig = Partial<
-  CLICommonArguments & DeployConfig & LogsConfig & RevokeConfig & AccountConfig
+  CLICommonArguments &
+    BuildConfig &
+    DeployConfig &
+    LogsConfig &
+    RevokeConfig &
+    AccountConfig
 >;

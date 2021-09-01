@@ -14,6 +14,8 @@
   "devDependencies": {
     "@npm/types": "^1.0.1",
     "@types/archiver": "^3.0.0",
+    "@types/babel__core": "^7",
+    "@types/babel__preset-env": "^7",
     "@types/chalk": "^2.2.0",
     "@types/fs-extra": "^8.1.0",
     "@types/glob": "^7.1.1",
@@ -26,6 +28,9 @@
     "@types/yargs": "^15.0.4"
   },
   "dependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-typescript": "^7.15.0",
     "@smartsheet-bridge/bridge-sdk": "^1.0.0-beta.6",
     "@smartsheet-bridge/extension-cli-logger": "^0.1.0-beta.1",
     "@smartsheet-bridge/extensionrc-standard": "^0.1.0-beta.1",

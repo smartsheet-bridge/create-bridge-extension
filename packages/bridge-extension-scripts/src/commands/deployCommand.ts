@@ -1,6 +1,7 @@
 import { CommandBuilder, CommandModule } from 'yargs';
 import { middlewareAuth } from '../middleware/middlewareAuth';
-import { alias, key, specFile, url } from '../options';
+import { alias, exclude, include, key, specFile, url } from '../options';
+import { CreateBuildServiceFn } from '../services/buildService';
 import { CreateDeployServiceFn } from '../services/deployService';
 import type {
   CLIArguments,
@@ -8,6 +9,11 @@ import type {
   InferArgumentsOut,
 } from '../types';
 import { buildEnvironmentVariables } from '../utils';
+import {
+  argvToBuildArgs,
+  BuildArguments,
+  buildArguments,
+} from './buildCommand';
 
 const deployArguments = {
   url,
@@ -19,40 +25,41 @@ const deployArguments = {
     description: 'Set environment variables on deployed extension.',
     coerce: buildEnvironmentVariables,
   },
-  include: {
-    type: 'string' as 'string',
-    default: '**/**',
-    description: 'Pattern to include filenames when packaging for deployment.',
-  },
-  exclude: {
-    type: 'string' as 'string',
-    description:
-      'Pattern or array of patterns to exclude filenames when packaging for deployment.',
-    default: '',
-    coerce: (exclude: string | string[]) =>
-      ([] as string[]).concat(exclude || []),
-  },
+  include,
+  exclude,
   symlinks: {
     type: 'boolean' as 'boolean',
     description: 'Follow symlinks when packaging extension for deployment.',
     default: false,
     coerce: (ln?: boolean) => (ln !== undefined ? ln : false),
   },
+  build: {
+    type: 'boolean' as 'boolean',
+    description:
+      'Build code on deployment. Use `--no-build` to disable this feature.',
+    default: true,
+  },
 };
 
 export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
 type DeployArguments = InferArgumentsOut<typeof deployArguments>;
 
-const createDeployBuilder: CommandBuilder = yargs => {
+const builder: CommandBuilder = yargs => {
   return yargs
     .middleware(middlewareAuth)
     .positional('alias', alias)
-    .options(deployArguments);
+    .options({ ...buildArguments, ...deployArguments });
 };
 
 const createDeployHandler = (
-  createDeployService: CreateDeployServiceFn
-) => async (argv: CLIArguments<DeployArguments>) => {
+  createDeployService: CreateDeployServiceFn,
+  createBuildService?: CreateBuildServiceFn
+) => async (argv: CLIArguments<DeployArguments & BuildArguments>) => {
+  if (argv.build && createBuildService) {
+    const build = createBuildService(argvToBuildArgs(argv));
+    build();
+  }
+
   const deploy = createDeployService({
     host: argv.url,
     auth: argv.key,
@@ -68,11 +75,12 @@ const createDeployHandler = (
 };
 
 export const createDeployCommand = (
-  createDeployService: CreateDeployServiceFn
+  createDeployService: CreateDeployServiceFn,
+  createBuildService?: CreateBuildServiceFn
 ): CommandModule => ({
   command: 'deploy [alias]',
   aliases: ['d', 'publish'],
   describe: 'Deploy to production.',
-  builder: createDeployBuilder,
-  handler: createDeployHandler(createDeployService),
+  builder,
+  handler: createDeployHandler(createDeployService, createBuildService),
 });

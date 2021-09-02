@@ -4,13 +4,14 @@ module.exports = {
     'Main Concepts': [
       'concepts/introduction',
       'concepts/entry',
+      'concepts/spec',
       'concepts/function',
       // 'concepts/lifecycle',
     ],
-    'Bridge Concepts': [
-      'bridge/introduction',
-      'bridge/spec',
-      // { Recipes: ['bridge/callback'] },
+    'Common Recipes': [
+      'recipes/add_module',
+      'recipes/use_settings',
+      'recipes/use_auth',
     ],
     'Advanced Guides': [
       'advanced/setup',

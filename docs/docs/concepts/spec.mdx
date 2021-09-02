@@ -7,9 +7,13 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import TOCInline from '@theme/TOCInline';
 
-The "specification file" or "spec file" is a static configuration file that describes the extension to the Bridge by Smartsheet platform.
+The "specification" or "spec" file is a static configuration file that describes the extension to the Bridge by Smartsheet platform.
+
+:::note
 
 The `extensions.json` file is somewhat verbose and unfortunately, it must be filled out manually at the moment.
+
+:::
 
 ```json
 {
@@ -35,7 +39,7 @@ The `extensions.json` file is somewhat verbose and unfortunately, it must be fil
 
 **Type:** `string`
 
-A unique identifier of your extension. If this is a custom extension then this property must be unique to your account – no other extension can have the same name. If this is a system extension then this property must be unique accross all system extensions. Please work with the Bridge by Smartsheet team to ensure a unique property.
+A unique identifier of your extension. If this is a custom extension then this property must be unique to your account – no other extension can have the same name. If this is a system extension then this property must be unique across all system extensions. Please work with the Bridge by Smartsheet team to ensure a unique property.
 
 :::caution
 
@@ -213,8 +217,8 @@ _Remember, this property is a JavaScript expression string so `false` is not the
 
 The expression is executed in a sandboxed environment with the following variables:
 
-- `form`: a refernce to the root form object.
-- `model`: a refernce to the parent group. If the input is on the root level then this will be the same reference as `form`.
+- `form`: a reference to the root form object.
+- `model`: a reference to the parent group. If the input is on the root level then this will be the same reference as `form`.
 
 The following expression will hide the input if another input's value is equal to 'abc'.
 
@@ -226,7 +230,7 @@ The following expression will hide the input if another input's value is equal t
 
 **Type:** `STRING | PASSWORD | TEXT | NUMBER | BOOLEAN | MAP | ENUM | GROUP`
 
-Determines the type of input recieved at runtime and the type of input shown in the UI.
+Determines the type of input received at runtime and the type of input shown in the UI.
 
 | Param Type | JavaScript Type          |
 | ---------: | :----------------------- |
@@ -256,7 +260,7 @@ Turn the `type` of input into an array of `type`. _Only works for certain types.
 
 **Type:** `string[]` or [`OptionObject[]`](#optionobject)
 
-Only applicable for ParamObjects that are type `ENUM`. This array determines the enumueration values that can be selected by a user.
+Only applicable for ParamObjects that are type `ENUM`. This array determines the enumeration values that can be selected by a user.
 
 An array of `string` values will ensure that the UI and runtime values will match – case sensitive.
 
@@ -270,7 +274,7 @@ An array of `string` values will ensure that the UI and runtime values will matc
   ]
 ```
 
-An array of [`OptionObject[]`](#optionobject) values allows more customisability. See [`OptionObject[]`](#optionobject) for more information.
+An array of [`OptionObject[]`](#optionobject) values allows more customizability. See [`OptionObject[]`](#optionobject) for more information.
 
 ```json
   "values": [
@@ -304,12 +308,12 @@ A user friendly label displayed to Bridge by Smartsheet users.
 
 **Type:** `string`
 
-The underlying value of the enumueration option.
+The underlying value of the enumeration option.
 
 ### `default`
 
 **Type:** `boolean`
 
-If `true`, signifies that this value should be used as the defaul value in the UI.
+If `true`, signifies that this value should be used as the default value in the UI.
 
 ---

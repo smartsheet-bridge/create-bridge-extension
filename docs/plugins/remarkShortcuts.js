@@ -12,7 +12,7 @@ const remarkShortcuts = () => {
       return u('link', { url: `/concepts/entry` }, [u('text', 'Entry Point')]);
     });
     findAndReplace(tree, /(spec|specification) file/gi, () => {
-      return u('link', { url: `/bridge/spec` }, [u('text', 'Spec File')]);
+      return u('link', { url: `/concepts/spec` }, [u('text', 'Spec File')]);
     });
     findAndReplace(tree, /\/\/\s?(TODO[:\s])*(.*)$/gim, () => {
       return u('div');

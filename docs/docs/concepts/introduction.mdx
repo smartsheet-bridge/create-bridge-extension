@@ -1,12 +1,12 @@
 ---
 id: introduction
-title: Intoduction to Extensions
+title: Introduction to Extensions
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-An "extension" is a set of decoupled functionality that can be executed remotely. It can be thought of like a "package" or "library" consisting of additional functionality that can be imported into a Smartsheet system (like Bridge by Smartsheet) and executed on command.
+An "extension" is a set of decoupled functionality that can be executed remotely. It can be thought of like a "package" or "library" consisting of additional functionality that can be imported into Bridge by Smartsheet and executed on command.
 
 ## Prerequisites
 
@@ -25,15 +25,16 @@ Don't worry if this is too much to take in at once. **The [MDN JavaScript Refere
 
 ## Project structure
 
-The smallest extension exists of two files.
+The smallest extension exists of three files.
 
 ```
 example
 ├── index.js
-└── package.json
+├── package.json
+└── extension.json
 ```
 
-The two files include `index.js` that consists of runtime code executed by the extension platform, and `package.json` that defines the development metadata relevant to the extension including the extension's dependencies, scripts, version and a whole lot more.
+The three files include `index.js` that consists of runtime code executed by the extension platform; `package.json` that defines the development metadata relevant to the extension including the extension's dependencies, scripts, version and a whole lot more; and `extension.json`, often referred to as the "specification" or "spec" file, used to define the extension to the Bridge platform.
 
 ### `package.json`
 
@@ -56,9 +57,8 @@ If you're familiar with JavaScript development then you should be very familiar 
 
 For the most part, the `package.json` file is only here to serve the development metadata of the package. For example, when you deploy an extension the extension platform will use this information to install dependencies.
 
-While the `create-bridge-extension` tool will fill in much of the necessary information needed, you are free to edit and amend this file with settings unique to your project just as you would with any other JavaScript project.
-
-However, the `main` property must point to the [entry point](./entry) of the extension – in this case `index.js`
+TODO
+You are free to edit and amend this file with settings unique to your project just as you would with any other JavaScript project. However, the `main` property must point to the entry point of the extension – in this case `index.js`
 
 ### `index.js`
 
@@ -70,4 +70,20 @@ export const main = createExtensionHandler();
 
 This file can be called anything you'd like, it's only called `index.js` by default for historical JavaScript reasons. The important point is that the relative path from `package.json` to `index.js` is set as the `main` property in `package.json` file.
 
-When your extension is called, it checks the `main` property of the `package.json` file, and executes that file. This is called the [Entry Point](./entry) because it's the gateway for the extension platform to your runtime code.
+When your extension is called, it checks the `main` property of the `package.json` file, and executes that file. This is called the entry point because it's the gateway for the extension platform to your runtime code.
+
+### `extensions.json`
+
+```json
+{
+  "name": "myExtension",
+  "displayName": "My Extension",
+  "description": "This is an example Bridge Extension.",
+  "documentLink": "",
+  "providerData": [],
+  "module": [],
+  "webhooks": []
+}
+```
+
+This file is the configuration of your extension and describes how the bridge platform interprets your extension; whether it requires authentication, has triggers, modules, or other features. Please read the spec file documentation for further understanding.

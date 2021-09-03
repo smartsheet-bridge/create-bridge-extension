@@ -8,37 +8,9 @@ import TabItem from '@theme/TabItem';
 
 A "function" is a single unit of code that can be triggered by an external system. A function will execute with some inputs, and return an output.
 
-<Tabs
-groupId="js2ts"
-defaultValue="js"
-values={[
-  { label: 'JavaScript', value: 'js', },
-  { label: 'TypeScript', value: 'ts', },
-]
-}>
-<TabItem value="js">
-
-
 ```js
-export const myFunction = inputs => `Hello, ${inputs.username}`;
+export const myFunction = inputs => ({ result: `Hello, ${inputs.username}` });
 ```
-
-</TabItem>
-<TabItem value="ts">
-
-
-```ts
-interface MyFunctionInputs {
-  username: string;
-}
-
-export const myFunction: ExtensionFunction<MyFunctionInputs> = inputs =>
-  `Hello, ${inputs.username}`;
-```
-
-</TabItem>
-</Tabs>
-
 
 ## Function Parameters
 
@@ -54,15 +26,56 @@ type inputs = Record<string, any>;
 
 :::warning User data
 
-Each input parameter consists of user populated data and therefore should be treated with care. The extension handler will validate required properties for `undefined` or `null` values but you should **always assume that the input is unsafe**.
+Each input parameter consists of user populated data and therefore should be treated with extreme care and **always assumed that the input is unsafe**.
 
 **Remember that user data may contain sensitive information** so please follow [logging best practices](../advanced/best_practices#logging).
 
 :::
 
+The properties available are defined in the spec file. E.g. given the following spec file with a module called `myModule` and a parameter defined as `myInput` of type `STRING`:
+
+```json {4,8}
+{
+  "module": [
+    {
+      "id": "myModule",
+      "hasReturn": true,
+      "param": [
+        {
+          "param": "myInput",
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}
+```
+
+The resulting `inputs` type would have the following type signature:
+
+```ts
+{
+  myInput: string;
+}
+```
+
+:::tip
+
+If using TypeScript to build an extension it's extremely good practice to type-define these inputs in the module signature.
+
+```ts
+type MyInputs = {
+  myInput: string
+}
+
+export const myModule: ModuleFunction<MyInputs> = inputs => { ... };
+```
+
+:::
+
 ### `context`
 
-An object that consists of metadata properties in the context of the triggering user and extension. This context will be unique to the platform the function is being executed for.
+An object that consists of metadata properties in the context of the triggering user, account, and extension. This context will differ slightly from function to function but generally speaking it will always include registration settings, authentication details, and an object describing the caller of the function (account/user).
 
 ```ts
 type context = Record<string, any>;
@@ -70,28 +83,33 @@ type context = Record<string, any>;
 
 ## Function Response
 
-Returning a response from a Function is no different from returning a response from any other JavaScript function including returning [promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) and [thunks](https://en.wikipedia.org/wiki/Thunk).
+Returning a response from a Function is very similar from returning a response from any other JavaScript function including returning [promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) and [thunks](https://en.wikipedia.org/wiki/Thunk). The only difference is that the resulting value must evaluate to an object.
 
 ### Primitives
 
-Return a primitive value just as you would any other function.
+Strings, numbers, and booleans cannot be returned directly so must be included in an object.
 
 ```js
-export const aStringResponse = () => 'a string response';
+export const aStringResponse = () => ({ result: 'a string response' });
 
-export const aNumberResponse = () => 42;
+export const aNumberResponse = () => ({ result: 42 });
 
-export const aBooleanResponse = () => true;
+export const aBooleanResponse = () => ({ result: true });
 ```
 
+Arrays can also be returned, but like above, cannot be returned directly so must be included in an object.
 Objects and arrays are also returned as normal.
 
 ```js
-export const anObjectResponse = () => ({ nested: { result: 42 } });
+export const anArrayResponse = () => ({ result: ['one', 'two', 'three'] });
+```
 
-export function anArrayResponse() {
-  const myArray = ['one', 'two', 'three'];
-  return myArray;
+Objects **can** be returned directly.
+
+```js
+export function anObjectResponse() {
+  const myObject = { nested: { number: 42 } };
+  return myObject;
 }
 ```
 
@@ -99,10 +117,14 @@ export function anArrayResponse() {
 
 Promises will be executed and either fully resolved or rejected before eventually returning the response allowing you do write asynchronous extension functions as if they were synchronous.
 
-```js
-export const anResolvedResponse = () => Promise.resolve('a resolved promise');
+:::tip
 
-export const anRejectedResponse = () => Promise.reject('a resolved promise');
+Remember, only objects can be returned so a promise must eventually resolve to an object.
+
+:::
+
+```js
+export const anResolvedResponse = () => Promise.resolve({ result: 42 });
 ```
 
 Promises can also be chained.
@@ -135,13 +157,19 @@ export const async anAsyncResponse = () => {
 
 If dealing with external libraries that make use of functions that require an async "callback" parameter, you can return a thunk. A thunk is a function that is returned by another. In this case the parameter of the thunk is a `respond` function that can be called when you are ready to return. Learn more about [Using Thunks](/advanced/thunks) in our advanced guide.
 
+:::tip
+
+Remember, only objects can be returned so a thunk must eventually resolve to an object.
+
+:::
+
 ```js {4,6}
 // Extension Function.
 export const async thunkResponse = () => {
   // Thunk with respond parameter.
   return (respond) => {
     // Calling respond causes the extension to respond.
-    respond('Hello, World')
+    respond({ result: 42 })
   }
 }
 ```
@@ -153,3 +181,7 @@ There's nothing special about Errors when writing an extension function. Any err
 ```js
 throw new Error('This will return an error');
 ```
+
+### Response Objects
+
+Each type of function (module, external, etc) has it's own response object for advanced development. This will be covered in the documentation later.

@@ -22,18 +22,7 @@ or
 export function main...
 ```
 
-In nearly all cases the you will never need to write this function by hand. Instead, you can use one of the helper methods designed for the platform you wish to work with to create this function for you. E.g. The `createBridgeHandler` will set up this function perfectly so that your extension will work with Bridge now and in the futre. This is the recommended way of developing extensions to ensure you are always up to date.
-
-<Tabs
-groupId="js2ts"
-defaultValue="js"
-values={[
-  { label: 'JavaScript', value: 'js', },
-  { label: 'TypeScript', value: 'ts', },
-]
-}>
-<TabItem value="js">
-
+In nearly all cases the you will never need to write this function by hand. Instead, you can use one of the helper methods designed for the platform you wish to work with to create this function for you. E.g. The `createBridgeHandler` will set up this function perfectly so that your extension will work with Bridge now and in the future. **This is the recommended way of developing extensions to ensure you are always up to date.**
 
 ```js
 import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
@@ -46,23 +35,4 @@ export const main = createBridgeHandler({
 });
 ```
 
-</TabItem>
-<TabItem value="ts">
-
-
-```ts
-import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
-import { myFunction } from './myFunction';
-import { onRegister } from './onRegister';
-
-export const main = createBridgeHandler({
-  onRegister,
-  modules: { myFunction },
-});
-```
-
-</TabItem>
-</Tabs>
-
-
-As you add more functions and callbacks to your extension you simply need to add them to the handler and it will handle all requests to your extension.
+As you add more modules to your extension you simply need to add them to the handler and it will handle all requests to your extension allowing you to focus on your business logic.

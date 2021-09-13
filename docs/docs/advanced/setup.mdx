@@ -12,7 +12,7 @@ It is highly recommended that you create an extension using the `create-bridge-e
 
 ::: -->
 
-## Prerequisits
+## Prerequisites
 
 - Make sure you have `NodeJS` installed.
 - You can use `npm` installed with `NodeJS` but you can also use `yarn`.
@@ -42,6 +42,7 @@ values={[
 }>
 <TabItem value="js">
 
+
 ```json
 {
   "name": "helloworld",
@@ -61,6 +62,7 @@ values={[
 
 </TabItem>
 <TabItem value="ts">
+
 
 ```json
 {
@@ -83,16 +85,16 @@ values={[
 </TabItem>
 </Tabs>
 
-The first line is the name of your extension. The next 5 lines are less important for extension development but they ensure NPM is configrued correctly.
 
-The next two lines are important properties for extension development: `main` is the entry point; `scripts` is a colection of npm scripts to help interact with the extension tooling.
+The first line is the name of your extension. The next 5 lines are less important for extension development but they ensure NPM is configured correctly.
+
+The next two lines are important properties for extension development: `main` is the entry point; `scripts` is a collection of npm scripts to help interact with the extension tooling.
 
 This file will continue to grow through this setup.
 
 ## Add dependencies
 
 ### Install `dependencies`.
-
 
 <Tabs
 groupId="npm2yarn"
@@ -104,6 +106,7 @@ values={[
 }>
 <TabItem value="npm">
 
+
 ```bash
 npm i @smartsheet-bridge/extension-handler
 ```
@@ -111,12 +114,14 @@ npm i @smartsheet-bridge/extension-handler
 </TabItem>
 <TabItem value="yarn">
 
+
 ```bash
 yarn add @smartsheet-bridge/extension-handler
 ```
 
 </TabItem>
 </Tabs>
+
 
 ### Install `devDependencies`
 
@@ -130,6 +135,7 @@ values={[
 }>
 <TabItem value="npm">
 
+
 ```bash
 npm i -D @smartsheet-bridge/extension-scripts
 ```
@@ -137,12 +143,14 @@ npm i -D @smartsheet-bridge/extension-scripts
 </TabItem>
 <TabItem value="yarn">
 
+
 ```bash
 yarn add -D @smartsheet-bridge/extension-scripts
 ```
 
 </TabItem>
 </Tabs>
+
 
 :::note
 
@@ -158,12 +166,14 @@ values={[
 }>
 <TabItem value="npm">
 
+
 ```bash
 npm i -D typescript
 ```
 
 </TabItem>
 <TabItem value="yarn">
+
 
 ```bash
 yarn add -D typescript
@@ -172,11 +182,38 @@ yarn add -D typescript
 </TabItem>
 </Tabs>
 
+
+And add a file called `.tsconfig` in the root folder populated like so.
+
+```json
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib",
+    "target": "ES2015",
+    "lib": ["ES2015"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "noUnusedLocals": false,
+    "noImplicitAny": true
+  },
+  "include": ["./src/**/*.tsx", "./src/**/*.ts"],
+  "exclude": [
+    "lib",
+    "node_modules",
+    "**/__*__/**",
+    "./src/**/*.spec.tsx",
+    "./src/**/*.spec.ts"
+  ]
+}
+```
+
 :::
 
 ## Add entry point
 
-The filepath of the entry point relative to the `package.json` file must match the `main` property within. E.g. if you are creating a JavaScript extension and you've created a `package.json` file with the value of property `main` set to `src/index.js` then this file must exist at the path `src/index.js`.
+The file path of the entry point relative to the `package.json` file must match the `main` property within. E.g. if you are creating a JavaScript extension and you've created a `package.json` file with the value of property `main` set to `src/index.js` then this file must exist at the path `src/index.js`.
 
 <Tabs
 groupId="js2ts"
@@ -188,10 +225,11 @@ values={[
 }>
 <TabItem value="js">
 
+
 Create a `src` directory and an `index.js` file within. Add the following content.
 
 ```js title="src/index.js"
-const { createBridgeHandler } = require("@smartsheet-bridge/extension-handler");
+const { createBridgeHandler } = require('@smartsheet-bridge/extension-handler');
 
 exports.main = createBridgeHandler();
 ```
@@ -199,10 +237,11 @@ exports.main = createBridgeHandler();
 </TabItem>
 <TabItem value="ts">
 
+
 Create a `src` directory and an `index.ts` file within. Add the following content.
 
 ```ts title="src/index.ts"
-import { createBridgeHandler } from "@smartsheet-bridge/extension-handler";
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
 
 export const main = createBridgeHandler();
 ```
@@ -210,7 +249,8 @@ export const main = createBridgeHandler();
 </TabItem>
 </Tabs>
 
-The first line imports the necessary dependencies. 
+
+The first line imports the necessary dependencies.
 
 The third line exports your extension entry point that we will configure next.
 
@@ -230,7 +270,7 @@ values={[
 
 
 ```js title="src/helloworld.js"
-exports.helloworld = (params) => {
+exports.helloworld = params => {
   return { result: `Hello, ${params.input}!` };
 };
 ```
@@ -240,20 +280,20 @@ exports.helloworld = (params) => {
 
 
 ```ts title="src/helloworld.ts"
-import { ModuleFunction } from "@smartsheet-bridge/extension-handler";
+import { ModuleFunction } from '@smartsheet-bridge/extension-handler';
 
 type HelloWorldParams = { input: string };
 
-export const helloworld: ModuleFunction<HelloWorldParams> = (params) => {
+export const helloworld: ModuleFunction<HelloWorldParams> = params => {
   return { result: `Hello, ${params.input}!` };
 };
 ```
 
-
 </TabItem>
 </Tabs>
 
-Ammend the `src/index` file to include the newly made module.
+
+Amend the `src/index` file to include the newly made module.
 
 <Tabs
 groupId="js2ts"
@@ -265,9 +305,10 @@ values={[
 }>
 <TabItem value="js">
 
+
 ```js title="src/index.js" {2,4-8}
-const { createBridgeHandler } = require("@smartsheet-bridge/extension-handler");
-const { helloworld } = require("./helloworld");
+const { createBridgeHandler } = require('@smartsheet-bridge/extension-handler');
+const { helloworld } = require('./helloworld');
 
 exports.main = createBridgeHandler({
   modules: {
@@ -279,9 +320,10 @@ exports.main = createBridgeHandler({
 </TabItem>
 <TabItem value="ts">
 
+
 ```ts title="src/index.ts" {2,4-8}
-import { createBridgeHandler } from "@smartsheet-bridge/extension-handler";
-import { helloworld } from "./helloworld";
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+import { helloworld } from './helloworld';
 
 export const main = createBridgeHandler({
   modules: {
@@ -293,7 +335,8 @@ export const main = createBridgeHandler({
 </TabItem>
 </Tabs>
 
-_The property of the module must equal the name defined in the spec file described next. In this case, helloworld is the name of the module so we shall use that in the spec file._
+
+_The property of the module must equal the name defined in the spec file described next. In this case, `helloworld` is the name of the module so we shall use that in the spec file._
 
 ## Create Spec file
 
@@ -346,6 +389,7 @@ values={[
 }>
 <TabItem value="npm">
 
+
 ```bash
 npm run deploy -- --url=<insert url here> --key=<insert key here>
 ```
@@ -353,9 +397,11 @@ npm run deploy -- --url=<insert url here> --key=<insert key here>
 </TabItem>
 <TabItem value="yarn">
 
+
 ```bash
 yarn deploy --url=<insert url here> --key=<insert key here>
 ```
 
 </TabItem>
 </Tabs>
+

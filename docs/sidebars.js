@@ -23,4 +23,5 @@ module.exports = {
     ],
     // 'API Reference': [{ handler: [] }],
   },
+  api: ['api/extension-scripts'],
 };

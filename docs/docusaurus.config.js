@@ -40,6 +40,11 @@ module.exports = {
           position: 'left',
         },
         {
+          to: '/api/extension-scripts',
+          label: 'API',
+          position: 'left',
+        },
+        {
           href: gitURL,
           label: gitProvider,
           position: 'right',

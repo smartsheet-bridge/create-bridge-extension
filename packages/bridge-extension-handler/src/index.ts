@@ -90,7 +90,7 @@ export {
   // UnregisterFunction
   UnregisterConfig,
 } from './handlers/handleUnregister';
-export { ModuleResponse } from './responses/ModuleResponse';
+export * from './responses';
 
 export type BridgeConfiguration = RegisterConfig &
   UnregisterConfig &

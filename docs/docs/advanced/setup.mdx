@@ -51,11 +51,13 @@ values={[
   "publishConfig": {
     "access": "restricted"
   },
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "logs": "extension-scripts logs",
+    "account": "extension-scripts account",
+    "build": "extension-scripts build",
     "deploy": "extension-scripts deploy",
-    "deploy:verbose": "extension-scripts deploy -l verbose"
+    "revoke": "extension-scripts revoke",
+    "logs": "extension-scripts logs"
   }
 }
 ```
@@ -75,9 +77,10 @@ values={[
   "main": "lib/index.js",
   "scripts": {
     "account": "extension-scripts account",
-    "logs": "extension-scripts logs",
+    "build": "extension-scripts build",
     "deploy": "extension-scripts deploy",
-    "deploy:verbose": "extension-scripts deploy -l verbose"
+    "revoke": "extension-scripts revoke",
+    "logs": "extension-scripts logs"
   }
 }
 ```
@@ -183,7 +186,7 @@ yarn add -D typescript
 </Tabs>
 
 
-And add a file called `.tsconfig` in the root folder populated like so.
+And add a file called `tsconfig.json` in the root folder populated like so.
 
 ```json
 {
@@ -213,7 +216,13 @@ And add a file called `.tsconfig` in the root folder populated like so.
 
 ## Add entry point
 
-The file path of the entry point relative to the `package.json` file must match the `main` property within. E.g. if you are creating a JavaScript extension and you've created a `package.json` file with the value of property `main` set to `src/index.js` then this file must exist at the path `src/index.js`.
+It is important that the file path of the _compiled_ entry point relative to the `package.json` equals the value of the `main` property within the `package.json` file.
+
+:::tip
+
+The default source directory is `src` and the default compiled directory is `lib` so if your `main` property points to `lib/index.js` then your entry point needs to exist at `src/index.js`
+
+:::
 
 <Tabs
 groupId="js2ts"
@@ -394,6 +403,24 @@ values={[
 npm run deploy -- --url=<insert url here> --key=<insert key here>
 ```
 
+:::tip
+
+You can create aliases allowing you to switch between accounts at ease.
+
+```bash
+$ npm run account add example -- --url=<insert url here> --key=<insert key here>
+```
+
+Where `example` is an alias chosen by you. Once created, this alias can be used with any extension on your machine allowing you to drop the `--url` and `--key` arguments.
+
+```bash
+$ npm run deploy example
+```
+
+This is particularly useful for developers that need to regularly deploy to multiple accounts. See [Account Aliases](/api/extension-scripts#account-aliases) for more information.
+
+:::
+
 </TabItem>
 <TabItem value="yarn">
 
@@ -401,6 +428,24 @@ npm run deploy -- --url=<insert url here> --key=<insert key here>
 ```bash
 yarn deploy --url=<insert url here> --key=<insert key here>
 ```
+
+:::tip
+
+You can create aliases allowing you to switch between accounts at ease.
+
+```bash
+$ yarn account add example --url=<insert url here> --key=<insert key here>
+```
+
+Where `example` is an alias chosen by you. Once created, this alias can be used with any extension on your machine allowing you to drop the `--url` and `--key` arguments.
+
+```bash
+$ yarn deploy example
+```
+
+This is particularly useful for developers that need to regularly deploy to multiple accounts. See [Account Aliases](/api/extension-scripts#account-aliases) for more information.
+
+:::
 
 </TabItem>
 </Tabs>

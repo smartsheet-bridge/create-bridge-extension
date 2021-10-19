@@ -72,6 +72,40 @@ describe('ModuleResponse', () => {
     });
   });
 
+  describe('setSuspendTime', () => {
+    const VALID_SET_SUSPEND_TIME_CASES = [undefined, 0, 10] as number[];
+
+    it.each(VALID_SET_SUSPEND_TIME_CASES)(
+      'accepts when %s given %s, returns %s',
+      given => {
+        const response = new ModuleResponse();
+        response.setSuspendTime(given);
+
+        expect(response).toEqual({
+          status: 0,
+          suspendTime: given,
+        });
+      }
+    );
+
+    const INVALID_SET_SUSPEND_TIME_CASES = [
+      'string',
+      [],
+      {},
+      true,
+      null,
+    ] as number[];
+
+    it.each(INVALID_SET_SUSPEND_TIME_CASES)('throws when given %s', given => {
+      const response = new ModuleResponse();
+      expect(() => response.setSuspendTime(given)).toThrowError(
+        new InternalError(
+          `\`suspendTime\` must be of type \`number\`. Received \`${typeof given}\`.`
+        )
+      );
+    });
+  });
+
   describe('setValue', () => {
     const VALID_SET_VALUE_CASES = [
       undefined,

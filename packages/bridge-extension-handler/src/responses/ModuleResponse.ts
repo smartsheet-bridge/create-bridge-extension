@@ -11,6 +11,7 @@ import { AbstractResponse } from './AbstractResponse';
 export interface ModuleResponse extends ExtensionResponse {
   value?: SerializableObject | SerializableEmpty;
   exit?: string;
+  suspendTime?: number;
 }
 export class ModuleResponse extends AbstractResponse {
   /**
@@ -22,6 +23,12 @@ export class ModuleResponse extends AbstractResponse {
    * The string ID of the next exit path.
    */
   exit?: string;
+
+  /**
+   * The number of seconds the workflow run should pause
+   * before either retrying the module or continuing the workflow run
+   */
+  suspendTime?: number;
 
   public static create(props: Partial<ModuleResponse> = {}) {
     return new ModuleResponse(props);
@@ -57,5 +64,18 @@ export class ModuleResponse extends AbstractResponse {
       );
     }
     this.exit = exit;
+  }
+
+  /**
+   * Sets the number of seconds that the workflow should be paused.
+   * @param suspendTime a positive number of whole seconds to suspend the workflow.
+   */
+  public setSuspendTime(suspendTime?: number) {
+    if (suspendTime !== undefined && typeof suspendTime !== 'number') {
+      throw new InternalError(
+        `\`suspendTime\` must be of type \`number\`. Received \`${typeof suspendTime}\`.`
+      );
+    }
+    this.suspendTime = suspendTime;
   }
 }

@@ -119,7 +119,6 @@ export const createDeployService = ({
   };
 
   const uploadPkg = async (grpc: any, caller: Caller) => {
-    const majorVersion = semver.major(process.version);
     return new Promise((resolve, reject) => {
       const client = grpc.uploadPluginCode((error: any, response: any) => {
         if (response) {
@@ -138,7 +137,7 @@ export const createDeployService = ({
               semver.clean(process.version)
           ) {
             Logger.warn(
-              `Your development environment (Node.js ${process.version}) does not match Bridge by Smartsheet's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for supported versions of Node.js.`
+              `Your development environment (Node.js ${process.version}) does not match Bridge by Smartsheet's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for more info.`
             );
           }
           return resolve();
@@ -150,10 +149,8 @@ export const createDeployService = ({
       });
       Logger.verbose('Install UUID', Chalk.cyan(caller.installUUID));
       Logger.verbose('Revision ID', Chalk.cyan(caller.revision));
-      Logger.verbose('NodeJS Major', Chalk.cyan(`${majorVersion}`));
       client.write({
         caller,
-        majorVersion,
       });
 
       const stream = vol.createReadStream(VIRTUAL_FILE);

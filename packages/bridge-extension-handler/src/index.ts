@@ -53,6 +53,7 @@ export {
   SerializableObject,
   SerializablePrimitive,
   SerializableValue,
+  serialize,
 } from '@smartsheet-extensions/handler';
 export {
   ExternalFunction,

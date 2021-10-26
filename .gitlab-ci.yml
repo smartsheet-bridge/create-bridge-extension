@@ -147,4 +147,4 @@ release:
   dependencies:
     - build
   script:
-    - yarn release
+    - yarn release $SEMANTIC_VERSION_DRY_RUN

@@ -147,4 +147,4 @@ release:
   dependencies:
     - build
   script:
-    - yarn release
+    - yarn release --dry-run

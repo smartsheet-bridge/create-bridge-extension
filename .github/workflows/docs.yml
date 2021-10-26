@@ -1,0 +1,56 @@
+name: docs
+
+on:
+  pull_request:
+    branches: [beta]
+  push:
+    branches: [beta]
+
+jobs:
+  checks:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Test Build
+        run: |
+          if [ -e yarn.lock ]; then
+          yarn install --frozen-lockfile
+          elif [ -e package-lock.json ]; then
+          npm ci
+          else
+          npm i
+          fi
+          npm run build
+  gh-release:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
+      - name: Publish Docs to GitHub Pages
+        env:
+          USE_SSH: true
+          GIT_USER: smartsheet-bridge-team
+          GIT_URL: https://github.com/smartsheet-bridge/create-bridge-extension
+          BASE_URL: /create-bridge-extension/
+          CURRENT_BRANCH: beta
+        run: |
+          git config --global user.email "bridge-team@smartsheet.com"
+          git config --global user.name "smartsheet-bridge-team"
+          if [ -e yarn.lock ]; then
+          yarn install --frozen-lockfile
+          elif [ -e package-lock.json ]; then
+          npm ci
+          else
+          npm i
+          fi
+          npm run docs deploy

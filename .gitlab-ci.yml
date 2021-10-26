@@ -1,0 +1,150 @@
+image: artifactory.pipeline.smartsheet.com/dockerhub/node:14.16.1
+
+stages:
+  - build
+  - test
+  - deploy
+
+before_script:
+  - yarn
+
+# Run tests on all packages and capture coverage
+test:
+  stage: test
+  tags:
+    - scaled
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+    - merge_request
+  script:
+    - yarn test
+  dependencies:
+    - build
+  artifacts:
+    reports:
+      cobertura: coverage/cobertura-coverage.xml
+
+# Run linting rules on all packages
+lint:
+  stage: test
+  tags:
+    - scaled
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+    - merge_request
+  script:
+    - yarn lint
+
+# Build and cache all packages and configs
+build:
+  stage: build
+  tags:
+    - scaled
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+    - merge_request
+  script:
+    - yarn build
+  artifacts:
+    public: false
+    when: on_success
+    paths:
+      - $CI_PROJECT_DIR/packages/**/lib
+      - $CI_PROJECT_DIR/configs/**/lib
+
+# Build GitLab pages artifact (must be called "pages": GitLab docs)
+pages:
+  stage: build
+  tags:
+    - scaled
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+    - merge_request
+  allow_failure: false
+  variables:
+    BASE_URL: '/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG/'
+    GIT_PROVIDER: '$GIT_PROVIDER'
+    GIT_URL: '$GIT_URL'
+  script:
+    - mkdir -p public/$CI_COMMIT_REF_SLUG
+    - yarn docs build --out-dir=../public/$CI_COMMIT_REF_SLUG
+  artifacts:
+    name: '$CI_COMMIT_REF_SLUG'
+    paths:
+      - public
+
+# Publish pages to environments on protected branches
+pages:publish:
+  stage: deploy
+  tags:
+    - scaled
+  needs: ['pages']
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+  allow_failure: false
+  script:
+    - echo "Updating Docs"
+  environment:
+    name: $CI_COMMIT_BRANCH
+    url: 'https://$CI_PROJECT_ROOT_NAMESPACE.pages.smart.rodeo/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG'
+
+# Publish pages to a "review" environments on MRs
+pages:review:
+  stage: deploy
+  tags:
+    - scaled
+  needs: ['pages']
+  only:
+    - merge_request
+  allow_failure: false
+  script:
+    - echo "Create Review Docs"
+  environment:
+    name: reviews/$CI_COMMIT_REF_NAME
+    url: 'https://$CI_PROJECT_ROOT_NAMESPACE.pages.smart.rodeo/extensions/tooling/create-bridge-extension/$CI_COMMIT_REF_SLUG'
+    on_stop: pages:remove
+
+# Remove previously created "review" environments after MR
+pages:remove:
+  stage: deploy
+  tags:
+    - scaled
+  only:
+    - merge_request
+  when: manual
+  allow_failure: false
+  script:
+    - echo "Remove Review Docs"
+  environment:
+    name: reviews/$CI_COMMIT_REF_NAME
+    action: stop
+
+# Run semantic-release for all workspaces on protected branches
+release:
+  stage: deploy
+  tags:
+    - scaled
+  only:
+    - mainline
+    - next
+    - beta
+    - alpha
+  dependencies:
+    - build
+  script:
+    - yarn release --dry-run

@@ -3,10 +3,11 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: [
     'packages/**/src/**/*.{js,jsx,ts,tsx}',
+    '!packages/bridge-extension-scripts/src/{index,types}.ts',
     '!**/node_modules/**',
     '!**/__*__/**',
   ],
-  coverageReporters: ['text'],
+  coverageReporters: ['text', 'cobertura'],
   roots: ['packages/'],
   testEnvironment: 'jsdom',
   testMatch: [
@@ -14,11 +15,14 @@ module.exports = {
     '**/?(*.)+(spec|test).[jt]s?(x)',
   ],
   moduleNameMapper: {
-    '^@smartsheet-bridge/(.*)$': '<rootDir>/packages/$1/src',
+    '^@smartsheet-bridge/bridge-sdk':
+      '<rootDir>/node_modules/@smartsheet-bridge/bridge-sdk',
+    '^@smartsheet-bridge/(.*)$': '<rootDir>/packages/bridge-$1/src',
+    '^@smartsheet-extensions/(.*)$': '<rootDir>/packages/extensions-$1/src',
   },
   globals: {
     'ts-jest': {
-      tsConfig: 'tsconfig.test.json',
+      tsconfig: 'tsconfig.test.json',
     },
   },
 };

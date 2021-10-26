@@ -26,13 +26,22 @@
   // All the packages that needs building
   "references": [
     {
-      "path": "packages/bridge-sdk/tsconfig.build.json"
+      "path": "packages/bridge-extension-cli-logger/tsconfig.build.json"
     },
     {
-      "path": "packages/extension-cli-logger/tsconfig.build.json"
+      "path": "packages/bridge-extension-scripts/tsconfig.build.json"
     },
     {
-      "path": "packages/extension-scripts/tsconfig.build.json"
+      "path": "packages/extensions-handler/tsconfig.build.json"
+    },
+    {
+      "path": "packages/bridge-extension-handler/tsconfig.build.json"
+    },
+    {
+      "path": "configs/legacy/tsconfig.build.json"
+    },
+    {
+      "path": "configs/standard/tsconfig.build.json"
     }
   ]
 }

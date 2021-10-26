@@ -1,0 +1,279 @@
+---
+id: add_module
+title: Add Module
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+An extension is useless by itself, and one of the most commonly used functionality of an extension is a module. In this recipe you'll learn how to add a new module to your `helloworld` starter application.
+
+Adding a module is a three part process: writing your module, registering your module, and defining your module. However, in this recipe we will take an iterative approach to help you understand how it's all connected.
+
+### Basic Module
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+Assuming you have followed the [quick start](/getting_started/quick_start) guide and have a project directory set up similar to below.
+
+```
+example
+├── src
+│   └── index.js
+├── package.json
+└── extension.json
+```
+
+Add a new file to your `src` folder and call it `myModule.js`.
+
+```
+example
+├── src
+│   ├── myModule.js
+│   └── index.js
+├── package.json
+└── extension.json
+```
+
+Populate it with the following:
+
+```js title="/src/myModule.js"
+export const myModule = () => {
+  return { result: 'Hello, World!' };
+};
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+Assuming you have followed the [quick start](/getting_started/quick_start) guide and have a project directory set up similar to below.
+
+```
+example
+├── src
+│   └── index.ts
+├── package.json
+└── extension.json
+```
+
+Add a new file to your `src` folder and call it `myModule.ts`.
+
+```
+example
+├── src
+│   ├── myModule.ts
+│   └── index.ts
+├── package.json
+└── extension.json
+```
+
+Populate it with the following:
+
+```ts title="/src/myModule.ts"
+import type { ModuleFunction } from '@smartsheet-bridge/extension-handler';
+
+export const myModule: ModuleFunction = () => {
+  return { result: 'Hello, World!' };
+};
+```
+
+</TabItem>
+</Tabs>
+
+
+This module will simply return an object with a `result` property assigned to a string that says `Hello, World!`. This property will be accessible during a Bridge by smartsheet workflow run.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+Next, import and register the module in the extension entry point (`index.js`).
+
+```js title="/src/index.js"
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+//highlight-next-line
+import { myModule } from './myModule';
+
+export const main = createBridgeHandler({
+  //highlight-start
+  modules: {
+    myModule,
+  },
+  //highlight-end
+});
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+Next, import and register the module in the extension entry point (`index.ts`).
+
+```ts title="/src/index.ts"
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+//highlight-next-line
+import { myModule } from './myModule';
+
+export const main = createBridgeHandler({
+  //highlight-start
+  modules: {
+    myModule,
+  },
+  //highlight-end
+});
+```
+
+</TabItem>
+</Tabs>
+
+
+This registers the module, `myModule`, with the extension handler enabling it to run the `myModule` function when told to do so by a bridge by smartsheet workflow run.
+
+The last piece of the puzzle tells the bridge by smartsheet User Interface that the module exists allowing it to be added to a workflow un in the first place. To do this we need to amend the spec file (`extension.json`).
+
+```json title="/extension.json"
+{
+  "name": "helloworld",
+  "displayName": "Hello World",
+  //highlight-next-line
+  "module": []
+}
+```
+
+The highlighted line above shows the `module` property; this is an array of module definitions that describe each module in the `modules` configuration in the entry point above. We can amend it to add our new module.
+
+```json title="/extension.json"
+{
+  "name": "helloworld",
+  "displayName": "Hello World",
+  "module": [
+    //highlight-start
+    {
+      "id": "myModule",
+      "name": "My Module",
+      "hasReturn": true,
+      "param": []
+    }
+    //highlight-end
+  ]
+}
+```
+
+Adding the above tells the Bridge by Smartsheet UI that a module is available for use with the id `myModule` and it is expected to return an object.
+
+:::tip
+
+It is important to note the identical `id` in the module definition and the module name in the in the handler configuration. If either of these are missing your module will never run.
+
+```json
+{
+  //highlight-next-line
+  "id": "myModule",
+  "name": "My Module",
+  "hasReturn": true,
+  "param": []
+}
+```
+
+```js
+export const main = createBridgeHandler({
+  modules: {
+    //highlight-next-line
+    myModule,
+  },
+});
+```
+
+:::
+
+Deploying your extension will allow you to see your new module in the bridge by smartsheet workflow designer. Adding it to a workflow, saving, and running it will provide a result in the Run Log with the phrase `Hello, World!`
+
+### Adding User Inputs
+
+**Let's add some customization by adding some inputs**
+
+Going back to our module code we can replace it with the following code; allowing us to access the user provided inputs, in this case `username`. We can then use this input to return a more personalized output.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+```js title="/src/myModule.js"
+//highlight-next-line
+export const myModule = inputs => {
+  //highlight-next-line
+  return { result: `Hello, ${inputs.username}!` };
+};
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+```ts title="/src/myModule.ts"
+import type { ModuleFunction } from '@smartsheet-bridge/extension-handler';
+
+//highlight-next-line
+type MyModuleInputs = { username: string };
+
+//highlight-next-line
+export const myModule: ModuleFunction<MyModuleInputs> = inputs => {
+  //highlight-next-line
+  return { result: `Hello, ${inputs.username}!` };
+};
+```
+
+</TabItem>
+</Tabs>
+
+
+Of course, if the workflow designer cannot access this input field then this would be blank so in order for it to appear in the bridge by smartsheet UI we have to define it in our spec file (`extension.json`).
+
+```json title="/extension.json"
+{
+  "name": "helloworld",
+  "displayName": "Hello World",
+  "module": [
+    {
+      "id": "myModule",
+      "name": "My Module",
+      "hasReturn": true,
+      "param": [
+        //highlight-start
+        {
+          "param": "username",
+          "displayName": "Username",
+          "type": "STRING"
+        }
+        //highlight-end
+      ]
+    }
+  ]
+}
+```
+
+Deploying your extension now will allow you to see your new input in your module in the bridge by smartsheet workflow designer. Adding "Jane Doe" in the text box, saving, and running your workflow will provide a result in the Run Log with the phrase `Hello, Jane Doe!`

@@ -1,0 +1,95 @@
+---
+id: thunks
+title: Using Thunks
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+#### What?
+
+_Taken from [What the heck is a 'thunk'?](https://daveceddia.com/what-is-a-thunk/)_
+
+> A thunk is another word for a _function_. But it’s not just any old function. It’s a special (and uncommon) name for a function that’s returned by another. Like this:
+>
+> ```js
+> function wrapper_function() {
+>   // this one is a "thunk" because it defers work for later:
+>   return function thunk() {
+>     // it can be named, or anonymous
+>     console.log('do stuff now');
+>   };
+> }
+> ```
+
+#### Why?
+
+When writing an extension this is really useful if you are dealing with a third-party library that uses javascript "_callbacks_" for asynchronous execution like this contrived example from the Smartsheet SDK.
+
+```js
+smartsheet.sheets.listSheets({}, function (error, data) {
+  if (error) {
+    return error;
+  } else {
+    return data;
+  }
+});
+```
+
+The above function will attempt to call the Smartsheet API for a list of sheets available to you, once it has completed it will execute the second parameter, known as the "callback".
+
+However, in a synchronous execution the extension would return before the callback is called. Imagine the following:
+
+```js {4}
+export const async anBadCallbackResponse = () => {
+  console.log('Before Smartsheet is called');
+  smartsheet.sheets.listSheets({}, function (error, data) {
+    console.log('After Smartsheet is completed');
+  });
+  console.log('After Smartsheet is called');
+}
+```
+
+The output would be the following
+
+```js
+// Before Smartsheet is called
+// After Smartsheet is called
+```
+
+The extension will have returned before `After Smartsheet is completed` could have executed and therefore neither `error` or `data` in this "callback" would have be able to return from the extension.
+
+:::tip Side Effects
+
+This is a useful pattern for asynchronous "side effects". See [Side Effects](../advanced/best_practices#side-effects) best practices.
+
+:::
+
+#### How?
+
+To fix this, an extension function can return a thunk. The thunk is then executed with a single parameter, which is itself a function of type `(response: any) => void` allowing you to pass that parameter around and call it when the asynchronous function has finished.
+
+```js {2,6}
+export const async anThunkCallbackResponse = () => {
+  return (respond) => {
+    console.log('Before Smartsheet is called');
+    smartsheet.sheets.listSheets({}, function (error, data) {
+      console.log('After Smartsheet is completed');
+      respond(data);
+    });
+    console.log('After Smartsheet is called');
+  }
+}
+```
+
+The returned thunk will execute immediately but the `respond` parameter can be called whenever your ready. You should pass into the `respond` function what you would normally return from a standard function (without a thunk). I.e. the following two functions will return the same value.
+
+```js
+export const async basicResponse = () => {
+  return 'Hello, World';
+}
+
+export const async thunkResponse = () => {
+  return (respond) => respond('Hello, World')
+}
+```

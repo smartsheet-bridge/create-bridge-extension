@@ -1,0 +1,319 @@
+---
+id: spec
+title: Specification File
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import TOCInline from '@theme/TOCInline';
+
+The "specification" or "spec" file is a static configuration file that describes the extension to the Bridge by Smartsheet platform.
+
+:::note
+
+The `extension.json` file is somewhat verbose and unfortunately, it must be filled out manually at the moment.
+
+:::
+
+```json
+{
+  "name": "myExtension",
+  "displayName": "My Extension",
+  "description": "This is an example Bridge Extension.",
+  "documentLink": "",
+  "providerData": [],
+  "module": [],
+  "webhooks": []
+}
+```
+
+# Properties
+
+<TOCInline toc={toc} />
+
+---
+
+## `ExtensionObject`
+
+### `name`
+
+**Type:** `string`
+
+A unique identifier of your extension. If this is a custom extension then this property must be unique to your account – no other extension can have the same name. If this is a system extension then this property must be unique across all system extensions. Please work with the Bridge by Smartsheet team to ensure a unique property.
+
+:::caution
+
+The deployment process trusts that you know what you are doing, so always ensure you have a unique name here so you don't overwrite an existing extension.
+
+:::
+
+### `displayName`
+
+**Type:** `string`
+
+A user friendly name displayed to Bridge by Smartsheet users.
+
+### `description`
+
+**Type:** `string`
+
+A user friendly description/information displayed to Bridge by Smartsheet users.
+
+### `documentLink`
+
+**Type:** `string`
+
+A URL that points to the documentation of the extension.
+
+<!-- ### `category`
+**Type:** `string`
+
+A Bridge By Smartsheet category to categorize your extension. Custom extensions are always categorized with the category "user".
+
+### `needsOAuth`
+**Type:** `boolean`
+
+A boolean property that determines whether the extension **must** be authorized before executing functions.
+
+### `hasOAuth`
+**Type:** `boolean`
+
+A boolean property that determines whether the extension can or should be authorized during registration. -->
+
+### `module`
+
+**Type:** [`ModuleObject[]`](#moduleobject)
+
+An array of [`ModuleObject`](#moduleobject)s that define the modules available on the extension.
+
+### `providerData`
+
+**Type:** [`ParamObject[]`](#paramobject)
+
+An array of [`ParamObject`](#paramobject)s that define the registrations settings available for this entire extension. These are variables set by the user that can be used within the runtime context of every executing function.
+
+### `webhooks`
+
+**Type:** [`WebhookObject[]`](#webhookobject)
+
+An array of [`WebhookObject`](#webhookobject)s that define the webhooks available on the extension.
+
+---
+
+## `ModuleObject`
+
+```json
+{
+  "id": "example_module",
+  "name": "Example Module",
+  "description": "This is a description for an example module.",
+  "hasReturn": true,
+  "param": [
+    ...
+  ]
+}
+```
+
+### `id`
+
+**Type:** `string`
+
+A unique identifier of your module. This property must be unique within the extension. No two modules can have the same name.
+
+### `name`
+
+**Type:** `string`
+
+A user friendly name displayed to Bridge by Smartsheet users.
+
+### `description`
+
+**Type:** `string`
+
+A user friendly description/information displayed to Bridge by Smartsheet users.
+
+### `hasReturn`
+
+**Type:** `boolean`
+
+Specifies whether this module is expected to return data or not. Set this to true if your module is expected to return data to the Bridge by Smartsheet workflow.
+
+<!-- ### `needsChannel`
+**Type:** `boolean`
+
+When developing channels you may find it necessary to limit your module's use to that channel only. -->
+
+### `param`
+
+**Type:** [`ParamObject[]`](#paramobject)
+
+An array of [`ParamObject`](#paramobject)s that define the parameters available for this module. These are variables set by the user that can be used within the runtime context of the module.
+
+---
+
+## `WebhookObject`
+
+// TODO
+
+---
+
+## `ParamObject`
+
+A variable that can be set by the user and used within the runtime context of the executing function.
+
+```json
+{
+  "param": "myInput",
+  "displayName": "My Input",
+  "description": "The first input parameter",
+  "optional": true,
+  "type": "STRING"
+}
+```
+
+### `param`
+
+**Type:** `string`
+
+A unique identifier of your input. This property must be unique within the array in which it is found.
+
+### `displayName`
+
+**Type:** `string`
+
+A user friendly name displayed to Bridge by Smartsheet users.
+
+### `description`
+
+**Type:** `string`
+
+A user friendly description/tooltip displayed to Bridge by Smartsheet users.
+
+### `optional`
+
+**Type:** `boolean`
+
+Determines whether the parameter is optional (`true`) or required (`false`). Default is `true`.
+
+### `hide`
+
+**Type:** `boolean`
+
+Determines whether the parameter is hidden or not.
+
+### `hideExpression`
+
+**Type:** `string`
+
+A JavaScript expression string that evaluates whether the input is visible or hidden. If the expression evaluates as `falsey` then the input is not hidden. If the expression evaluates as `truthy` then the input is hidden.
+
+The default is `"false"` not hidden.
+
+```json
+  "hideExpression": "false"
+```
+
+_Remember, this property is a JavaScript expression string so `false` is not the same as `"false"`._
+
+The expression is executed in a sandboxed environment with the following variables:
+
+- `form`: a reference to the root form object.
+- `model`: a reference to the parent group. If the input is on the root level then this will be the same reference as `form`.
+
+The following expression will hide the input if another input's value is equal to 'abc'.
+
+```json
+  "hideExpression": "form.input1.value === 'abc'"
+```
+
+### `type`
+
+**Type:** `STRING | PASSWORD | TEXT | NUMBER | BOOLEAN | MAP | ENUM | GROUP`
+
+Determines the type of input received at runtime and the type of input shown in the UI.
+
+| Param Type | JavaScript Type          |
+| ---------: | :----------------------- |
+|   `STRING` | `string`                 |
+| `PASSWORD` | `string`                 |
+|     `TEXT` | `string`                 |
+|   `NUMBER` | `number`                 |
+|  `BOOLEAN` | `boolean`                |
+|      `MAP` | `Record<string, string>` |
+|     `ENUM` | `string`                 |
+|    `GROUP` | `Record<string, any>`    |
+
+### `allowArray`
+
+**Type:** `boolean`
+
+Turn the `type` of input into an array of `type`. _Only works for certain types._
+
+| Param Type | `allowArray` | JavaScript Type         |
+| ---------: | ------------ | :---------------------- |
+|   `STRING` | `false`      | `string`                |
+|   `STRING` | `true`       | `string[]`              |
+|    `GROUP` | `false`      | `Record<string, any>`   |
+|    `GROUP` | `true`       | `Record<string, any>[]` |
+
+### `values`
+
+**Type:** `string[]` or [`OptionObject[]`](#optionobject)
+
+Only applicable for ParamObjects that are type `ENUM`. This array determines the enumeration values that can be selected by a user.
+
+An array of `string` values will ensure that the UI and runtime values will match – case sensitive.
+
+```json
+  "values": [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday"
+  ]
+```
+
+An array of [`OptionObject[]`](#optionobject) values allows more customizability. See [`OptionObject[]`](#optionobject) for more information.
+
+```json
+  "values": [
+    { "label": "Monday", "value": 1 },
+    { "label": "Tuesday", "value": 2 },
+    { "label": "Wednesday", "value": 3, "default": true },
+    { "label": "Thursday", "value": 4 },
+    { "label": "Friday", "value": 5 },
+  ]
+```
+
+### `valueParams`
+
+**Type:** [`ParamObject[]`](#paramobject)
+
+Only applicable for ParamObjects that are type `GROUP`. This array determines the child inputs of this group.
+
+---
+
+## `OptionObject`
+
+An enum option that can be used to provide a better user experience in the UI.
+
+### `label`
+
+**Type:** `string`
+
+A user friendly label displayed to Bridge by Smartsheet users.
+
+### `value`
+
+**Type:** `string`
+
+The underlying value of the enumeration option.
+
+### `default`
+
+**Type:** `boolean`
+
+If `true`, signifies that this value should be used as the default value in the UI.
+
+---

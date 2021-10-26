@@ -1,0 +1,62 @@
+{
+  "extends": "semantic-release-monorepo",
+  "branches": [
+    {
+      "name": "mainline",
+      "channel": false
+    },
+    {
+      "name": "next",
+      "channel": "next"
+    },
+    {
+      "name": "beta",
+      "channel": "beta",
+      "prerelease": true
+    },
+    {
+      "name": "alpha",
+      "channel": "alpha",
+      "prerelease": true
+    }
+  ],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "angular",
+        "releaseRules": [
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "perf",
+            "release": "patch"
+          },
+          {
+            "type": "docs",
+            "scope": "README",
+            "release": "patch"
+          },
+          {
+            "type": "refactor",
+            "release": "patch"
+          },
+          {
+            "type": "chore",
+            "scope": "deps",
+            "release": "patch"
+          }
+        ]
+      }
+    ],
+    "@semantic-release/npm",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/gitlab"
+  ]
+}

@@ -1,0 +1,452 @@
+---
+id: setup
+title: Manual Setup
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<!-- :::note
+
+It is highly recommended that you create an extension using the `create-bridge-extension` tool to ensure you are using the latest and greatest technology available to you. Use this documentation to help understand how a basic extension can be created, but the tool does all of this for you and more.
+
+::: -->
+
+## Prerequisites
+
+- Make sure you have `NodeJS` installed.
+- You can use `npm` installed with `NodeJS` but you can also use `yarn`.
+- To run the extension on Bridge by Smartsheet you will need an account.
+- Knowledge and understanding of JavaScript or TypeScript on NodeJS.
+
+## Create a new project folder
+
+In a terminal, navigate to where you want your project to exist and create a new directory for your extension.
+
+```bash
+mkdir helloworld
+cd helloworld
+```
+
+## Set up NPM and install the required dependencies
+
+Create a file called `package.json` at the root of your project directory and populate the file with the contents below depending on whether you are making a JavaScript or TypeScript extension.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+```json
+{
+  "name": "helloworld",
+  "version": "1.0.0",
+  "private": true,
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "account": "extension-scripts account",
+    "build": "extension-scripts build",
+    "deploy": "extension-scripts deploy",
+    "revoke": "extension-scripts revoke",
+    "logs": "extension-scripts logs"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+```json
+{
+  "name": "helloworld",
+  "version": "1.0.0",
+  "private": true,
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "account": "extension-scripts account",
+    "build": "extension-scripts build",
+    "deploy": "extension-scripts deploy",
+    "revoke": "extension-scripts revoke",
+    "logs": "extension-scripts logs"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+
+The first line is the name of your extension. The next 5 lines are less important for extension development but they ensure NPM is configured correctly.
+
+The next two lines are important properties for extension development: `main` is the entry point; `scripts` is a collection of npm scripts to help interact with the extension tooling.
+
+This file will continue to grow through this setup.
+
+## Add dependencies
+
+### Install `dependencies`.
+
+<Tabs
+groupId="npm2yarn"
+defaultValue="npm"
+values={[
+  { label: 'NPM', value: 'npm', },
+  { label: 'Yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+
+```bash
+npm i @smartsheet-bridge/extension-handler
+```
+
+</TabItem>
+<TabItem value="yarn">
+
+
+```bash
+yarn add @smartsheet-bridge/extension-handler
+```
+
+</TabItem>
+</Tabs>
+
+
+### Install `devDependencies`
+
+<Tabs
+groupId="npm2yarn"
+defaultValue="npm"
+values={[
+  { label: 'NPM', value: 'npm', },
+  { label: 'Yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+
+```bash
+npm i -D @smartsheet-bridge/extension-scripts
+```
+
+</TabItem>
+<TabItem value="yarn">
+
+
+```bash
+yarn add -D @smartsheet-bridge/extension-scripts
+```
+
+</TabItem>
+</Tabs>
+
+
+:::note
+
+If you are creating a TypeScript extension make sure you install TypeScript as a `devDependency` too.
+
+<Tabs
+groupId="npm2yarn"
+defaultValue="npm"
+values={[
+  { label: 'NPM', value: 'npm', },
+  { label: 'Yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+
+```bash
+npm i -D typescript
+```
+
+</TabItem>
+<TabItem value="yarn">
+
+
+```bash
+yarn add -D typescript
+```
+
+</TabItem>
+</Tabs>
+
+
+And add a file called `tsconfig.json` in the root folder populated like so.
+
+```json
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib",
+    "target": "ES2015",
+    "lib": ["ES2015"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "noUnusedLocals": false,
+    "noImplicitAny": true
+  },
+  "include": ["./src/**/*.tsx", "./src/**/*.ts"],
+  "exclude": [
+    "lib",
+    "node_modules",
+    "**/__*__/**",
+    "./src/**/*.spec.tsx",
+    "./src/**/*.spec.ts"
+  ]
+}
+```
+
+:::
+
+## Add entry point
+
+It is important that the file path of the _compiled_ entry point relative to the `package.json` equals the value of the `main` property within the `package.json` file.
+
+:::tip
+
+The default source directory is `src` and the default compiled directory is `lib` so if your `main` property points to `lib/index.js` then your entry point needs to exist at `src/index.js`
+
+:::
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+Create a `src` directory and an `index.js` file within. Add the following content.
+
+```js title="src/index.js"
+const { createBridgeHandler } = require('@smartsheet-bridge/extension-handler');
+
+exports.main = createBridgeHandler();
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+Create a `src` directory and an `index.ts` file within. Add the following content.
+
+```ts title="src/index.ts"
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+
+export const main = createBridgeHandler();
+```
+
+</TabItem>
+</Tabs>
+
+
+The first line imports the necessary dependencies.
+
+The third line exports your extension entry point that we will configure next.
+
+## Add first module
+
+Create a module that can take one input, called `input`, and return a property called `result` that is a concatenated string. This file should also live in the `src` directory.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+```js title="src/helloworld.js"
+exports.helloworld = params => {
+  return { result: `Hello, ${params.input}!` };
+};
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+```ts title="src/helloworld.ts"
+import { ModuleFunction } from '@smartsheet-bridge/extension-handler';
+
+type HelloWorldParams = { input: string };
+
+export const helloworld: ModuleFunction<HelloWorldParams> = params => {
+  return { result: `Hello, ${params.input}!` };
+};
+```
+
+</TabItem>
+</Tabs>
+
+
+Amend the `src/index` file to include the newly made module.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+```js title="src/index.js" {2,4-8}
+const { createBridgeHandler } = require('@smartsheet-bridge/extension-handler');
+const { helloworld } = require('./helloworld');
+
+exports.main = createBridgeHandler({
+  modules: {
+    helloworld: helloworld,
+  },
+});
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+```ts title="src/index.ts" {2,4-8}
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+import { helloworld } from './helloworld';
+
+export const main = createBridgeHandler({
+  modules: {
+    helloworld: helloworld,
+  },
+});
+```
+
+</TabItem>
+</Tabs>
+
+
+_The property of the module must equal the name defined in the spec file described next. In this case, `helloworld` is the name of the module so we shall use that in the spec file._
+
+## Create Spec file
+
+Finally, you must create a spec file to help describe the extension to the user interface. This is the same regardless of the language used to create the extension.
+
+```json title="extension.json"
+{
+  "name": "helloworld",
+  "displayName": "Hello World",
+  "module": [
+    {
+      "id": "helloworld",
+      "name": "Hello World",
+      "hasReturn": true,
+      "param": [
+        {
+          "param": "input",
+          "displayName": "Your name",
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}
+```
+
+This file describes the extension with the name `helloworld`, that has one module with the id `helloworld`, that has one parameter with the param called `input`.
+
+In this example, `helloworld` is the unique id of the extension you are going to deploy next but also the unique id of the module within the extension that must exist in the `modules` property of `createBridgeHandler`. The module has one parameter called `input` that will be accessible on the first parameter of the module. E.g. `params.input`.
+
+**And you're finished 😎**
+
+## Deploy Extension
+
+:::note
+
+To deploy an extension on Bridge by Smartsheet you will need an account.
+
+:::
+
+To deploy an extension created with the `create-bridge-extension` tool simply run the following command from the project directory where `<insert url here>` is the url of your Bridge by Smartsheet account that you can find in the browser when viewing the application, and `<insert key here>` is an API key that can be generated in your Bridge by Smartsheet account.
+
+<Tabs
+groupId="npm2yarn"
+defaultValue="npm"
+values={[
+  { label: 'NPM', value: 'npm', },
+  { label: 'Yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+
+```bash
+npm run deploy -- --url=<insert url here> --key=<insert key here>
+```
+
+:::tip
+
+You can create aliases allowing you to switch between accounts at ease.
+
+```bash
+$ npm run account add example -- --url=<insert url here> --key=<insert key here>
+```
+
+Where `example` is an alias chosen by you. Once created, this alias can be used with any extension on your machine allowing you to drop the `--url` and `--key` arguments.
+
+```bash
+$ npm run deploy example
+```
+
+This is particularly useful for developers that need to regularly deploy to multiple accounts. See [Account Aliases](/api/extension-scripts#account-aliases) for more information.
+
+:::
+
+</TabItem>
+<TabItem value="yarn">
+
+
+```bash
+yarn deploy --url=<insert url here> --key=<insert key here>
+```
+
+:::tip
+
+You can create aliases allowing you to switch between accounts at ease.
+
+```bash
+$ yarn account add example --url=<insert url here> --key=<insert key here>
+```
+
+Where `example` is an alias chosen by you. Once created, this alias can be used with any extension on your machine allowing you to drop the `--url` and `--key` arguments.
+
+```bash
+$ yarn deploy example
+```
+
+This is particularly useful for developers that need to regularly deploy to multiple accounts. See [Account Aliases](/api/extension-scripts#account-aliases) for more information.
+
+:::
+
+</TabItem>
+</Tabs>
+

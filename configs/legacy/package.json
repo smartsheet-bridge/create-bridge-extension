@@ -1,0 +1,15 @@
+{
+  "name": "@smartsheet-bridge/extensionrc-legacy",
+  "description": "Configuration file for a legacy extension.",
+  "version": "0.0.0-development.0",
+  "license": "Apache-2.0",
+  "main": "./lib/config.js",
+  "types": "./lib/config.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@smartsheet-bridge/extension-scripts": "latest"
+  }
+}

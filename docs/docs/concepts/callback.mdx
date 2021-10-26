@@ -1,0 +1,153 @@
+---
+id: callback
+title: Callback
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+A "callback" is the same as a "function" but cannot be called by users of an external system. These functions are called by the extension platform itself, or platform dependents of the extension platform, at specific times and expect specific responses.
+
+## Install/Uninstall
+
+### `onInstall`
+
+When an extension is [_installed_](/concepts/lifecycle#installation) by a user of an external system the platform will trigger the `onInstall` callback if one exists. This is particularly useful if you wish to gather inputs from the user that are required to integrate with another service.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+```js
+const onInstall = inputs => {
+  // Do work
+  return inputs;
+};
+export const main = handler({
+  callbacks: { onInstall },
+});
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+```ts
+interface MyInstallInputs {
+  clientid: string;
+  apikey: string;
+}
+
+const onInstall: ExtensionFunction<MyInstallInputs> = inputs => {
+  // Do work
+  return inputs;
+};
+
+export const main = handler({
+  callbacks: { onInstall },
+});
+```
+
+</TabItem>
+</Tabs>
+
+
+Whatever is returned from the `onInstall` function is saved with the particular instance of the extension and can be accessed in any function via [`context.settings`](/concepts/function#context).
+
+:::tip
+
+Because a "callback" is the same as a "function" the second parameter of an `onInstall` callback includes the previously saved `settings` object. On the first install these will be blank but if someone reinstalls their instance of the plugin then this information can be incredibly useful for comparison or cleaning up resources on an integrated app.
+
+:::
+
+:::tip
+
+If an `onInstall` callback is not defined then the default function looks like `inputs => inputs` meaning that whatever the user saves at install time will become the instance's `settings`. Of course, the opposite is also true, if you define an `onInstall` function and still want the `inputs` to be included in the `settings` then you must explicitly return the `inputs`.
+
+```js
+const onInstall = inputs => {
+  // Do work
+  return inputs;
+};
+```
+
+If you want to save the `inputs` as well as some other calculated data then you can return both so long as one doesn't overwrite the other.
+
+```js
+const onInstall = inputs => {
+  const installDate = new Date();
+  return { ...inputs, installDate };
+};
+```
+
+:::
+
+:::note
+
+Returned data from `onInstall` doesn't automatically render in the UI of an external system. In order for the UI to render the extra data returned they must be declared in the [Spec](/concepts/spec) file.
+
+:::
+
+### `onUninstall`
+
+Likewise, when an extension is [_uninstalled_](/concepts/lifecycle#uninstalling) by a user of an external system the platform will trigger the `onUninstall` callback if one exists. There are no inputs given and no data is expected to be returned.
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+```js
+const onUninstall = () => {
+  // Do work
+}`;
+
+export const main = handler({
+  callbacks: { onUninstall },
+});
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+```ts
+const onUninstall: ExtensionFunction = () => {
+  // Do work
+}`;
+
+export const main = handler({
+  callbacks: { onUninstall },
+});
+```
+
+</TabItem>
+</Tabs>
+
+
+:::tip
+
+Because a "callback" is the same as a "function" the second parameter of an `onUninstall` callback includes the currently saved `settings` object prior to uninstalling. This information is incredibly useful for cleaning up resources on an integrated app. See [Best Practices](/advanced/best_practices#external-integrations) for integrating with external applications.
+
+:::
+
+## Authorization Flow
+
+// TODO Authorization Flow
+
+## Messaging Flow
+
+// TODO Messaging Flow

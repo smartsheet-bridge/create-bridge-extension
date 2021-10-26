@@ -1,0 +1,38 @@
+---
+id: entry
+title: Entry Point
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The "entry point" is the point of entry for the application and is used to configure and serve the entire extension for runtime execution. All extension requests will enter through this point.
+
+The only requirement for the entry point is that it **must** export a function called `main` that has the signature of the expected runtime platform.
+
+E.g.
+
+```js
+export const main = ...
+```
+
+or
+
+```js
+export function main...
+```
+
+In nearly all cases the you will never need to write this function by hand. Instead, you can use one of the helper methods designed for the platform you wish to work with to create this function for you. E.g. The `createBridgeHandler` will set up this function perfectly so that your extension will work with Bridge now and in the future. **This is the recommended way of developing extensions to ensure you are always up to date.**
+
+```js
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+import { myFunction } from './myFunction';
+import { onRegister } from './onRegister';
+
+export const main = createBridgeHandler({
+  onRegister,
+  modules: { myFunction },
+});
+```
+
+As you add more modules to your extension you simply need to add them to the handler and it will handle all requests to your extension allowing you to focus on your business logic.

@@ -4327,7 +4327,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@smartsheet-bridge/extension-handler@workspace:packages/bridge-extension-handler"
   dependencies:
-    "@smartsheet-extensions/handler": ^0.1.0-beta.1
+    "@smartsheet-extensions/handler": ^0.1.0
     "@types/express": ^4.17.0
     "@types/supertest": ^2.0.8
     body-parser: ^1.19.0
@@ -4345,8 +4345,8 @@ __metadata:
     "@babel/preset-typescript": ^7.15.0
     "@npm/types": ^1.0.1
     "@smartsheet-bridge/bridge-sdk": ^1.0.0-beta.6
-    "@smartsheet-bridge/extension-cli-logger": ^0.1.0-beta.1
-    "@smartsheet-bridge/extensionrc-standard": ^0.1.0-beta.1
+    "@smartsheet-bridge/extension-cli-logger": ^0.1.0
+    "@smartsheet-bridge/extensionrc-standard": ^0.1.0
     "@types/archiver": ^3.0.0
     "@types/babel__core": ^7
     "@types/babel__preset-env": ^7
@@ -4388,10 +4388,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@smartsheet-bridge/extensionrc-standard@npm:^0.1.0-beta.1":
-  version: 0.1.0-beta.1
-  resolution: "@smartsheet-bridge/extensionrc-standard@npm:0.1.0-beta.1"
-  checksum: 28dfc31d28d54ea22153f364242b954e8a099dd55dcb9b02405796e27a69aa2d8d36fa3fb811e7bc84e447bdbfd22185034e2795cedc2d5a1466d7b75e24c25a
+"@smartsheet-bridge/extensionrc-standard@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@smartsheet-bridge/extensionrc-standard@npm:0.1.0"
+  checksum: f9f75deacd1c1af40afd8a7d6326ad8948440f1658ce8cc41be871c847189f7bc2a3d2354d8438dfb574b2eeb85d082a38ab36d57ba4c95108c73c6f97d7ea76
   languageName: node
   linkType: hard
 

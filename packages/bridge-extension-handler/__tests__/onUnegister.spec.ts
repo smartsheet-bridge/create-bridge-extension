@@ -42,8 +42,7 @@ describe('integration tests - onUnregister', () => {
 
   it('should return SUCCESS', async () => {
     const handler = createBridgeHandler({});
-    const res = await serve(handler).post('/').send(PAYLOAD);
-    expect(res.status).toBe(200);
+    await serve(handler)(PAYLOAD);
   });
 
   it.each([
@@ -58,7 +57,7 @@ describe('integration tests - onUnregister', () => {
       const handler = createBridgeHandler({
         onUnregister: mockFn,
       });
-      const res = await serve(handler).post('/').send(PAYLOAD);
+      const res = await serve(handler)(PAYLOAD);
       expect(mockFn).toBeCalledTimes(1);
       expect(mockFn).toBeCalledWith(
         {
@@ -74,8 +73,7 @@ describe('integration tests - onUnregister', () => {
           },
         }
       );
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res).toEqual(expectedResult);
     }
   );
 
@@ -92,7 +90,7 @@ describe('integration tests - onUnregister', () => {
       const handler = createBridgeHandler({
         onUnregister: mockFn,
       });
-      const res = await serve(handler).post('/').send(PAYLOAD);
+      const res = await serve(handler)(PAYLOAD);
       expect(mockFn).toBeCalledTimes(1);
       expect(mockFn).toBeCalledWith(
         {
@@ -108,8 +106,7 @@ describe('integration tests - onUnregister', () => {
           },
         }
       );
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res).toEqual(expectedResult);
     }
   );
 });

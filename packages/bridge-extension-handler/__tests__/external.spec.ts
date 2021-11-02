@@ -66,9 +66,8 @@ describe('integration tests - external', () => {
     const expectedResult = new NotFoundError(
       'External function `abc` does not exist.'
     );
-    const res = await serve(handler).post('/').send(PAYLOAD);
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(expectedResult.toJSON());
+    const res = await serve(handler)(PAYLOAD);
+    expect(res).toEqual(expectedResult.toJSON());
     expect(stderr).toBeCalledTimes(1);
     expect(stderr).toBeCalledWith(expectedResult);
   });
@@ -82,11 +81,8 @@ describe('integration tests - external', () => {
     const {
       payload: { call, ...payload },
     } = PAYLOAD;
-    const res = await serve(handler)
-      .post('/')
-      .send({ ...PAYLOAD, payload });
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(expectedResult.toJSON());
+    const res = await serve(handler)({ ...PAYLOAD, payload });
+    expect(res).toEqual(expectedResult.toJSON());
     expect(stderr).toBeCalledTimes(1);
     expect(stderr).toBeCalledWith(expectedResult);
   });
@@ -115,9 +111,8 @@ describe('integration tests - external', () => {
           abc: mockFn,
         },
       });
-      const res = await serve(handler).post('/').send(PAYLOAD);
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult.toJSON());
+      const res = await serve(handler)(PAYLOAD);
+      expect(res).toEqual(expectedResult.toJSON());
       expect(stderr).toBeCalledTimes(1);
       expect(stderr).toBeCalledWith(expectedResult);
     }
@@ -218,7 +213,7 @@ describe('integration tests - external', () => {
       });
       const functionPayload = { ...PAYLOAD };
       functionPayload.payload.bodyData = bodyData;
-      const res = await serve(handler).post('/').send(functionPayload);
+      const res = await serve(handler)(functionPayload);
       expect(mockFn).toBeCalledTimes(1);
       expect(mockFn).toBeCalledWith(
         {
@@ -234,8 +229,7 @@ describe('integration tests - external', () => {
           },
         }
       );
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res).toEqual(expectedResult);
     }
   );
 
@@ -454,10 +448,9 @@ describe('integration tests - external', () => {
         },
       });
       const functionPayload = { ...PAYLOAD };
-      const res = await serve(handler).post('/').send(functionPayload);
+      const res = await serve(handler)(functionPayload);
       expect(mockFn).toBeCalledTimes(1);
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expected);
+      expect(res).toEqual(expected);
     }
   );
 });

@@ -5,8 +5,8 @@ import supertest from 'supertest';
 
 export const serve = (
   main: (req: IncomingMessage, res: OutgoingMessage) => void
-) =>
-  supertest(
+) => async (payload: any) => {
+  const response = await supertest(
     express()
       .use(bodyParser.json())
       .get('/', (req, res) => {
@@ -19,4 +19,9 @@ export const serve = (
           res.status(500).send();
         }
       })
-  );
+  )
+    .post('/')
+    .send(payload);
+  expect(response.status).toBe(200);
+  return response.body;
+};

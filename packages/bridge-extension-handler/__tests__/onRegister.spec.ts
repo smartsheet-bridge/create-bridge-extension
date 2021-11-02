@@ -58,27 +58,24 @@ describe('integration tests - onRegister', () => {
 
   it('should return SUCCESS', async () => {
     const handler = createBridgeHandler({});
-    const res = await serve(handler).post('/').send(BODY);
-    expect(res.status).toBe(200);
+    await serve(handler)(BODY);
   });
 
   it('should return SUCCESS with no registrationData given', async () => {
     const mockFn = jest.fn(() => ({ settings: {} }));
     const handler = createBridgeHandler({ onRegister: mockFn });
-    const res = await serve(handler).post('/').send({
+    await serve(handler)({
       event: 'PLUGIN_REGISTER',
       payload: {},
     });
-    expect(res.status).toBe(200);
   });
 
   it('should return SUCCESS with no registrationData given', async () => {
     const mockFn = jest.fn(() => ({ settings: {} }));
     const handler = createBridgeHandler({ onRegister: mockFn });
-    const res = await serve(handler).post('/').send({
+    await serve(handler)({
       event: 'PLUGIN_REGISTER',
     });
-    expect(res.status).toBe(200);
   });
 
   it.each([
@@ -102,9 +99,8 @@ describe('integration tests - onRegister', () => {
       const handler = createBridgeHandler({
         onRegister: mockFn,
       });
-      const res = await serve(handler).post('/').send(BODY);
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult.toJSON());
+      const res = await serve(handler)(BODY);
+      expect(res).toEqual(expectedResult.toJSON());
       expect(stderr).toBeCalledTimes(1);
       expect(stderr).toBeCalledWith(expectedResult);
     }
@@ -126,15 +122,14 @@ describe('integration tests - onRegister', () => {
       const handler = createBridgeHandler({
         onRegister: mockFn,
       });
-      const res = await serve(handler).post('/').send(BODY);
+      const res = await serve(handler)(BODY);
       expect(mockFn).toBeCalledTimes(1);
       expect(mockFn).toBeCalledWith(SETTINGS, {
         caller: CALLER,
         settings: SETTINGS,
         inboundURI: 'https://api.bridge.smartsheet.com/v2/inbound',
       });
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res).toEqual(expectedResult);
     }
   );
 });

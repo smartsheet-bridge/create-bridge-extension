@@ -69,9 +69,8 @@ describe('integration tests - onOAuthHandleCode', () => {
 
     const handler = createBridgeHandler({});
     const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const res = await serve(handler).post('/').send(BODY);
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(expectedError.toJSON());
+    const res = await serve(handler)(BODY);
+    expect(res).toEqual(expectedError.toJSON());
     expect(stderr).toBeCalledTimes(1);
     expect(stderr).toBeCalledWith(expectedError);
   });
@@ -79,11 +78,10 @@ describe('integration tests - onOAuthHandleCode', () => {
   it('should return SUCCESS with no payload', async () => {
     const mockFn = jest.fn(() => RESPONSE);
     const handler = createBridgeHandler({ onOAuthHandleCode: mockFn });
-    const res = await serve(handler).post('/').send({
+    await serve(handler)({
       event: 'OAUTH2_HANDLE_CODE',
       payload: {},
     });
-    expect(res.status).toBe(200);
   });
 
   it.each([
@@ -107,9 +105,8 @@ describe('integration tests - onOAuthHandleCode', () => {
       const handler = createBridgeHandler({
         onOAuthHandleCode: mockFn,
       });
-      const res = await serve(handler).post('/').send(BODY);
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult.toJSON());
+      const res = await serve(handler)(BODY);
+      expect(res).toEqual(expectedResult.toJSON());
       expect(stderr).toBeCalledTimes(1);
       expect(stderr).toBeCalledWith(expectedResult);
     }
@@ -132,7 +129,7 @@ describe('integration tests - onOAuthHandleCode', () => {
       const handler = createBridgeHandler({
         onOAuthHandleCode: mockFn,
       });
-      const res = await serve(handler).post('/').send(BODY);
+      const res = await serve(handler)(BODY);
       expect(mockFn).toBeCalledTimes(1);
       expect(mockFn).toBeCalledWith(
         {
@@ -145,8 +142,7 @@ describe('integration tests - onOAuthHandleCode', () => {
           settings: SETTINGS,
         }
       );
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res).toEqual(expectedResult);
     }
   );
 });

@@ -8,8 +8,7 @@ describe('integration tests - ping', () => {
     const payload: PingPayload = {
       event: 'PING',
     };
-    const res = await serve(handler).post('/').send(payload);
-    expect(res.status).toBe(200);
+    await serve(handler)(payload);
     done();
   });
 });

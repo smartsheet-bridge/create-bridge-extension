@@ -62,9 +62,8 @@ describe('integration tests - module', () => {
     const handler = createBridgeHandler({});
     const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
     const expectedResult = new NotFoundError('Module `abc` does not exist.');
-    const res = await serve(handler).post('/').send(PAYLOAD);
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(expectedResult.toJSON());
+    const res = await serve(handler)(PAYLOAD);
+    expect(res).toEqual(expectedResult.toJSON());
     expect(stderr).toBeCalledTimes(1);
     expect(stderr).toBeCalledWith(expectedResult);
   });
@@ -78,11 +77,8 @@ describe('integration tests - module', () => {
     const {
       payload: { moduleId, ...payload },
     } = PAYLOAD;
-    const res = await serve(handler)
-      .post('/')
-      .send({ ...PAYLOAD, payload });
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(expectedResult.toJSON());
+    const res = await serve(handler)({ ...PAYLOAD, payload });
+    expect(res).toEqual(expectedResult.toJSON());
     expect(stderr).toBeCalledTimes(1);
     expect(stderr).toBeCalledWith(expectedResult);
   });
@@ -107,9 +103,8 @@ describe('integration tests - module', () => {
           abc: mockFn,
         },
       });
-      const res = await serve(handler).post('/').send(PAYLOAD);
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult.toJSON());
+      const res = await serve(handler)(PAYLOAD);
+      expect(res).toEqual(expectedResult.toJSON());
       expect(stderr).toBeCalledTimes(1);
       expect(stderr).toBeCalledWith(expectedResult);
     }
@@ -187,7 +182,7 @@ describe('integration tests - module', () => {
           abc: mockFn,
         },
       });
-      const res = await serve(handler).post('/').send(PAYLOAD);
+      const res = await serve(handler)(PAYLOAD);
       expect(mockFn).toBeCalledTimes(1);
       expect(mockFn).toBeCalledWith(
         {
@@ -220,8 +215,7 @@ describe('integration tests - module', () => {
           },
         }
       );
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(expectedResult);
+      expect(res).toEqual(expectedResult);
     }
   );
 });

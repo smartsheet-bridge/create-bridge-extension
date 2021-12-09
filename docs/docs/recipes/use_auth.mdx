@@ -6,10 +6,873 @@ title: Use Auth
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-<!-- TODO -->
+The majority of external service you would want to integrate with will require some form of authorization, and one of the most common and secure methods is OAuth.
 
-:::caution
+The extension-handler exposes functions to enable OAuth 2.0, an industry-standard authorization protocol, for your extension in Bridge.
 
-This page is incomplete! Thank you for your patience as the team works hard to improve extension development documentation.
+### Overview
+
+The OAuth flow can be broken up into three stages
+
+1. Start
+1. Callback
+1. Renew
+
+The OAuth flow is initiated from Bridge by exposing a button or link that will open the authorization panel for the third-party service, like with the Smartsheet OAuth flow.
+
+![Allow Access](/img/SmartsheetAllowAccess.png)
+
+After approving or rejecting the permissions, the third-party service will callback to your extension with a unique code that can be used to retrieve an access token. This access token is used to authorize requests to the third-party API client.
+
+Most services will include a timeout on these access tokens, making them invalid after a specified time. However, they will usually have additional endpoints to renew these tokens without human interaction. Bridge can identify when an access token has expired and automatically renew it without interrupting any of the extension's functionality.
+
+#### OAuth scope
+
+Bridge supports two different levels, or scopes, of OAuth access to integrations.
+
+##### Provider
+
+This is the most common authorization with third-parties inside Bridge. This is where the Bridge admin authorizes an integration from the Bridge UI, and the OAuth data is available to the extension whenever it is executed for the workspace it was setup for.
+
+##### User
+
+This is not used often within Bridge but is available if required. This would allow an extension to be authorized for each end user that triggers a workflow in Bridge via a chat channel like Microsoft Teams or Workplace Chat. A module that requires this can return a response status of `NEED_AUTH` which would kick off the authentication flow in the chat channel. When successful the same user will have access to that OAuth data for the extension modules from that point forward.
+
+### Adding OAuth
+
+<Tabs
+groupId="js2ts"
+defaultValue="js"
+values={[
+  { label: 'JavaScript', value: 'js', },
+  { label: 'TypeScript', value: 'ts', },
+]
+}>
+<TabItem value="js">
+
+
+The functions to enable OAuth are defined in the extension entry point (`index.js`).
+
+```js title="/src/index.js"
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+//highlight-next-line
+import { onOAuthHandleCode, onOAuthRenewToken, onOAuthStart } from './myOAuth';
+
+export const main = createBridgeHandler({
+  //highlight-start
+  onOAuthHandleCode,
+  onOAuthRenewToken,
+  onOAuthStart,
+  //highlight-end
+});
+```
+
+</TabItem>
+<TabItem value="ts">
+
+
+The functions to enable OAuth are defined in the extension entry point (`index.ts`).
+
+```ts title="/src/index.ts"
+import { createBridgeHandler } from '@smartsheet-bridge/extension-handler';
+//highlight-next-line
+import { onOAuthHandleCode, onOAuthRenewToken, onOAuthStart } from './myOAuth';
+
+export const main = createBridgeHandler({
+  //highlight-start
+  onOAuthHandleCode,
+  onOAuthRenewToken,
+  onOAuthStart,
+  //highlight-end
+});
+```
+
+</TabItem>
+</Tabs>
+
+
+For the Bridge UI to show the connect button for your extension you need to inform it that you want an OAuth tab for the extension model. You do this by specifying a `uiSpec` as part of the extension specification in the extension.json file.
+
+```json title="extension.json snippit"
+{
+...
+  "uiSpec": {
+    "providerTabs": [
+      {
+        "type": "OAUTH2",
+        "saveBtn": false,
+        "enable": "hasAgreed || isRegistered",
+        "default": false,
+        "nextTab": 1
+      },
+      {
+        "type": "SETTINGS",
+        "enable": "isAuthorized",
+        "nextTab": true,
+        "default": "isAuthorized",
+        "params": [
+          "other",
+          "settings",
+        ]
+      }
+    ]
+  },
+...
+}
+```
+
+This example will show a connection tab where you can initiate the OAuth flow and a settings tab that will only be enabled after the OAuth flow has been completed which lets you set other settings.
+
+:::tip
+It is possible to have settings tabs before the connection tab if you need to set some values before the OAuth flow can start, such as the OAuth app client ID and secret.
+:::
+
+### OAuth start
+
+The OAuthStart function allows the extension developer to define the URI and required credentials, such as the app client ID and required permission scopes.
+
+The following example is how this would be done using the Smartsheet OAuth flow.
+
+<Tabs
+  groupId="js2ts"
+  defaultValue="js"
+  values={[
+    { label: 'JavaScript', value: 'js' },
+    { label: 'TypeScript', value: 'ts' },
+  ]}
+>
+  <TabItem value="js">
+
+
+```js title="/src/onOAuthStart.js"
+export const onOAuthStart = (params, context) => {
+  const { clientId } = context.settings;
+
+  if (clientId === undefined || clientId === null || clientId === '') {
+    throw new Error('failed to start oauth flow : invalid client credentials');
+  }
+
+  return {
+    clientId,
+    oauth2URI: 'https://app.smartsheet.com/b/authorize',
+    scope:
+      'ADMIN_USERS ADMIN_WEBHOOKS CREATE_SHEETS DELETE_SHEETS READ_SHEETS READ_USERS SHARE_SHEETS WRITE_SHEETS',
+  };
+};
+```
+
+  </TabItem>
+  <TabItem value="ts">
+
+
+```ts title="/src/onOAuthStart.ts"
+import { StartOAuth2Function } from '@smartsheet-bridge/extension-handler';
+import { StartOAuth2Response } from '@smartsheet-bridge/extension-handler/lib/responses/StartOAuth2Response';
+import { Setings } from './settings';
+
+export const onOAuthStart: StartOAuth2Function<Settings> = (
+  params,
+  context
+) => {
+  const { clientId } = context.settings;
+
+  if (clientId === undefined || clientId === null || clientId === '') {
+    throw new Error('failed to start oauth flow : invalid client credentials');
+  }
+
+  const response = new StartOAuth2Response();
+  response.setClientId(clientId);
+  response.setOAuth2URI('https://app.smartsheet.com/b/authorize');
+  response.setScope(
+    'ADMIN_USERS ADMIN_WEBHOOKS CREATE_SHEETS DELETE_SHEETS READ_SHEETS READ_USERS SHARE_SHEETS WRITE_SHEETS'
+  );
+
+  return response;
+};
+```
+
+  </TabItem>
+</Tabs>
+
+
+Bridge will then take these credentials, and construct a URL containing these values as well as the response_type query parameter with the value code and values required by Bridge such as the state and the redirect URL which the third-party will redirect the user to when the authorization is approved, or rejected. When the user clicks the connection button they are redirected something like this:
+
+```curl
+https://app.smartsheet.com/b/authorize?response_type=code&client_id=123456789&scope=SCOPE_STRING&state=BRIDGE_DEFINED_STRING&redirect_uri=BRIDGE_REDIRECT_URI
+```
+
+:::note
+If the third-party your integrating with needs to know the OAuth callback URI in advance, as Smartsheet OAuth does, then you would use:
+
+```url
+https://system.converse.ai/api/settings/oauth/oauth2callback
+```
+
+The same callback URI is used by all extensions OAuth callback, Bridge uses the values in the generated state query parameter to determine which extension should handle the callback event.
 
 :::
+
+:::tip
+By default, the link to start the OAuth flow will be displayed in the extension model on the connection tab with a `Connect` button.
+
+It is possible to change this in the onOAuthStart function by supplying HTML to be displayed instead on the connection tab
+
+<Tabs
+  groupId="js2ts"
+  defaultValue="js"
+  values={[
+    { label: 'JavaScript', value: 'js' },
+    { label: 'TypeScript', value: 'ts' },
+  ]}
+>
+  <TabItem value="js">
+
+
+```
+function getAuthenticateButton() {
+  const msg = '<p>To link this plugin with a specific account authenticate with your Smartsheet account.</p>';
+  const btn = '<p><cv-button cv-click="authenticate()">Authenticate</cv-button></p>';
+  return `<div>${msg}${btn}</div>`;
+}
+...
+return {
+  clientId,
+  oauth2URI: 'https://app.smartsheet.com/b/authorize',
+  scope: 'ADMIN_USERS ADMIN_WEBHOOKS CREATE_SHEETS DELETE_SHEETS READ_SHEETS READ_USERS SHARE_SHEETS WRITE_SHEETS',
+  comment: getAuthenticateButton()
+};
+```
+
+  </TabItem>
+  <TabItem value="ts">
+
+
+```
+function getAuthenticateButton(): string {
+  const msg =
+    '<p>To link this integration with a specific account authenticate with your Smartsheet account.</p>';
+  const btn =
+    '<p><cv-button cv-click="authenticate()">Authenticate</cv-button></p>';
+  return `<div>${msg}${btn}</div>`;
+}
+...
+
+const response = new StartOAuth2Response();
+response.setClientId(clientId);
+response.setOAuth2URI('https://app.smartsheet.com/b/authorize');
+response.setScope(
+  'ADMIN_USERS ADMIN_WEBHOOKS CREATE_SHEETS DELETE_SHEETS READ_SHEETS READ_USERS SHARE_SHEETS WRITE_SHEETS'
+);
+response.setComment(getAuthenticateButton());
+```
+
+  </TabItem>
+</Tabs>
+
+
+The `authenticate()` function used by the custom defined `Authenticate` button acts the same as the standard `Connect` button, so your custom button calls the correctly generated OAuth link.
+
+:::
+
+<details>
+  <summary>Additional StartOAuth2Response parameters</summary>
+  <p>
+
+
+```ts
+interface StartOAuth2Response extends ExtensionResponse {
+  oauth2URI: string;
+  clientId: string;
+  scope?: string;
+  state?: string;
+  comment?: string;
+  extraParams?: Record<string, string>;
+}
+```
+
+The `oauth2URI` and `clientId` parameters will always be required for all OAuth flows but the other parameters are optional.
+
+scope - allows for permission scopes to be specified. This will be appended to the OAuth URL  
+state - allows for developer defined data to be returned to the callback handle function  
+comment - allows for connection tab customization mentioned above.  
+extraParams - a list of key/value pairs that will be appended to the OAuth URL as additional query parameters to allow for supporting non-standard query parameters
+
+  </p>
+</details>
+
+
+### Handle OAuth callback
+
+The handle OAuth callback function will be called when the third-party redirects to the Bridge callback after the authorization is approved.
+
+The function is passed the following parameters
+
+- code - a code string supplied by the third-party. This code is used to request an access token from the third-parties API.
+- scope - the scopes that have been approved. This could be undefined depending if the third-party allows for the permission scopes to be changed by the authenticating user or not, normally if this is undefined the user has agreed to all the permission scopes defined during the start function.
+- state - the state value that the developer set in the OAuth start function. This could be undefined if no state was specified during the start function.
+- oauthType - the type of OAuth data that is being refresh, either Provider or User.
+
+The following example is how this would be done using the Smartsheet OAuth flow.
+
+<Tabs
+  groupId="js2ts"
+  defaultValue="js"
+  values={[
+    { label: 'JavaScript', value: 'js' },
+    { label: 'TypeScript', value: 'ts' },
+  ]}
+>
+  <TabItem value="js">
+
+
+```js title="/src/onOAuthHandleCode.js"
+import { createHash } from 'crypto';
+import * as smartsheet from 'smartsheet';
+
+const getAccessToken = (clientId, secret, code) => {
+  const sha256 = createHash('sha256').update(`${secret}|${code}`).digest('hex');
+
+  const client = smartsheet.createClient({});
+  return client.tokens.getAccessToken({
+    queryParameters: {
+      client_id: clientId,
+      grant_type: 'authorization_code',
+      code,
+      hash: sha256,
+    },
+    contentType: 'application/x-www-form-urlencoded',
+  });
+};
+
+export const onOAuthHandleCode = (params, concontextfig) => {
+  if (params.code === undefined || params.code === null || params.code === '') {
+    throw new Error(
+      'failed to create access token : authentication code not specified'
+    );
+  }
+
+  const { clientId, secret } = context.settings;
+
+  if (clientId === undefined || secret === undefined) {
+    throw new Error(
+      'failed to create access token : client identifier or secret has not been specified'
+    );
+  }
+
+  return getAccessToken(clientId, secret, params.code)
+    .then(token => ({
+      access_token: token.access_token,
+      expires_in: token.expires_in,
+      refresh_token: token.refresh_token,
+      token_type: token.token_type,
+    }))
+    .catch(err => {
+      throw new Error(`failed to create access token : ${err.message}`);
+    });
+};
+```
+
+  </TabItem>
+  <TabItem value="ts">
+
+
+```ts title="/src/onOAuthHandleCode.ts"
+import { HandleOAuth2CodeFunction } from '@smartsheet-bridge/extension-handler';
+import { HandleOAuth2CodeResponse } from '@smartsheet-bridge/extension-handler/lib/responses/HandleOAuth2CodeResponse';
+import { createHash } from 'crypto';
+import * as smartsheet from 'smartsheet';
+import { Settings } from './settings';
+
+interface OAuthToken {
+  access_token: string;
+  token_type: string;
+  refresh_token: string;
+  expires_in: number;
+}
+
+const getAccessToken = (
+  clientId: string,
+  secret: string,
+  code: string
+): Promise<OAuthToken> => {
+  const sha256 = createHash('sha256').update(`${secret}|${code}`).digest('hex');
+
+  const client = smartsheet.createClient({});
+  return client.tokens.getAccessToken({
+    queryParameters: {
+      client_id: clientId,
+      grant_type: 'authorization_code',
+      code,
+      hash: sha256,
+    },
+    contentType: 'application/x-www-form-urlencoded',
+  });
+};
+
+export const onOAuthHandleCode: HandleOAuth2CodeFunction<Settings> = (
+  params,
+  context
+) => {
+  if (params.code === undefined || params.code === null || params.code === '') {
+    throw new Error(
+      'failed to create access token : authentication code not specified'
+    );
+  }
+
+  const { clientId, secret } = context.settings;
+
+  if (clientId === undefined || secret === undefined) {
+    throw new Error(
+      'failed to create access token : client identifier or secret has not been specified'
+    );
+  }
+
+  return getAccessToken(clientId, secret, params.code)
+    .then(token => {
+      return HandleOAuth2CodeResponse.create({
+        access_token: token.access_token,
+        expires_in: token.expires_in,
+        refresh_token: token.refresh_token,
+        token_type: token.token_type,
+      });
+    })
+    .catch(err => {
+      throw new Error(`failed to create access token : ${err.message}`);
+    });
+};
+```
+
+  </TabItem>
+</Tabs>
+
+
+<details>
+  <summary>Additional HandleOAuth2CodeResponse parameters</summary>
+  <p>
+
+
+```ts
+interface HandleOAuth2CodeResponse extends ExtensionResponse {
+  access_token: string;
+  token_type?: string;
+  refresh_token?: string;
+  expires_in?: number;
+  grant_type?: string;
+  metadata?: Record<string, string>;
+  redirectMessage?: string;
+  redirectTo?: string;
+  settings?: SerializableObject;
+}
+```
+
+The `access_token` parameter is the only required parameter for this response.
+
+expires_in - state the time, in seconds, until the access token expires. If the token does not expire then this can be left undefined or set to 0  
+refresh_token - a special third-party defined token which is used as part of the refresh token flow
+
+With a positive `expires_in` value and a non-empty `refresh_token`, Bridge will automatically attempt to refresh the `access_token` when it believes it has expired based on the available information.
+
+The `token_type` and `grant_type` parameters are informational only, they will be included in the OAuth data available to extension functions but these values are not parsed by Bridge. This is also true for the `metadata` collection, which is a developer defined key/value collection that is included in the OAuth data for non-standard OAuth data.
+
+The `redirectmessage` and `redirectTo` parameters are used to change the message or the redirect location shown to the user after they have authenticated. Only one can be set at any time, with `redirectTo` taking priority. These parameters are more important when using User scoped OAuth, as this will allow you to hide Bridge from the end users who would normally be seeing the chat channel's branding and be oblivious to using Bridge behind the scenes.
+
+Finally, `settings` is an object used to detail any updates made to the extension settings, passed as part of the `context` parameter. If the developer wants to update any information included in the extensions settings they will need to include the complete settings object with the new information. This has been used by other extensions to include values to read-only fields describing who has authenticated the extension, making it easy for future users to know who has approved an extension for the workspace.
+
+  </p>
+</details>
+
+
+### Renew OAuth token
+
+The renew OAuth token function is called by Bridge when it calculates that a OAuth access token has expired based on the supplied `expires_in` parameter supplied during the handle callback function.
+
+The function is passed two parameters
+
+- renewToken - the OAuth data `refresh_token` value
+- oauthType - the type of OAuth data that is being refresh, either Provider or User.
+
+This function is expected to call the third-party API and create a new, non-expired, access_token and return that value to be used until it expires again.
+
+The following example is how this would be done using the Smartsheet OAuth flow.
+
+<Tabs
+  groupId="js2ts"
+  defaultValue="js"
+  values={[
+    { label: 'JavaScript', value: 'js' },
+    { label: 'TypeScript', value: 'ts' },
+  ]}
+>
+  <TabItem value="js">
+
+
+```js title="/src/onOAuthRenewToken.js"
+import { createHash } from 'crypto';
+import * as smartsheet from 'smartsheet';
+
+const refreshAccessToken = (clientId, secret, refreshToken) => {
+  const sha256 = createHash('sha256')
+    .update(`${secret}|${refreshToken}`)
+    .digest('hex');
+
+  const client = smartsheet.createClient({});
+  return client.tokens.getAccessToken({
+    queryParameters: {
+      client_id: clientId,
+      grant_type: 'refresh_token',
+      hash: sha256,
+      refresh_token: refreshToken,
+    },
+    contentType: 'application/x-www-form-urlencoded',
+  });
+};
+
+export const onOAuthRenewToken = (params, context) => {
+  if (
+    params.renewToken === undefined ||
+    params.renewToken === null ||
+    params.renewToken === ''
+  ) {
+    throw new Error(
+      'failed to refresh access token : renew token not specified'
+    );
+  }
+
+  const { clientId, secret } = context.settings;
+
+  if (clientId === undefined || secret === undefined) {
+    throw new Error(
+      'failed to refresh access token : client identifier or secret not specified'
+    );
+  }
+
+  return refreshAccessToken(clientId, secret, params.renewToken)
+    .then(token => ({
+      access_token: token.access_token,
+      expires_in: token.expires_in,
+      refresh_token: token.refresh_token,
+      token_type: token.token_type,
+    }))
+    .catch(err => {
+      throw new Error(`failed to refresh access token : ${err.message}`);
+    });
+};
+```
+
+  </TabItem>
+  <TabItem value="ts">
+
+
+```ts title="/src/onOAuthRenewToken.ts"
+import { RenewOAuth2TokenFunction } from '@smartsheet-bridge/extension-handler';
+import { RenewOAuth2TokenResponse } from '@smartsheet-bridge/extension-handler/lib/responses/RenewOAuth2TokenResponse';
+import { createHash } from 'crypto';
+import * as smartsheet from 'smartsheet';
+import { Settings } from './settings';
+
+interface OAuthToken {
+  access_token: string;
+  token_type: string;
+  refresh_token: string;
+  expires_in: number;
+}
+
+const refreshAccessToken = (
+  clientId: string,
+  secret: string,
+  refreshToken: string
+): Promise<OAuthToken> => {
+  const sha256 = createHash('sha256')
+    .update(`${secret}|${refreshToken}`)
+    .digest('hex');
+
+  const client = smartsheet.createClient({});
+  return client.tokens.getAccessToken({
+    queryParameters: {
+      client_id: clientId,
+      grant_type: 'refresh_token',
+      hash: sha256,
+      refresh_token: refreshToken,
+    },
+    contentType: 'application/x-www-form-urlencoded',
+  });
+};
+
+export const onOAuthRenewToken: RenewOAuth2TokenFunction<Settings> = (
+  params,
+  context
+) => {
+  if (
+    params.renewToken === undefined ||
+    params.renewToken === null ||
+    params.renewToken === ''
+  ) {
+    throw new Error(
+      'failed to refresh access token : renew token not specified'
+    );
+  }
+
+  const { clientId, secret } = context.settings;
+
+  if (clientId === undefined || secret === undefined) {
+    throw new Error(
+      'failed to refresh access token : client identifier or secret not specified'
+    );
+  }
+
+  return refreshAccessToken(clientId, secret, params.renewToken)
+    .then(token => {
+      return RenewOAuth2TokenResponse.create({
+        access_token: token.access_token,
+        expires_in: token.expires_in,
+        refresh_token: token.refresh_token,
+        token_type: token.token_type,
+      });
+    })
+    .catch(err => {
+      throw new Error(`failed to refresh access token : ${err.message}`);
+    });
+};
+```
+
+  </TabItem>
+</Tabs>
+
+
+<details>
+  <summary>Additional RenewOAuth2TokenResponse parameters</summary>
+  <p>
+
+
+```ts
+interface RenewOAuth2TokenResponse extends ExtensionResponse {
+  access_token: string;
+  token_type?: string;
+  refresh_token?: string;
+  expires_in?: number;
+  grant_type?: string;
+  metadata?: Record<string, string>;
+}
+```
+
+The `access_token` parameter is the only required parameter for this response.
+
+expires_in - state the time, in seconds, until the access token expires. If the token does not expire then this can be left undefined or set to 0  
+refresh_token - a special third-party defined token which is used as part of the refresh token flow
+
+With a positive `expires_in` value and a non-empty `refresh_token`, Bridge will automatically attempt to refresh the `access_token` when it believes it has expired based on the available information.
+
+The `token_type` and `grant_type` parameters are informational only, they will be included in the OAuth data available to extension functions but these values are not parsed by Bridge. This is also true for the `metadata` collection, which is a developer defined key/value collection that is included in the OAuth data for non-standard OAuth data.
+
+  </p>
+</details>
+
+
+### Using OAuth tokens
+
+After you have completed the OAuth flow, all extension functions executed in the workspace will be passed the OAuth data. It is available via the function context so you can access the access token as well as any metadata you may require.
+
+<Tabs
+  groupId="js2ts"
+  defaultValue="js"
+  values={[
+    { label: 'JavaScript', value: 'js' },
+    { label: 'TypeScript', value: 'ts' },
+  ]}
+>
+  <TabItem value="js">
+
+
+```js title="/src/modules/getSheet.js"
+import * as smartsheet from 'smartsheet';
+
+export const getSheet = (moduleParams, context) => {
+  const client = smartsheet.createClient({
+    //highlight-next-line
+    accessToken: context.oAuthData.access_token,
+  });
+
+  return client.sheets
+    .getSheet({
+      id: moduleParams.sheetId,
+    })
+    .then(data => ({
+      value: data,
+    }))
+    .catch(err => {
+      throw new Error(`failed to gets sheet : ${err.message}`);
+    });
+};
+```
+
+  </TabItem>
+  <TabItem value="ts">
+
+
+```ts title="/src/modules/getSheet.ts"
+import {
+  ModuleFunction,
+  ModuleResponse,
+} from '@smartsheet-bridge/extension-handler';
+import * as smartsheet from 'smartsheet';
+import { Settings } from './settings';
+
+type GetSheetParams = {
+  sheetId: string;
+};
+
+export const getSheet: ModuleFunction<GetSheetParams, Settings> = (
+  moduleParams,
+  context
+) => {
+  const client = smartsheet.createClient({
+    //highlight-next-line
+    accessToken: context.oAuthData.access_token,
+  });
+
+  return client.sheets
+    .getSheet({
+      id: moduleParams.sheetId,
+    })
+    .then((data: any) => {
+      const response = new ModuleResponse();
+      response.setValue(data);
+      return response;
+    })
+    .catch((err: Error) => {
+      throw new Error(`failed to gets sheet : ${err.message}`);
+    });
+};
+```
+
+  </TabItem>
+</Tabs>
+
+
+<details>
+  <summary>User OAuth example</summary>
+  <p>
+
+
+This example shows the same module, but refactored for the use-case where we are allowing a chat user access instead of on the provider level.
+
+The only change required for this example is included a check for the user level OAuth data, and if it is missing, informing Bridge to start the user OAuth flow by using the `NEED_AUTH` status
+
+<Tabs
+  groupId="js2ts"
+  defaultValue="js"
+  values={[
+    { label: 'JavaScript', value: 'js' },
+    { label: 'TypeScript', value: 'ts' },
+  ]}
+>
+  <TabItem value="js">
+
+
+```js
+import { ExtensionStatus } from '@smartsheet-bridge/extension-handler';
+import * as smartsheet from 'smartsheet';
+
+export const getSheet = (moduleParams, context) => {
+  if (context.channelSettings === undefined) {
+    throw new Error('expect to be called in a chat channel');
+  }
+  if (
+    context.channelSettings.oAuthData === undefined ||
+    context.channelSettings.oAuthData.access_token === undefined
+  ) {
+    return { status: ExtensionStatus.NEED_AUTH };
+  }
+
+  const client = smartsheet.createClient({
+    accessToken: context.oAuthData.access_token,
+  });
+
+  return client.sheets
+    .getSheet({
+      id: moduleParams.sheetId,
+    })
+    .then(data => ({
+      value: data,
+    }))
+    .catch(err => {
+      throw new Error(`failed to gets sheet : ${err.message}`);
+    });
+};
+```
+
+  </TabItem>
+  <TabItem value="ts">
+
+
+```ts
+import {
+  ExtensionStatus,
+  ModuleFunction,
+  ModuleResponse,
+} from '@smartsheet-bridge/extension-handler';
+import * as smartsheet from 'smartsheet';
+import { Settings } from './settings';
+
+type GetSheetParams = {
+  sheetId: string;
+};
+
+export const getSheet: ModuleFunction<GetSheetParams, Settings> = (
+  moduleParams,
+  context
+) => {
+  //highlight-start
+  if (context.channelSettings === undefined) {
+    throw new Error('expect to be called in a chat channel');
+  }
+  if (
+    context.channelSettings.oAuthData === undefined ||
+    context.channelSettings.oAuthData.access_token === undefined
+  ) {
+    return ModuleResponse.create({ status: ExtensionStatus.NEED_AUTH });
+  }
+  //highlight-end
+
+  const client = smartsheet.createClient({
+    accessToken: context.oAuthData.access_token,
+  });
+
+  return client.sheets
+    .getSheet({
+      id: moduleParams.sheetId,
+    })
+    .then((data: any) => {
+      const response = new ModuleResponse();
+      response.setValue(data);
+      return response;
+    })
+    .catch((err: Error) => {
+      throw new Error(`failed to gets sheet : ${err.message}`);
+    });
+};
+```
+
+  </TabItem>
+</Tabs>
+
+
+  </p>
+</details>
+
+
+<!--
+Code Example Tabs
+
+<Tabs
+  groupId="js2ts"
+  defaultValue="js"
+  values={[
+    { label: 'JavaScript', value: 'js' },
+    { label: 'TypeScript', value: 'ts' },
+  ]}
+>
+  <TabItem value="js"></TabItem>
+  <TabItem value="ts"></TabItem>
+</Tabs>
+-->

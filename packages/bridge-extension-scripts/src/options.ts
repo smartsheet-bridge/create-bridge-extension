@@ -2,14 +2,14 @@ import { parseAccountURL } from '@smartsheet-bridge/bridge-sdk';
 import { InferredOptionTypes } from 'yargs';
 
 export const RC_NAME = `extension`;
+export const LOGLEVEL_OPTIONS = ['info', 'verbose', 'warn', 'error', 'silent'];
 
 const loglevel = {
   alias: 'l',
   global: true,
   description: 'Level of output logs',
   default: 'info',
-  choices: ['info', 'verbose', 'warn', 'error', 'silent'],
-  coerce: (lvl: string) => lvl.toLowerCase(),
+  choices: LOGLEVEL_OPTIONS,
 };
 
 const debug = {

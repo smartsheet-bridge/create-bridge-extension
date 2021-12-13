@@ -49,13 +49,5 @@ describe('options', () => {
     ])('Given DEBUG `%s` return `%s`', (argString, expectedDebug) => {
       expect(options.debug.coerce(argString)).toBe(expectedDebug);
     });
-
-    it.each([
-      ['info', 'info'],
-      ['INFO', 'info'],
-      ['iNfO', 'info'],
-    ])('Given LOGLEVEL `%s` return `%s`', (argString, expectedLoglevel) => {
-      expect(options.loglevel.coerce(argString)).toBe(expectedLoglevel);
-    });
   });
 });

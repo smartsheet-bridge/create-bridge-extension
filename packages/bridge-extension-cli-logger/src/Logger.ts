@@ -80,8 +80,12 @@ export class Logger {
    * The default is `true`.
    */
   public error(error: Error, exit: boolean = true): void {
-    const errString =
-      error instanceof AbstractError ? error.toOut() : error.stack;
+    let errString = error.message;
+    if (error instanceof AbstractError && error.toOut) {
+      errString = error.toOut();
+    } else if (error.stack) {
+      errString = error.stack;
+    }
     const message = this.format(ERROR(errString));
     const cb = exit ? () => process.exit(1) : () => {};
     this.write({ level: 'error', message }, cb);

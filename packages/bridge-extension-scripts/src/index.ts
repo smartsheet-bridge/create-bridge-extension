@@ -28,7 +28,11 @@ if (configSearch && configSearch.config) {
   config = configSearch.config;
 }
 
-const handleFail = (msg: string, err: Error) => Logger.error(err);
+const handleFail = (msg: string, err: Error) => {
+  if (err) {
+    Logger.error(err);
+  }
+};
 
 /**
  * Priority

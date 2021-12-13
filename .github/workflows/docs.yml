@@ -2,9 +2,9 @@ name: docs
 
 on:
   pull_request:
-    branches: [beta]
+    branches: [mainline]
   push:
-    branches: [beta]
+    branches: [mainline]
 
 jobs:
   checks:
@@ -42,7 +42,7 @@ jobs:
           GIT_USER: smartsheet-bridge-team
           GIT_URL: https://github.com/smartsheet-bridge/create-bridge-extension
           BASE_URL: /create-bridge-extension/
-          CURRENT_BRANCH: beta
+          CURRENT_BRANCH: mainline
         run: |
           git config --global user.email "bridge-team@smartsheet.com"
           git config --global user.name "smartsheet-bridge-team"

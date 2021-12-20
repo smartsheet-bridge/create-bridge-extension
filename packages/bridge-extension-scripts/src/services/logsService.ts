@@ -33,7 +33,7 @@ export const createLogsService = ({
   };
 
   const RPCLogs = (hostname: string, caller: any, millisecondsAgo: number) => {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       const client = createGRPCClient(hostname).streamLogs({
         caller,
         fromTimestamp: Date.now() - millisecondsAgo,

@@ -1,5 +1,5 @@
-import { parseAccountURL } from '@smartsheet-bridge/bridge-sdk';
 import { InferredOptionTypes } from 'yargs';
+import { parseAccountURL } from './services/http/utils';
 
 export const RC_NAME = `extension`;
 export const LOGLEVEL_OPTIONS = ['info', 'verbose', 'warn', 'error', 'silent'];

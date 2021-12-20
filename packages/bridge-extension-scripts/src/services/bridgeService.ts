@@ -1,15 +1,15 @@
-import {
-  createHTTPClient,
-  parseAccountURL,
-} from '@smartsheet-bridge/bridge-sdk';
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
+import { createHTTPClient } from './http/httpService';
+import { parseAccountURL } from './http/utils';
 
 export const createBridgeService = (host: string, auth: string) => {
   const debugRequest = Logger.debug('API Request');
   const debugResponse = Logger.debug('API Response');
-  const { accountName, hostName, protocol } = parseAccountURL(host);
+
+  const { protocol, accountName, hostName } = parseAccountURL(host);
+  const baseURL = `${protocol}://${accountName}.${hostName}/api/`;
   const http = createHTTPClient({
-    baseURL: `${protocol}://${accountName}.${hostName}/api/`,
+    baseURL,
     token: auth,
   });
   http.instance.interceptors.request.use(request => {

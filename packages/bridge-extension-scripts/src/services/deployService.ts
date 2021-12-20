@@ -119,7 +119,7 @@ export const createDeployService = ({
   };
 
   const uploadPkg = async (grpc: any, caller: Caller) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const client = grpc.uploadPluginCode((error: any, response: any) => {
         if (response) {
           debug('UPLOAD CODE', 'response', response);

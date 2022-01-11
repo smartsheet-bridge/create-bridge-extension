@@ -16,6 +16,7 @@ module.exports = {
     'Advanced Guides': [
       'advanced/setup',
       'advanced/thunks',
+      'advanced/migration_guide',
       // 'advanced/best_practices',
       // 'advanced/typescript',
       // 'advanced/scripts',

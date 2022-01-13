@@ -14,5 +14,6 @@ export * from './handler';
 export * from './responses/ErrorResponse';
 export * from './responses/ExtensionResponse';
 export * from './transports/httpTransport';
+export * from './transports/lambdaTransport';
 export * from './utils/compose';
 export * from './utils/serializable';

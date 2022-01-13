@@ -60,17 +60,13 @@ describe('integration tests - module', () => {
 
   it('should return NOT_FOUND', async () => {
     const handler = createBridgeHandler({});
-    const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
     const expectedResult = new NotFoundError('Module `abc` does not exist.');
     const res = await serve(handler)(PAYLOAD);
     expect(res).toEqual(expectedResult.toJSON());
-    expect(stderr).toBeCalledTimes(1);
-    expect(stderr).toBeCalledWith(expectedResult);
   });
 
   it('should return BAD_REQUEST', async () => {
     const handler = createBridgeHandler({});
-    const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
     const expectedResult = new BadRequestError(
       'Payload must contain property `moduleId` to execute a module.'
     );
@@ -79,8 +75,6 @@ describe('integration tests - module', () => {
     } = PAYLOAD;
     const res = await serve(handler)({ ...PAYLOAD, payload });
     expect(res).toEqual(expectedResult.toJSON());
-    expect(stderr).toBeCalledTimes(1);
-    expect(stderr).toBeCalledWith(expectedResult);
   });
 
   it.each([
@@ -93,7 +87,6 @@ describe('integration tests - module', () => {
     'should return BAD_RESPONSE for %s',
     async (name, response, type) => {
       const mockFn = jest.fn(() => response);
-      const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
       const expectedResult = new BadModuleResponseError(
         'abc',
         type || typeof response
@@ -105,8 +98,6 @@ describe('integration tests - module', () => {
       });
       const res = await serve(handler)(PAYLOAD);
       expect(res).toEqual(expectedResult.toJSON());
-      expect(stderr).toBeCalledTimes(1);
-      expect(stderr).toBeCalledWith(expectedResult);
     }
   );
 

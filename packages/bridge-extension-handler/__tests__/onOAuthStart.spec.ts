@@ -67,11 +67,8 @@ describe('integration tests - onOAuthStart', () => {
     );
 
     const handler = createBridgeHandler({});
-    const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
     const res = await serve(handler)(BODY);
     expect(res).toEqual(expectedError.toJSON());
-    expect(stderr).toBeCalledTimes(1);
-    expect(stderr).toBeCalledWith(expectedError);
   });
 
   it('should return SUCCESS with no payload', async () => {
@@ -97,7 +94,6 @@ describe('integration tests - onOAuthStart', () => {
     'should return BAD_RESPONSE for %s',
     async (name, response, type) => {
       const mockFn = jest.fn(() => response);
-      const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
       const expectedResult = new BadStartOAuth2ResponseError(
         type || typeof response
       );
@@ -106,8 +102,6 @@ describe('integration tests - onOAuthStart', () => {
       });
       const res = await serve(handler)(BODY);
       expect(res).toEqual(expectedResult.toJSON());
-      expect(stderr).toBeCalledTimes(1);
-      expect(stderr).toBeCalledWith(expectedResult);
     }
   );
 

@@ -16,8 +16,7 @@ This tool is designed to be installed as a devDependency and interacted with thr
     "account": "extension-scripts account",
     "build": "extension-scripts build",
     "deploy": "extension-scripts deploy",
-    "revoke": "extension-scripts revoke",
-    "logs": "extension-scripts logs"
+    "revoke": "extension-scripts revoke"
   }
 }
 ```
@@ -120,22 +119,6 @@ $ extension-scripts deploy [alias] [options]
 | `--exclude`   | Pattern or array of patterns to exclude filenames when packaging for deployment. |
 | `--symlinks`  | Follow symlinks when packaging extension for deployment.                         |
 | `--no-build`  | Prevent the command from running the `build` command first.                      |
-
-### `logs`
-
-This command will stream `console.log` and `console.error` from your extension running on Bridge by Smartsheet platform.
-
-```bash
-$ extension-scripts logs [alias] [options]
-```
-
-| option, alias     | description                                                                      |
-| ----------------- | -------------------------------------------------------------------------------- |
-| `alias`           | Account alias to use. See [Account Aliases](#account-aliases).                   |
-| `--url`           | Account URL to access. See [Authentication](#authentication).                    |
-| `--key`           | Authorized API Key for given account URL. See [Authentication](#authentication). |
-| `--minutes`, `-m` | The number of minutes, in the past, to start streaming logs from.                |
-| `--extension`     | The name of the extension to log. Defaults to current working directory.         |
 
 ### `revoke`
 

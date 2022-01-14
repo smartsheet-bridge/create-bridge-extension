@@ -114,7 +114,6 @@ $ extension-scripts deploy [alias] [options]
 | `alias`       | Account alias to use. See [Account Aliases](#account-aliases).                   |
 | `--url`       | Account URL to access. See [Authentication](#authentication).                    |
 | `--key`       | Authorized API Key for given account URL. See [Authentication](#authentication). |
-| `--env`       | Set environment variables for deployed extension. See [ENV Vars](#env-vars)      |
 | `--include`   | Pattern to include filenames when packaging for deployment.                      |
 | `--exclude`   | Pattern or array of patterns to exclude filenames when packaging for deployment. |
 | `--symlinks`  | Follow symlinks when packaging extension for deployment.                         |
@@ -179,7 +178,7 @@ extensions-scripts deploy --help
 
 :::note
 
-this section describes ENV variables for supplying options in your development environment. See [ENV Vars](#env-vars) for setting runtime environment variables for an extension.
+this section describes ENV variables for supplying options in your development environment.
 
 :::
 
@@ -193,11 +192,7 @@ Options can be configured as part of a configuration file in JSON or YAML.
 
 ```json
 {
-  "url": "https://example.converse.ai",
-  "env": {
-    "MY_FIRST_ENV": "hello",
-    "MY_SECOND_ENV": "world"
-  }
+  "url": "https://example.converse.ai"
 }
 ```
 
@@ -205,9 +200,6 @@ Options can be configured as part of a configuration file in JSON or YAML.
 
 ```yml
 url: https://example.converse.ai
-env:
-  MY_FIRST_ENV: hello
-  MY_SECOND_ENV: world
 ```
 
 :::tip
@@ -224,11 +216,7 @@ Configuration options can also be read from the `extension` property of your `pa
 {
   //...
   "extension": {
-    "url": "https://example.converse.ai",
-    "env": {
-      "MY_FIRST_ENV": "hello",
-      "MY_SECOND_ENV": "world"
-    }
+    "url": "https://example.converse.ai"
   }
 }
 ```
@@ -320,48 +308,5 @@ Debug logs are always stored in the `extension.log` file by default but if you w
 :::note
 
 Changing the `--debug` option does not affect `extension.log` output. All severities of the output log and all debug logs will be printed in this file.
-
-:::
-
-## ENV Vars
-
-:::note
-
-this section describes ENV variables for an extension in a runtime environment. See [Options](#options) for development environment variables for this tool.
-
-:::
-
-When an extension runs in a production platform, it's possible to set environment variables. This is useful for potentially sensitive information like third-party API keys where you don't want to risk storing them in a git repository but also useful for other activities.
-
-To do this you can set them with the `--env` option when using the `deploy` command. These can be accepted in any form that options allow as objects where the key is the environment variable and the value is the value.
-
-**Inline**
-
-```bash
-$ extension-scripts deploy --env=MY_FIRST_ENV:hello --env:MY_SECOND_ENV:world
-```
-
-**JSON**
-
-```json
-{
-  "env": {
-    "MY_FIRST_ENV": "hello",
-    "MY_SECOND_ENV": "world"
-  }
-}
-```
-
-**YAML**
-
-```yml
-env:
-  MY_FIRST_ENV: hello
-  MY_SECOND_ENV: world
-```
-
-:::warning
-
-If using configuration files to set ENV vars for production, please be careful not to commit any code to a git repository.
 
 :::

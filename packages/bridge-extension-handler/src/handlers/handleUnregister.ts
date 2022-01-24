@@ -4,13 +4,12 @@ import {
 } from '@smartsheet-extensions/handler';
 import { Caller } from '../models/Caller';
 import { OAuth2Data } from '../models/OAuth2Data';
-import { AbstractResponse } from '../responses/AbstractResponse';
+import { UnregisterResponse } from '../responses/UnregisterResponse';
 import { BridgeContext, BridgeFunction } from '../types';
 
-// TODO: Change AbstractResponse to UnregisterResponse once built.
 export type UnregisterFunction<
   Settings extends SerializableObject = SerializableObject
-> = BridgeFunction<AbstractResponse, Settings, UnregisterContext<Settings>>;
+> = BridgeFunction<UnregisterResponse, Settings, UnregisterContext<Settings>>;
 
 export interface UnregisterConfig {
   onUnregister?: UnregisterFunction;
@@ -64,7 +63,13 @@ export const handleUnregister = (
           settings,
           oAuthData: providerOAuth,
         }),
-        callback
+        (err?: Error) => {
+          if (err) {
+            callback(err);
+          } else {
+            callback(err, UnregisterResponse.create());
+          }
+        }
       );
     } else {
       next(body, callback);

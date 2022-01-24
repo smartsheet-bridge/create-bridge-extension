@@ -87,9 +87,8 @@ export {
 } from './handlers/handleRegister';
 export {
   handleUnregister,
-  // TODO: Export once built
-  // UnregisterFunction
   UnregisterConfig,
+  UnregisterFunction,
 } from './handlers/handleUnregister';
 export * from './responses';
 

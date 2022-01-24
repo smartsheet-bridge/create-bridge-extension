@@ -1,6 +1,7 @@
 import { createBridgeHandler } from '../src';
 import { UnregisterPayload } from '../src/handlers/handleUnregister';
 import { Caller } from '../src/models/Caller';
+import { UnregisterResponse } from '../src/responses/UnregisterResponse';
 import { serve } from './express';
 
 describe('integration tests - onUnregister', () => {
@@ -52,8 +53,9 @@ describe('integration tests - onUnregister', () => {
     ['OBJECT', { hello: 'world!' }],
   ] as Array<[string, any]>)(
     'should return %s onUnregister response',
-    async (type, expectedResult) => {
-      const mockFn = jest.fn(() => expectedResult);
+    async (type, response) => {
+      const expectedResult = UnregisterResponse.create();
+      const mockFn = jest.fn(() => response);
       const handler = createBridgeHandler({
         onUnregister: mockFn,
       });
@@ -78,14 +80,15 @@ describe('integration tests - onUnregister', () => {
   );
 
   it.each([
-    ['UNDEFINED', undefined, ''],
-    ['THUNK', respond => respond('Hello, World!'), 'Hello, World!'],
-    ['PROMISE', Promise.resolve('Hello, World!'), 'Hello, World!'],
-    ['PROMISE UNDEFINED', Promise.resolve(), ''],
-    ['THUNK UNDEFINED', respond => respond(), ''],
-  ] as Array<[string, any, any]>)(
+    ['UNDEFINED', undefined],
+    ['THUNK', respond => respond('Hello, World!')],
+    ['PROMISE', Promise.resolve('Hello, World!')],
+    ['PROMISE UNDEFINED', Promise.resolve()],
+    ['THUNK UNDEFINED', respond => respond()],
+  ] as Array<[string, any]>)(
     'should return %s onUnregister response',
-    async (type, response, expectedResult) => {
+    async (type, response) => {
+      const expectedResult = UnregisterResponse.create();
       const mockFn = jest.fn(() => response);
       const handler = createBridgeHandler({
         onUnregister: mockFn,

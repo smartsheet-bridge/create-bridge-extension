@@ -5,3 +5,4 @@ export { ModuleResponse } from './ModuleResponse';
 export { RegisterResponse } from './RegisterResponse';
 export { RenewOAuth2TokenResponse } from './RenewOAuth2TokenResponse';
 export { StartOAuth2Response } from './StartOAuth2Response';
+export { UnregisterResponse } from './UnregisterResponse';

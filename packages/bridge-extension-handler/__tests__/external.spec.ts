@@ -62,19 +62,15 @@ describe('integration tests - external', () => {
 
   it('should return NOT_FOUND', async () => {
     const handler = createBridgeHandler({});
-    const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
     const expectedResult = new NotFoundError(
       'External function `abc` does not exist.'
     );
     const res = await serve(handler)(PAYLOAD);
     expect(res).toEqual(expectedResult.toJSON());
-    expect(stderr).toBeCalledTimes(1);
-    expect(stderr).toBeCalledWith(expectedResult);
   });
 
   it('should return BAD_REQUEST', async () => {
     const handler = createBridgeHandler({});
-    const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
     const expectedResult = new BadRequestError(
       'Payload must contain property `call` to execute an external function.'
     );
@@ -83,8 +79,6 @@ describe('integration tests - external', () => {
     } = PAYLOAD;
     const res = await serve(handler)({ ...PAYLOAD, payload });
     expect(res).toEqual(expectedResult.toJSON());
-    expect(stderr).toBeCalledTimes(1);
-    expect(stderr).toBeCalledWith(expectedResult);
   });
 
   it.each([
@@ -101,7 +95,6 @@ describe('integration tests - external', () => {
     'should return BAD_RESPONSE for %s',
     async (name, response, type) => {
       const mockFn = jest.fn(() => response);
-      const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
       const expectedResult = new BadExternalResponseError(
         'abc',
         type || typeof response
@@ -113,8 +106,6 @@ describe('integration tests - external', () => {
       });
       const res = await serve(handler)(PAYLOAD);
       expect(res).toEqual(expectedResult.toJSON());
-      expect(stderr).toBeCalledTimes(1);
-      expect(stderr).toBeCalledWith(expectedResult);
     }
   );
 

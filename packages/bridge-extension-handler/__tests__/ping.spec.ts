@@ -1,5 +1,5 @@
 import { PingPayload } from '@smartsheet-extensions/handler';
-import { createBridgeHandler } from '../lib';
+import { createBridgeHandler } from '../src';
 import { serve } from './express';
 
 describe('integration tests - ping', () => {

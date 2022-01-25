@@ -92,7 +92,6 @@ describe('integration tests - onRegister', () => {
     'should return BAD_RESPONSE for %s',
     async (name, response, type) => {
       const mockFn = jest.fn(() => response);
-      const stderr = jest.spyOn(console, 'error').mockImplementation(() => {});
       const expectedResult = new BadRegisterResponseError(
         type || typeof response
       );
@@ -101,8 +100,6 @@ describe('integration tests - onRegister', () => {
       });
       const res = await serve(handler)(BODY);
       expect(res).toEqual(expectedResult.toJSON());
-      expect(stderr).toBeCalledTimes(1);
-      expect(stderr).toBeCalledWith(expectedResult);
     }
   );
 

@@ -5,7 +5,7 @@ import {
   handlePing,
   handlePromises,
   handleThunks,
-  httpTransport,
+  lambdaTransport,
   toSerializableObject,
   xorHandler,
 } from '@smartsheet-extensions/handler';
@@ -113,7 +113,7 @@ export const createBridgeHandler = (config: BridgeConfiguration) => {
   });
 
   const enhancer = compose(
-    httpTransport,
+    lambdaTransport,
     toSerializableObject,
     handleHasProperty('event'),
     payloadHandler,

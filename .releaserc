@@ -27,6 +27,18 @@
         "preset": "angular",
         "releaseRules": [
           {
+            "breaking": true,
+            "release": "major"
+          },
+          {
+            "revert": true,
+            "release": "patch"
+          },
+          {
+            "tag": "Breaking",
+            "release": "major"
+          },
+          {
             "type": "feat",
             "release": "minor"
           },
@@ -39,12 +51,17 @@
             "release": "patch"
           },
           {
+            "type": "refactor",
+            "release": "patch"
+          },
+          {
             "type": "docs",
             "scope": "README",
             "release": "patch"
           },
           {
-            "type": "refactor",
+            "type": "docs",
+            "scope": "readme",
             "release": "patch"
           },
           {

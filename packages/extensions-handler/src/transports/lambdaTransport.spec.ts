@@ -34,7 +34,9 @@ describe('lambdaEnhancer', () => {
   });
   it('should return error if no `event` or `context` given', () => {
     const fn = createExtensionHandler(lambdaTransport);
-    const expectedErr = new InternalError('Lambda event can not be undefined.');
+    const expectedErr = new InternalError(
+      'Lambda event can not be undefined or null.'
+    );
     expect(() => fn(undefined, undefined, callback)).not.toThrowError();
     expect(callback).toHaveBeenCalledTimes(1);
     expect(callback).toHaveBeenCalledWith(
@@ -45,7 +47,9 @@ describe('lambdaEnhancer', () => {
 
   it('should return error if no `event` given', () => {
     const fn = createExtensionHandler(lambdaTransport);
-    const expectedErr = new InternalError('Lambda event can not be undefined.');
+    const expectedErr = new InternalError(
+      'Lambda event can not be undefined or null.'
+    );
     expect(() => fn(undefined, MOCK_CONTEXT, callback)).not.toThrowError();
     expect(callback).toHaveBeenCalledTimes(1);
     expect(callback).toHaveBeenCalledWith(
@@ -57,7 +61,7 @@ describe('lambdaEnhancer', () => {
   it('should return error if no `context` given', () => {
     const fn = createExtensionHandler(lambdaTransport);
     const expectedErr = new InternalError(
-      'Lambda context can not be undefined.'
+      'Lambda context can not be undefined or null.'
     );
     expect(() => fn(MOCK_EVENT, undefined, callback)).not.toThrowError();
     expect(callback).toHaveBeenCalledTimes(1);

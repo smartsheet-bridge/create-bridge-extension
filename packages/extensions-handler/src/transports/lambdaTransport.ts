@@ -25,12 +25,12 @@ export const lambdaTransport: ExtensionHandlerEnhancer<ExtensionLambdaHandler> =
     };
 
     try {
-      if (event === undefined) {
-        throw new InternalError('Lambda event can not be undefined.');
+      if (event === undefined || event === null) {
+        throw new InternalError('Lambda event can not be undefined or null.');
       }
 
-      if (context === undefined) {
-        throw new InternalError('Lambda context can not be undefined.');
+      if (context === undefined || context === null) {
+        throw new InternalError('Lambda context can not be undefined or null.');
       }
 
       handler(event, (err, result) => {

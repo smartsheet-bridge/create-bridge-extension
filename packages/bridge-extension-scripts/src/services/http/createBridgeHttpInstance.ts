@@ -7,15 +7,9 @@ export const isBridgeHTTPInstance = (
   typeof maybe === 'function' &&
   maybe.defaults !== undefined &&
   maybe.interceptors !== undefined &&
-  maybe.getUri !== undefined &&
-  maybe.request !== undefined &&
   maybe.get !== undefined &&
   maybe.delete !== undefined &&
-  maybe.head !== undefined &&
-  maybe.options !== undefined &&
-  maybe.post !== undefined &&
-  maybe.put !== undefined &&
-  maybe.patch !== undefined;
+  maybe.post !== undefined;
 
 export default (config: BridgeHTTPRequestConfig = {}): BridgeHTTPInstance => {
   const instance = Axios.create(config) as BridgeHTTPInstance;

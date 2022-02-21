@@ -2,9 +2,23 @@ import { BridgeHTTPInstance, BridgeHTTPRequestConfig } from './types';
 import { createAPICall, createAPIModule } from './utils';
 
 export interface Caller {
-  revision: string;
-  pluginUUID: string;
-  installUUID: string;
+  data: {
+    accountID: string;
+    createdAt: string | number;
+    id: string;
+    modifiedAt: string | number;
+    revisionID: string;
+    uploadTo: {
+      uri: string;
+      expiresAt: string | number;
+      method: string;
+    };
+  };
+  links: any;
+  meta: {
+    requestID: string;
+    version: string;
+  };
 }
 
 export interface ExtensionUUIDOptions {
@@ -33,25 +47,25 @@ export const revoke = createAPICall(
   (instance: BridgeHTTPInstance) => (
     { extensionUUID, force = false }: RevokeOptions,
     config: BridgeHTTPRequestConfig = {}
-  ) =>
-    instance.delete(`plugins/remote/${extensionUUID}`, {
-      ...config,
-      params: {
-        ...config.params,
-        force,
-      },
-    })
+  ) => instance.delete(`v2/extensions/${extensionUUID}?force=${force}`, config)
 );
 
 export interface UploadSpecOptions {
   data: any;
+  numericDates?: boolean;
+  force?: boolean;
 }
 
 export const uploadSpec = createAPICall(
   (instance: BridgeHTTPInstance) => (
-    { data }: UploadSpecOptions,
+    { data, numericDates = false, force = false }: UploadSpecOptions,
     config?: BridgeHTTPRequestConfig
-  ) => instance.post<{ uploadRef?: Caller }>(`plugins/remote`, data, config)
+  ) =>
+    instance.post<Caller>(
+      `v2/extensions?numericDates=${numericDates}&force=${force}`,
+      data,
+      config
+    )
 );
 
 export interface ActivateRevisionOptions extends ExtensionUUIDOptions {
@@ -63,16 +77,10 @@ export const activateRevision = createAPICall(
     { extensionUUID, revision }: ActivateRevisionOptions,
     config: BridgeHTTPRequestConfig = {}
   ) =>
-    instance.put<{ uploadRef?: Caller }>(
-      `plugins/remote/${extensionUUID}?activate=${revision}`,
+    instance.post<Caller>(
+      `v2/extensions/${extensionUUID}/revision/${revision}`,
       {},
-      {
-        ...config,
-        params: {
-          ...config.params,
-          activate: revision,
-        },
-      }
+      config
     )
 );
 

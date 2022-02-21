@@ -47,14 +47,7 @@ export const revoke = createAPICall(
   (instance: BridgeHTTPInstance) => (
     { extensionUUID, force = false }: RevokeOptions,
     config: BridgeHTTPRequestConfig = {}
-  ) =>
-    instance.delete(`plugins/remote/${extensionUUID}`, {
-      ...config,
-      params: {
-        ...config.params,
-        force,
-      },
-    })
+  ) => instance.delete(`v2/extensions/${extensionUUID}?force=${force}`, config)
 );
 
 export interface UploadSpecOptions {

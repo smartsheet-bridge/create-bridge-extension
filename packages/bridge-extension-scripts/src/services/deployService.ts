@@ -36,9 +36,9 @@ const VIRTUAL_FILE = '/extension.zip';
 export const createDeployService = ({
   host,
   auth,
-  options: { include, exclude, symlinks, specFile, env },
+  options: { include, exclude, symlinks, specFile },
 }: CreateDeployServiceArgs) => {
-  debug('options', { include, exclude, symlinks, specFile, env });
+  debug('options', { include, exclude, symlinks, specFile });
   const sdk = createBridgeService(host, auth);
 
   const archivePkg = async (): Promise<string> => {
@@ -167,30 +167,6 @@ export const createDeployService = ({
     });
   };
 
-  const setEnvironmentVariables = async (grpc: any, caller: Caller) => {
-    return new Promise((resolve, reject) => {
-      grpc.setPluginPrivateKeys(
-        {
-          caller,
-          keys: env,
-        },
-        (err: any, response: any) => {
-          if (
-            response !== undefined &&
-            response.error !== undefined &&
-            response.error !== null
-          ) {
-            return reject(response.error);
-          }
-          if (err !== undefined && err !== null) {
-            return reject(err);
-          }
-          return resolve();
-        }
-      );
-    });
-  };
-
   const activateRevision = async (caller: Caller) =>
     sdk.extension.activateRevision(
       {
@@ -199,8 +175,6 @@ export const createDeployService = ({
       },
       {}
     );
-
-  const hasENVVars = () => env !== undefined && Object.keys(env).length > 0;
 
   return async () => {
     Logger.start('Authenticating platform');
@@ -229,10 +203,6 @@ export const createDeployService = ({
       await uploadPkg(client, caller);
       Logger.start('Activating revision');
       await activateRevision(caller);
-      if (hasENVVars()) {
-        Logger.start('Setting environment variables');
-        await setEnvironmentVariables(client, caller);
-      }
     }
     Logger.end();
   };

@@ -100,36 +100,25 @@ export const createDeployService = ({
       specificationVersion: 'legacy',
     };
 
-    const response = await sdk.extension.uploadSpec(
-      { data },
-      {
-        // baseURL: 'https://pbhonsle.testing.bridge.smartsheet.com/api/v2/',
-      }
-    );
+    const response = await sdk.extension.uploadSpec({ data });
     return response && response.data;
   };
 
   const uploadPkg = async (caller: Caller) => {
     const stream = vol.createReadStream(VIRTUAL_FILE);
-    // TODO - validate null
-    const response = sdk.instance(caller.Data.uploadTo.uri, {
-      method: caller.Data.uploadTo.method as Method,
+    const { uri, method } = caller!.Data!.uploadTo;
+    const response = sdk.instance(uri, {
+      method: method as Method,
       data: stream,
     });
-    debug('upload response', response);
     return response;
   };
 
   const activateRevision = async (caller: Caller) =>
-    sdk.extension.activateRevision(
-      {
-        extensionUUID: caller.Data.id,
-        revision: caller.Data.revisionID,
-      },
-      {
-        // baseURL: 'https://pbhonsle.testing.bridge.smartsheet.com/api/v2/',
-      }
-    );
+    sdk.extension.activateRevision({
+      extensionUUID: caller.Data.id,
+      revision: caller.Data.revisionID,
+    });
 
   return async () => {
     Logger.start('Authenticating platform');
@@ -146,7 +135,6 @@ export const createDeployService = ({
     Logger.verbose('requestID', Chalk.cyan(caller.Meta.requestID));
     Logger.verbose('version', Chalk.cyan(caller.Meta.version));
 
-    // TODO - Check with Scott
     if (!caller.Data.uploadTo) {
       Logger.end();
       Logger.warn(

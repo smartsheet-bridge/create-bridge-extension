@@ -23,7 +23,6 @@ export interface BridgeHTTPInstance extends AxiosInstance {
     request: AxiosInterceptorManager<BridgeHTTPRequestConfig>;
     response: AxiosInterceptorManager<BridgeHTTPResponse>;
   };
-  getUri(config?: BridgeHTTPRequestConfig): string;
   request<T = any, R = BridgeHTTPResponse<T>>(
     config: BridgeHTTPRequestConfig
   ): Promise<R>;
@@ -35,25 +34,7 @@ export interface BridgeHTTPInstance extends AxiosInstance {
     url: string,
     config?: BridgeHTTPRequestConfig
   ): Promise<R>;
-  head<T = any, R = BridgeHTTPResponse<T>>(
-    url: string,
-    config?: BridgeHTTPRequestConfig
-  ): Promise<R>;
-  options<T = any, R = BridgeHTTPResponse<T>>(
-    url: string,
-    config?: BridgeHTTPRequestConfig
-  ): Promise<R>;
   post<T = any, R = BridgeHTTPResponse<T>>(
-    url: string,
-    data?: any,
-    config?: BridgeHTTPRequestConfig
-  ): Promise<R>;
-  put<T = any, R = BridgeHTTPResponse<T>>(
-    url: string,
-    data?: any,
-    config?: BridgeHTTPRequestConfig
-  ): Promise<R>;
-  patch<T = any, R = BridgeHTTPResponse<T>>(
     url: string,
     data?: any,
     config?: BridgeHTTPRequestConfig

@@ -1,21 +1,16 @@
 /* eslint-disable import/no-dynamic-require */
 /* eslint-disable global-require */
 
-import { Caller, createGRPCClient } from '@smartsheet-bridge/bridge-sdk';
-import {
-  Chalk,
-  Logger,
-  UserError,
-} from '@smartsheet-bridge/extension-cli-logger';
+import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import archiver from 'archiver';
+import { Method } from 'axios';
 import { createHash } from 'crypto';
-import { createReadStream, pathExistsSync } from 'fs-extra';
+import { createReadStream } from 'fs-extra';
 import { vol } from 'memfs';
 import { obj as multistream } from 'multistream';
-import * as Path from 'path';
-import * as semver from 'semver';
-import { getSpec, maskKey } from '../utils';
+import { getSpec } from '../utils';
 import { createBridgeService } from './bridgeService';
+import { Caller } from './http/extension';
 
 const debug = Logger.debug('deployService');
 
@@ -98,112 +93,62 @@ export const createDeployService = ({
   };
 
   const uploadSpec = async (checksum: string): Promise<Caller> => {
-    const spec = getSpec(specFile);
+    const specification = getSpec(specFile);
     const data: Record<string, any> = {
-      ...spec,
-      invoker: { upload: true, checksum },
-      appToken: 'APP_TOKEN',
+      specification,
+      invoker: { checksum },
+      specificationVersion: 'legacy',
     };
 
-    const appTokenPath = Path.resolve(process.cwd(), 'app-token.js');
-    if (pathExistsSync(appTokenPath)) {
-      data.appToken = require(appTokenPath);
-      Logger.verbose('App token', Chalk.cyan(maskKey(data.appToken)));
-    } else {
-      Logger.verbose('App token', 'not included');
-    }
-
     const response = await sdk.extension.uploadSpec({ data });
-
-    return response && response.data && response.data.uploadRef;
+    return response && response.data;
   };
 
-  const uploadPkg = async (grpc: any, caller: Caller) => {
-    return new Promise((resolve, reject) => {
-      const client = grpc.uploadPluginCode((error: any, response: any) => {
-        if (response) {
-          debug('UPLOAD CODE', 'response', response);
-          if (response.error) {
-            return reject(
-              new UserError(
-                `${response.error.httpStatus} ${response.error.code}`,
-                response.error.description
-              )
-            );
-          }
-          if (
-            response.runtimeVersion !== undefined &&
-            semver.clean(response.runtimeVersion) !==
-              semver.clean(process.version)
-          ) {
-            Logger.warn(
-              `Your development environment (Node.js ${process.version}) does not match Bridge by Smartsheet's production environment (Node.js v${response.runtimeVersion})! This may lead to unexpected runtime errors. Please refer to our documentation for more info.`
-            );
-          }
-          return resolve();
-        }
-        if (error) {
-          return reject(new Error(error));
-        }
-        return reject(new Error('Something went wrong!'));
-      });
-      Logger.verbose('Install UUID', Chalk.cyan(caller.installUUID));
-      Logger.verbose('Revision ID', Chalk.cyan(caller.revision));
-      client.write({
-        caller,
-      });
-
-      const stream = vol.createReadStream(VIRTUAL_FILE);
-      stream
-        .on('data', chunk => {
-          Logger.verbose('UPLOAD CODE', `${Chalk.cyan(chunk.length)} Bytes`);
-          client.write({
-            data: chunk,
-          });
-        })
-        .on('end', () => {
-          client.end();
-        });
+  const uploadPkg = async (caller: Caller) => {
+    const stream = vol.createReadStream(VIRTUAL_FILE);
+    const { uri, method } = caller!.data!.uploadTo;
+    const response = sdk.instance(uri, {
+      method: method as Method,
+      data: stream,
     });
+    return response;
   };
 
   const activateRevision = async (caller: Caller) =>
-    sdk.extension.activateRevision(
-      {
-        extensionUUID: caller.pluginUUID,
-        revision: caller.revision,
-      },
-      {}
-    );
+    sdk.extension.activateRevision({
+      extensionUUID: caller.data.id,
+      revision: caller.data.revisionID,
+    });
 
   return async () => {
     Logger.start('Authenticating platform');
-    const {
-      data: {
-        pluginDataService: { domain, port },
-      },
-    } = await sdk.platform.get();
-    Logger.verbose('Platform', Chalk.cyan(`${domain}:${port}`));
+    // TODO: We need an auth endpoint. Temporarily using `platform.get()` to auth before building.
+    await sdk.platform.get();
+
     Logger.start('Bundling extension');
     const checksum = await archivePkg();
     Logger.verbose('checksum', Chalk.cyan(checksum));
+
     Logger.start('Uploading specification');
     const caller = await uploadSpec(checksum);
     debug('caller', caller);
-    if (!caller) {
+    Logger.verbose('requestID', Chalk.cyan(caller.meta.requestID));
+    Logger.verbose('version', Chalk.cyan(caller.meta.version));
+
+    if (!caller.data.uploadTo) {
       Logger.end();
       Logger.warn(
         'Skipping upload!',
         'Extension unchanged since last deployment.'
       );
     } else {
-      Logger.start(`Creating connection`);
-      const client = createGRPCClient(`${domain}:${port}`);
       Logger.start('Uploading bundle');
-      await uploadPkg(client, caller);
+      await uploadPkg(caller);
+
       Logger.start('Activating revision');
       await activateRevision(caller);
     }
+
     Logger.end();
   };
 };

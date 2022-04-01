@@ -57,6 +57,8 @@ describe('integration tests - external', () => {
         reg1: 'reg1',
         reg2: 'reg2',
       },
+      queryParam: { uid: { data: ['uid'] } },
+      formData: { data: { data: ['value'] } },
     },
   };
 
@@ -220,6 +222,12 @@ describe('integration tests - external', () => {
           method: 'GET',
           inboundHeaders: {},
           bodyData,
+          formData: {
+            data: ['value'],
+          },
+          queryParam: {
+            uid: ['uid'],
+          },
         },
         {
           caller: CALLER,

@@ -43,10 +43,10 @@ export interface ExternalPayload {
     call: string;
     registrationData: SerializableObject;
     bodyData: SerializableObject;
-    formData?: Record<string, string[]>;
+    formData?: Record<string, { data: string[] }>;
     inboundHeaders: Record<string, string>;
     method: 'POST' | 'GET' | 'PUT' | 'DELETE';
-    queryParam?: Record<string, string[]>;
+    queryParam?: Record<string, { data: string[] }>;
   };
 }
 
@@ -96,6 +96,24 @@ export const handleExternals = (
     } = body.payload;
     const { caller } = body;
 
+    const formDataFlat: Record<string, string[]> = {};
+    if (formData) {
+      const keys = Object.keys(formData);
+      keys.forEach(key => {
+        const value = formData[key];
+        formDataFlat[key] = value.data;
+      });
+    }
+
+    const queryParamFlat: Record<string, string[]> = {};
+    if (queryParam) {
+      const keys = Object.keys(queryParam);
+      keys.forEach(key => {
+        const value = queryParam[key];
+        queryParamFlat[key] = value.data;
+      });
+    }
+
     if (externalId === undefined) {
       throw new BadRequestError(
         'Payload must contain property `call` to execute an external function.'
@@ -118,8 +136,8 @@ export const handleExternals = (
           bodyData,
           inboundHeaders,
           method,
-          formData,
-          queryParam,
+          formData: formDataFlat,
+          queryParam: queryParamFlat,
         },
         { caller, settings, oAuthData: providerOAuth }
       ),

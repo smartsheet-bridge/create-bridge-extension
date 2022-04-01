@@ -48,6 +48,8 @@ describe('handleExternals', () => {
       inboundHeaders: {},
       method: 'POST',
       registrationData: { key: 'value' },
+      queryParam: { uid: { data: ['UUID'] } },
+      formData: { name: { data: ['name'] } },
     },
   };
 
@@ -158,6 +160,7 @@ describe('handleExternals', () => {
       new BadExternalResponseError('abc', 'undefined')
     );
   });
+
   it('failed when response is non-data object', async () => {
     const config: ExternalsConfig = {
       externals: {
@@ -198,5 +201,41 @@ describe('handleExternals', () => {
         'Payload must contain `event` property and `payload` property.'
       )
     );
+  });
+
+  it('payload conversion', async () => {
+    const externalFunc = jest.fn(() => {
+      return ExternalResponse.create();
+    });
+    const config: ExternalsConfig = {
+      externals: {
+        abc: externalFunc,
+      },
+    };
+    const handler = createExtensionHandler(handleExternals(config));
+    expect(() => handler(PAYLOAD, CALLBACK)).not.toThrow();
+    expect(CALLBACK).toBeCalledWith(null, {
+      status: 0,
+    });
+    const payload = {
+      bodyData: {},
+      formData: {
+        name: ['name'],
+      },
+      inboundHeaders: {},
+      method: 'POST',
+      queryParam: {
+        uid: ['UUID'],
+      },
+    };
+
+    const context = {
+      caller: PAYLOAD.caller,
+      oAuthData: undefined,
+      settings: {
+        key: 'value',
+      },
+    };
+    expect(externalFunc).toBeCalledWith(payload, context);
   });
 });

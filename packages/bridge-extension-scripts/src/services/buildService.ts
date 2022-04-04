@@ -1,10 +1,10 @@
-/* eslint-disable global-require */
-
-import { transformFileSync, TransformOptions } from '@babel/core';
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
+import builder from 'esbuild';
 import { emptyDirSync, outputFileSync } from 'fs-extra';
 import { glob } from 'glob';
 import { format, parse, resolve } from 'path';
+import { emptyDirSync } from 'fs-extra';
+import { resolve } from 'path';
 
 const debug = Logger.debug('buildService');
 
@@ -52,39 +52,25 @@ export const createBuildService = ({
   }
 
   const build = () => {
+    Logger.start('Bundling files');
+    const result = builder.buildSync({
+      // TODO - Detect entrypoint
+      entryPoints: ['src/index.ts'],
+      bundle: true,
+      platform: 'node',
+      target: ['node12'],
+      splitting: false,
+      outdir: outDir,
+      format: 'cjs',
+      minify: true,
+      sourcemap: true,
     const allFiles = glob.sync(include, {
       ignore: exclude,
       cwd: srcDir,
       nodir: true,
     });
-    debug('allFiles', allFiles);
-
-    Logger.start(`Building ${Chalk.cyan(allFiles.length)} files`);
-    allFiles.forEach(fileName => {
-      Logger.verbose(`Building ${Chalk.cyan(fileName)}`);
-      const absSrcPath = resolve(srcDir, fileName);
-      const { name, ext, dir } = parse(fileName);
-      const absOutDir = resolve(outDir, dir);
-      const absOutPath = format({
-        ext: '.js',
-        dir: absOutDir,
-        name,
-      });
-
-      const babelOpts: TransformOptions = {
-        presets: [[require('@babel/preset-env'), { targets: { node: '12' } }]],
-      };
-
-      if (ext === '.ts') {
-        babelOpts.presets.push(require('@babel/preset-typescript'));
-      }
-
-      debug(`Transforming ${Chalk.cyan(name)}`, absSrcPath);
-      const { code } = transformFileSync(absSrcPath, babelOpts);
-
-      debug(`Writing ${Chalk.cyan(name)}`, absOutPath);
-      outputFileSync(absOutPath, code, { encoding: 'utf8' });
-    });
+    debug(`${Chalk.red('Errors')}`, result.errors);
+    debug(`${Chalk.yellow('Warnings')}`, result.warnings);
     Logger.end();
   };
 

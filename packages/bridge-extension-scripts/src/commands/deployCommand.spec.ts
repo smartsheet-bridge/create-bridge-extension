@@ -56,6 +56,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
     expect(mockCreateDeployService).toBeCalledWith({
       host: 'https://extension.example.com',
       auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      buildOut: 'lib',
       options: {
         exclude: [],
         include: '**/**',
@@ -111,6 +112,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
     expect(mockCreateDeployService).toBeCalledWith({
       host: 'https://extension.example.com',
       auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      buildOut: 'testOutDir',
       options: {
         exclude: ['*.ts'],
         include: '*.js',

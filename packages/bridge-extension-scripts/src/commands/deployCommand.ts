@@ -55,14 +55,16 @@ const createDeployHandler = (
   createDeployService: CreateDeployServiceFn,
   createBuildService?: CreateBuildServiceFn
 ) => async (argv: CLIArguments<DeployArguments & BuildArguments>) => {
+  const buildArgs = argvToBuildArgs(argv);
   if (argv.build && createBuildService) {
-    const build = createBuildService(argvToBuildArgs(argv));
+    const build = createBuildService(buildArgs);
     build();
   }
 
   const deploy = createDeployService({
     host: argv.url,
     auth: argv.key,
+    buildOut: buildArgs.out,
     options: {
       exclude: argv.exclude,
       include: argv.include,

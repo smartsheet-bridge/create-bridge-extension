@@ -53,6 +53,7 @@ yargs
   .middleware(middlewareVersionCheck)
   .options(options)
   .command(createAccountCommand(createAccountService))
+  // TODO - Deprecated - Remove build command
   .command(createBuildCommand(createBuildService))
   .command(createDeployCommand(createDeployService, createBuildService))
   .command(createRevokeCommand(createRevokeService))

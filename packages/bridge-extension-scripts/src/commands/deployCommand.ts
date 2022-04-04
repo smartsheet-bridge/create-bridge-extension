@@ -58,7 +58,7 @@ const createDeployHandler = (
   const buildArgs = argvToBuildArgs(argv);
   if (argv.build && createBuildService) {
     const build = createBuildService(buildArgs);
-    build();
+    await build();
   }
 
   const deploy = createDeployService({

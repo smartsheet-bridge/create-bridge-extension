@@ -49,7 +49,7 @@ const createBuildHandler = (createBuildService: CreateBuildServiceFn) => async (
   argv: CLIArguments<BuildArguments>
 ) => {
   const build = createBuildService(argvToBuildArgs(argv));
-  build();
+  await build();
 };
 
 export const createBuildCommand = (

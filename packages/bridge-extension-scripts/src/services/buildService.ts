@@ -1,8 +1,5 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import builder from 'esbuild';
-import { emptyDirSync, outputFileSync } from 'fs-extra';
-import { glob } from 'glob';
-import { format, parse, resolve } from 'path';
 import { emptyDirSync } from 'fs-extra';
 import { resolve } from 'path';
 
@@ -51,27 +48,26 @@ export const createBuildService = ({
     Logger.end();
   }
 
-  const build = () => {
+  const build = async () => {
     Logger.start('Bundling files');
-    const result = builder.buildSync({
-      // TODO - Detect entrypoint
-      entryPoints: ['src/index.ts'],
-      bundle: true,
-      platform: 'node',
-      target: ['node12'],
-      splitting: false,
-      outdir: outDir,
-      format: 'cjs',
-      minify: true,
-      sourcemap: true,
-    const allFiles = glob.sync(include, {
-      ignore: exclude,
-      cwd: srcDir,
-      nodir: true,
-    });
-    debug(`${Chalk.red('Errors')}`, result.errors);
-    debug(`${Chalk.yellow('Warnings')}`, result.warnings);
-    Logger.end();
+    try {
+      const result = await builder.build({
+        // TODO - Detect entrypoint
+        entryPoints: ['src/index.ts'],
+        bundle: true,
+        platform: 'node',
+        target: ['node12'],
+        splitting: false,
+        outdir: outDir,
+        format: 'cjs',
+        minify: true,
+        sourcemap: true,
+      });
+      debug(`${Chalk.red('Errors')}`, result.errors);
+      debug(`${Chalk.yellow('Warnings')}`, result.warnings);
+    } finally {
+      Logger.end();
+    }
   };
 
   return build;

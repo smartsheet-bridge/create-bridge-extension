@@ -15,7 +15,7 @@ const debug = Logger.debug('deployService');
 export interface CreateDeployServiceArgs {
   host: string;
   auth: string;
-  buildOut: string;
+  lib: string;
   options: {
     include: string;
     exclude: string[];
@@ -30,14 +30,14 @@ const VIRTUAL_FILE = '/extension.zip';
 export const createDeployService = ({
   host,
   auth,
-  buildOut,
+  lib,
   options: { include, exclude, symlinks, specFile },
 }: CreateDeployServiceArgs) => {
   debug('options', { include, exclude, symlinks, specFile });
-  debug('out', buildOut);
+  debug('lib', lib);
 
   const cwd = process.cwd();
-  const buildOutDir = resolvePath(cwd, buildOut);
+  const libDir = resolvePath(cwd, lib);
 
   const sdk = createBridgeService(host, auth);
 
@@ -82,12 +82,12 @@ export const createDeployService = ({
 
       debug('include', include);
       debug('exclude', exclude);
-      debug('buildOut', buildOutDir);
+      debug('lib', libDir);
 
       archive.glob(
         include,
         {
-          cwd: buildOutDir,
+          cwd: libDir,
           dot: false,
           ignore: exclude,
           follow: symlinks,

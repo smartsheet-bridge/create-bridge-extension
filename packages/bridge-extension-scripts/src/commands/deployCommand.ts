@@ -39,6 +39,11 @@ const deployArguments = {
       'Build code on deployment. Use `--no-build` to disable this feature.',
     default: true,
   },
+  lib: {
+    type: 'string' as 'string',
+    description: 'Root directory of all the built files.',
+    default: 'lib',
+  },
 };
 
 export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
@@ -51,28 +56,29 @@ const builder: CommandBuilder = yargs => {
     .options({ ...buildArguments, ...deployArguments });
 };
 
+const argvToDeployArgs = (argv: CLIArguments<DeployArguments>) => ({
+  host: argv.url,
+  auth: argv.key,
+  lib: argv.lib,
+  options: {
+    exclude: argv.exclude,
+    include: argv.include,
+    symlinks: argv.symlinks,
+    specFile: argv.specFile,
+    env: argv.env,
+  },
+});
+
 const createDeployHandler = (
   createDeployService: CreateDeployServiceFn,
   createBuildService?: CreateBuildServiceFn
 ) => async (argv: CLIArguments<DeployArguments & BuildArguments>) => {
-  const buildArgs = argvToBuildArgs(argv);
   if (argv.build && createBuildService) {
-    const build = createBuildService(buildArgs);
+    const build = createBuildService(argvToBuildArgs(argv));
     await build();
   }
 
-  const deploy = createDeployService({
-    host: argv.url,
-    auth: argv.key,
-    buildOut: buildArgs.out,
-    options: {
-      exclude: argv.exclude,
-      include: argv.include,
-      symlinks: argv.symlinks,
-      specFile: argv.specFile,
-      env: argv.env,
-    },
-  });
+  const deploy = createDeployService(argvToDeployArgs(argv));
   await deploy();
 };
 

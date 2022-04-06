@@ -1,5 +1,6 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import builder from 'esbuild';
+import copyStaticFiles from 'esbuild-copy-static-files';
 import { emptyDirSync } from 'fs-extra';
 import { resolve } from 'path';
 
@@ -11,6 +12,7 @@ export interface CreateBuildServiceArgs {
   options: {
     include: string;
     exclude: string[];
+    bundlingSkipDeps: string[];
     clean?: boolean;
   };
 }
@@ -18,7 +20,7 @@ export interface CreateBuildServiceArgs {
 export const createBuildService = ({
   src,
   out,
-  options: { include, exclude, clean = true },
+  options: { include, exclude, bundlingSkipDeps, clean = true },
 }: CreateBuildServiceArgs) => {
   /**
    * Disable Browserslist old data warning as otherwise with every release we'd need to update this dependency
@@ -31,7 +33,7 @@ export const createBuildService = ({
   Logger.start('Reading configuration');
   debug('src', src);
   debug('out', out);
-  debug('options', { include, exclude, clean });
+  debug('options', { include, exclude, bundlingSkipDeps, clean });
 
   const cwd = process.cwd();
   const srcDir = resolve(cwd, src);
@@ -40,6 +42,7 @@ export const createBuildService = ({
   Logger.verbose(`Found ${Chalk.green('out')} directory`, Chalk.cyan(outDir));
   debug('Include', Chalk.cyan(include));
   debug('Exclude', exclude.map(excl => `\n  - ${Chalk.cyan(excl)}`).join(''));
+  debug('Static Files', bundlingSkipDeps);
   Logger.end();
 
   if (clean) {
@@ -62,6 +65,20 @@ export const createBuildService = ({
         format: 'cjs',
         minify: true,
         sourcemap: true,
+        external: bundlingSkipDeps,
+        plugins: [
+          ...bundlingSkipDeps
+            .filter(item => !item.startsWith('/') && item.indexOf('..') < 0)
+            .map(dep =>
+              copyStaticFiles({
+                src: resolve('node_modules', dep),
+                dest: resolve(outDir, 'node_modules', dep),
+                dereference: true,
+                errorOnExist: true,
+                recursive: true,
+              })
+            ),
+        ],
       });
       debug(`${Chalk.red('Errors')}`, result.errors);
       debug(`${Chalk.yellow('Warnings')}`, result.warnings);

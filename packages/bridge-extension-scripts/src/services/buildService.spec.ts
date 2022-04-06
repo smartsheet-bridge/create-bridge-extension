@@ -7,6 +7,7 @@ describe('buildService', () => {
         src: 'src',
         out: 'lib',
         options: {
+          bundlingSkipDeps: [],
           exclude: [],
           include: '**/**',
           clean: true,

@@ -26,6 +26,12 @@ export const buildArguments = {
   },
   include,
   exclude,
+  bundlingSkipDeps: {
+    type: 'array' as 'array',
+    description:
+      'Glob patterns for static files to be bundled with Extension code',
+    coerce: (list: any[]): string[] => list.map(l => l.toString()),
+  },
 };
 
 export type BuildConfig = InferArgumentsIn<typeof buildArguments>;
@@ -37,6 +43,7 @@ export const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
   options: {
     exclude: argv.exclude,
     include: argv.include,
+    bundlingSkipDeps: argv.bundlingSkipDeps,
     clean: argv.clean,
   },
 });

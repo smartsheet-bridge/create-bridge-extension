@@ -9,7 +9,7 @@ const STREAM_EXECUTION = 'streamExecution';
 
 const getPayloadFromS3 = async (url: string) => {
   const resp = await axios.get(url);
-  return resp.data(); // (Or whatever)
+  return resp.data;
 };
 
 const putPayloadToS3 = async (url: string, payload: any) => {
@@ -19,7 +19,7 @@ const putPayloadToS3 = async (url: string, payload: any) => {
     headers,
     body: payload,
   });
-  return resp.data(); // (Or whatever)
+  return resp.data;
 };
 
 type S3Execution = {
@@ -50,25 +50,24 @@ const isS3Execution = (payload: any): payload is S3Execution =>
 
 export const handleBigPayLoad: ExtensionHandlerEnhancer = create => () => {
   const handler = create();
-  return (payload, callback) => {
+  return async (payload, callback) => {
     if (isS3Execution(payload)) {
-      getPayloadFromS3(payload.body.getUrl)
-        .then(payloadFronmS3 => {
-          handler(payloadFronmS3, (err, result: any) => {
-            putPayloadToS3(payload.body.postUrl, result)
-              .then(s3Result => {
-                callback(err, s3Result);
-              })
-              .catch(error => {
-                return normalizeError(error);
-              });
-          });
-        })
-        .catch(err => {
+      const payloadFromS3 = await getPayloadFromS3(payload.body.getUrl).catch(
+        err => {
           return normalizeError(err);
+        }
+      );
+      handler(payloadFromS3, async (err, result: any) => {
+        const s3Result = await putPayloadToS3(
+          payload.body.postUrl,
+          result
+        ).catch(error => {
+          return normalizeError(error);
         });
+        callback(err, s3Result);
+      });
     } else if (isStreamExecution(payload)) {
-      handler(payload, (err, result: any) => {
+      handler(payload.body, (err, result: any) => {
         callback(err, result);
       });
     }

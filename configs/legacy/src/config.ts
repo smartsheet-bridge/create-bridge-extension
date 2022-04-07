@@ -9,6 +9,8 @@ const Configuration: CLIConfig = {
     '**/node_modules/**',
     '**/test/**',
   ],
+  build: false,
+  clean: false,
 };
 
 export = Configuration;

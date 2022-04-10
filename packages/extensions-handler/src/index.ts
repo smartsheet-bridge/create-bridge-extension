@@ -4,6 +4,7 @@ export * from './enhancers/handlePromises';
 export * from './enhancers/handleThunks';
 export * from './enhancers/toSerializableObject';
 export * from './enhancers/xorHandler';
+export * from './enhancers/handleBigPayLoad';
 export * from './errors/AbstractError';
 export * from './errors/BadRequestError';
 export * from './errors/ExtensionError';

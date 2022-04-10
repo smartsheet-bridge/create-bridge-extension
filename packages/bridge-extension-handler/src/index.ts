@@ -8,8 +8,8 @@ import {
   lambdaTransport,
   toSerializableObject,
   xorHandler,
+  handleBigPayLoad,
 } from '@smartsheet-extensions/handler';
-import { handleBigPayLoad } from '@smartsheet-extensions/handler/lib/enhancers/handleBigPayLoad';
 import {
   ExternalsConfig,
   EXTERNAL_CALL,

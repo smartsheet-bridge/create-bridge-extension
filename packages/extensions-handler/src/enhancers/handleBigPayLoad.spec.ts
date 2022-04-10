@@ -57,7 +57,6 @@ describe('handleBigPayLoad', () => {
     const enhancerA: ExtensionHandlerEnhancer = create => () => {
       const h = create();
       enhancer1Fn.mockImplementation((payload, callback) => {
-        // callback(null, payload);
         h(payload, callback);
       });
       return enhancer1Fn;
@@ -140,7 +139,6 @@ describe('handleBigPayLoad', () => {
     const enhancerA: ExtensionHandlerEnhancer = create => () => {
       const h = create();
       enhancer1Fn.mockImplementation((payload, callback) => {
-        // callback(null, payload);
         h(payload, callback);
       });
       return enhancer1Fn;

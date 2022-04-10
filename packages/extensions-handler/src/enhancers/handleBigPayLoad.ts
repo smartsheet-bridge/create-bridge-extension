@@ -1,7 +1,6 @@
 // @ts-ignore
 
 import axios from 'axios';
-import { normalizeError } from '../utils/normalizeError';
 import { ExtensionHandlerEnhancer } from '../handler';
 
 const S3_EXECUTION = 's3Execution';
@@ -42,34 +41,40 @@ type StreamExecution = {
     payload: unknown;
   };
 };
-const isStreamExecution = (payload: any): payload is StreamExecution =>
-  payload.meta.type === STREAM_EXECUTION;
+const isStreamExecution = (payload: any): payload is StreamExecution => {
+  if (payload.meta !== undefined && payload.meta.type !== undefined) {
+    return payload.meta.type === STREAM_EXECUTION;
+  }
+};
 
-const isS3Execution = (payload: any): payload is S3Execution =>
-  payload.meta.type === S3_EXECUTION;
-
-export const handleBigPayLoad: ExtensionHandlerEnhancer = create => () => {
-  const handler = create();
-  return async (payload, callback) => {
-    if (isS3Execution(payload)) {
-      const payloadFromS3 = await getPayloadFromS3(payload.body.getUrl).catch(
-        err => {
-          return normalizeError(err);
+const isS3Execution = (payload: any): payload is S3Execution => {
+  if (payload.meta !== undefined && payload.meta.type !== undefined) {
+    return payload.meta.type === S3_EXECUTION;
+  }
+};
+export const handleBigPayLoad: ExtensionHandlerEnhancer = create => {
+  return () => {
+    const handler = create();
+    return async (payload, callback) => {
+      let payloadNext;
+      if (isS3Execution(payload)) {
+        payloadNext = await getPayloadFromS3(payload.body.getUrl);
+      } else if (isStreamExecution(payload)) {
+        payloadNext = payload.body.payload;
+      } else {
+        payloadNext = payload;
+      }
+      handler(payloadNext, (err, result: any) => {
+        if (isStreamExecution(payload)) {
+          callback(err, result);
+        } else if (isS3Execution(payload)) {
+          putPayloadToS3(payload.body.postUrl, result)
+            .then(resultNext => callback(err, resultNext))
+            .catch(callback);
+        } else {
+          callback(err, result);
         }
-      );
-      handler(payloadFromS3, async (err, result: any) => {
-        const s3Result = await putPayloadToS3(
-          payload.body.postUrl,
-          result
-        ).catch(error => {
-          return normalizeError(error);
-        });
-        callback(err, s3Result);
       });
-    } else if (isStreamExecution(payload)) {
-      handler(payload.body, (err, result: any) => {
-        callback(err, result);
-      });
-    }
+    };
   };
 };

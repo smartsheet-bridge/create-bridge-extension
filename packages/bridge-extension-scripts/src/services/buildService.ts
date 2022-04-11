@@ -12,7 +12,7 @@ export interface CreateBuildServiceArgs {
   options: {
     include: string;
     exclude: string[];
-    bundlingSkipDeps: string[];
+    staticDependencies: string[];
     clean?: boolean;
   };
 }
@@ -20,7 +20,7 @@ export interface CreateBuildServiceArgs {
 export const createBuildService = ({
   src,
   out,
-  options: { include, exclude, bundlingSkipDeps, clean = true },
+  options: { include, exclude, staticDependencies, clean = true },
 }: CreateBuildServiceArgs) => {
   /**
    * Disable Browserslist old data warning as otherwise with every release we'd need to update this dependency
@@ -33,7 +33,7 @@ export const createBuildService = ({
   Logger.start('Reading configuration');
   debug('src', src);
   debug('out', out);
-  debug('options', { include, exclude, bundlingSkipDeps, clean });
+  debug('options', { include, exclude, staticDependencies, clean });
 
   const cwd = process.cwd();
   const srcDir = resolve(cwd, src);
@@ -42,7 +42,7 @@ export const createBuildService = ({
   Logger.verbose(`Found ${Chalk.green('out')} directory`, Chalk.cyan(outDir));
   debug('Include', Chalk.cyan(include));
   debug('Exclude', exclude.map(excl => `\n  - ${Chalk.cyan(excl)}`).join(''));
-  debug('Static Files', bundlingSkipDeps);
+  debug('Static Dependencies', staticDependencies);
   Logger.end();
 
   if (clean) {
@@ -65,9 +65,9 @@ export const createBuildService = ({
         format: 'cjs',
         minify: true,
         sourcemap: true,
-        external: bundlingSkipDeps,
+        external: staticDependencies,
         plugins: [
-          ...bundlingSkipDeps
+          ...staticDependencies
             .filter(item => !item.startsWith('/') && item.indexOf('..') < 0)
             .map(dep =>
               copyStaticFiles({

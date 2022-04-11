@@ -52,6 +52,10 @@ describe.each(COMMAND_ALIASES)('buildCommand %s', () => {
         '--exclude',
         'test/exclude/glob2',
         '--no-clean',
+        '--staticDependencies',
+        'dep1',
+        '--staticDependencies',
+        'dep2',
       ])
         .command(createBuildCommand(mockCreateBuildService))
         .parse()

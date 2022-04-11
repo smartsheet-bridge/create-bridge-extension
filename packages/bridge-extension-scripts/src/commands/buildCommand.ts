@@ -26,10 +26,10 @@ export const buildArguments = {
   },
   include,
   exclude,
-  bundlingSkipDeps: {
+  staticDependencies: {
     type: 'array' as 'array',
     description:
-      'Glob patterns for static files to be bundled with Extension code',
+      'Names of dependencies to be bundled with Extension code as-is unprocessed by the bundling tool.',
     coerce: (list: any[]): string[] => list.map(l => l.toString()),
   },
 };
@@ -43,7 +43,7 @@ export const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
   options: {
     exclude: argv.exclude,
     include: argv.include,
-    bundlingSkipDeps: argv.bundlingSkipDeps,
+    staticDependencies: argv.staticDependencies,
     clean: argv.clean,
   },
 });

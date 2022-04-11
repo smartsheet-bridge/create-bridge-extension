@@ -16,7 +16,7 @@ export const buildArguments = {
   out: {
     type: 'string' as 'string',
     default: 'lib',
-    description: 'Root directory of all outputed files.',
+    description: 'Root directory of all outputted files.',
   },
   clean: {
     type: 'boolean' as 'boolean',
@@ -28,9 +28,9 @@ export const buildArguments = {
   exclude,
   staticDependencies: {
     type: 'array' as 'array',
+    default: [] as string[],
     description:
       'Names of dependencies to be bundled with Extension code as-is unprocessed by the bundling tool.',
-    coerce: (list: any[]): string[] => list.map(l => l.toString()),
   },
 };
 

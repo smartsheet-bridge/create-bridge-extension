@@ -17,6 +17,10 @@ export interface CreateBuildServiceArgs {
   };
 }
 
+const isSafePath = (path: string): boolean => {
+  return !path.startsWith('/') && path.indexOf('..') < 0;
+};
+
 export const createBuildService = ({
   src,
   out,
@@ -64,37 +68,35 @@ export const createBuildService = ({
 
   const build = async () => {
     Logger.start('Bundling files');
-    try {
-      const result = await builder.build({
-        entryPoints: [entrypoint],
-        bundle: true,
-        platform: 'node',
-        target: ['node12'],
-        splitting: false,
-        outdir: outDir,
-        format: 'cjs',
-        minify: true,
-        sourcemap: true,
-        external: staticDependencies,
-        plugins: [
-          ...staticDependencies
-            .filter(item => !item.startsWith('/') && item.indexOf('..') < 0)
-            .map(dep =>
-              copyStaticFiles({
-                src: resolve('node_modules', dep),
-                dest: resolve(outDir, 'node_modules', dep),
-                dereference: true,
-                errorOnExist: true,
-                recursive: true,
-              })
-            ),
-        ],
-      });
-      debug(`${Chalk.red('Errors')}`, result.errors);
-      debug(`${Chalk.yellow('Warnings')}`, result.warnings);
-    } finally {
-      Logger.end();
-    }
+
+    const copyStaticDependenciesConfigs: builder.Plugin[] = staticDependencies
+      .filter(isSafePath)
+      .map(dep =>
+        copyStaticFiles({
+          src: resolve('node_modules', dep),
+          dest: resolve(outDir, 'node_modules', dep),
+          dereference: true,
+          errorOnExist: true,
+          recursive: true,
+        })
+      );
+
+    const result = await builder.build({
+      entryPoints: [entrypoint],
+      bundle: true,
+      platform: 'node',
+      target: ['node12'],
+      splitting: false,
+      outdir: outDir,
+      format: 'cjs',
+      minify: true,
+      sourcemap: true,
+      external: staticDependencies,
+      plugins: [...copyStaticDependenciesConfigs],
+    });
+    debug(`${Chalk.red('Errors')}`, result.errors);
+    debug(`${Chalk.yellow('Warnings')}`, result.warnings);
+    Logger.end();
   };
 
   return build;

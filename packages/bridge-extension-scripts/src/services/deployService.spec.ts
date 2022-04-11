@@ -6,7 +6,7 @@ describe('deployService', () => {
       createDeployService({
         host: 'https://extension.example.com',
         auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-        lib: 'lib',
+        out: 'lib',
         options: {
           exclude: [],
           include: '**/**',

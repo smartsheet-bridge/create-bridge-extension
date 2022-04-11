@@ -39,11 +39,7 @@ const deployArguments = {
       'Build code on deployment. Use `--no-build` to disable this feature.',
     default: true,
   },
-  lib: {
-    type: 'string' as 'string',
-    description: 'Root directory of all the built files.',
-    default: 'lib',
-  },
+  out: buildArguments.out,
 };
 
 export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
@@ -59,7 +55,7 @@ const builder: CommandBuilder = yargs => {
 const argvToDeployArgs = (argv: CLIArguments<DeployArguments>) => ({
   host: argv.url,
   auth: argv.key,
-  lib: argv.lib,
+  out: argv.out,
   options: {
     exclude: argv.exclude,
     include: argv.include,

@@ -1,7 +1,7 @@
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import builder from 'esbuild';
 import copyStaticFiles from 'esbuild-copy-static-files';
-import { emptyDirSync } from 'fs-extra';
+import { emptyDirSync, readdirSync } from 'fs-extra';
 import { resolve } from 'path';
 
 const debug = Logger.debug('buildService');
@@ -51,12 +51,22 @@ export const createBuildService = ({
     Logger.end();
   }
 
+  // TODO - Detect entrypoint
+  let entrypoint = '';
+  const srcContents = readdirSync(srcDir);
+  if (srcContents.includes('index.ts')) {
+    entrypoint = resolve(srcDir, 'index.ts');
+  } else if (srcContents.includes('index.js')) {
+    entrypoint = resolve(srcDir, 'index.js');
+  } else {
+    throw new Error('No suitable entrypoint found!');
+  }
+
   const build = async () => {
     Logger.start('Bundling files');
     try {
       const result = await builder.build({
-        // TODO - Detect entrypoint
-        entryPoints: ['src/index.ts'],
+        entryPoints: [entrypoint],
         bundle: true,
         platform: 'node',
         target: ['node12'],

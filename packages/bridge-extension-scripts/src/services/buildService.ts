@@ -2,6 +2,7 @@ import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import builder from 'esbuild';
 import copyStaticFiles from 'esbuild-copy-static-files';
 import { emptyDirSync, readdirSync } from 'fs-extra';
+import { glob } from 'glob';
 import { resolve } from 'path';
 
 const debug = Logger.debug('buildService');
@@ -14,6 +15,7 @@ export interface CreateBuildServiceArgs {
     exclude: string[];
     staticDependencies: string[];
     clean?: boolean;
+    staticAssets: string[];
   };
 }
 
@@ -24,7 +26,7 @@ const isSafePath = (path: string): boolean => {
 export const createBuildService = ({
   src,
   out,
-  options: { include, exclude, staticDependencies, clean = true },
+  options: { include, exclude, staticDependencies, clean = true, staticAssets },
 }: CreateBuildServiceArgs) => {
   /**
    * Disable Browserslist old data warning as otherwise with every release we'd need to update this dependency
@@ -37,7 +39,13 @@ export const createBuildService = ({
   Logger.start('Reading configuration');
   debug('src', src);
   debug('out', out);
-  debug('options', { include, exclude, staticDependencies, clean });
+  debug('options', {
+    include,
+    exclude,
+    staticDependencies,
+    clean,
+    staticAssets,
+  });
 
   const cwd = process.cwd();
   const srcDir = resolve(cwd, src);
@@ -47,6 +55,7 @@ export const createBuildService = ({
   debug('Include', Chalk.cyan(include));
   debug('Exclude', exclude.map(excl => `\n  - ${Chalk.cyan(excl)}`).join(''));
   debug('Static Dependencies', staticDependencies);
+  debug('Static Assets', staticAssets);
   Logger.end();
 
   if (clean) {
@@ -81,6 +90,20 @@ export const createBuildService = ({
         })
       );
 
+    const copyStaticAssetsConfigs: builder.Plugin[] = staticAssets
+      .filter(isSafePath)
+      .map(pattern => glob.sync(pattern, { dot: true }))
+      .reduce((list, sublist) => list.concat(sublist))
+      .map(path =>
+        copyStaticFiles({
+          src: path,
+          dest: resolve(outDir, path),
+          dereference: true,
+          errorOnExist: true,
+          recursive: true,
+        })
+      );
+
     const result = await builder.build({
       entryPoints: [entrypoint],
       bundle: true,
@@ -92,7 +115,7 @@ export const createBuildService = ({
       minify: true,
       sourcemap: true,
       external: staticDependencies,
-      plugins: [...copyStaticDependenciesConfigs],
+      plugins: [...copyStaticDependenciesConfigs, ...copyStaticAssetsConfigs],
     });
     debug(`${Chalk.red('Errors')}`, result.errors);
     debug(`${Chalk.yellow('Warnings')}`, result.warnings);

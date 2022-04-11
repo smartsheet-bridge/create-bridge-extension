@@ -32,6 +32,12 @@ export const buildArguments = {
     description:
       'Names of dependencies to be bundled with Extension code as-is unprocessed by the bundling tool.',
   },
+  staticAssets: {
+    type: 'array' as 'array',
+    default: [] as string[],
+    description:
+      'Glob patterns for static files to be bundled with Extension code. Use to include files not referenced via `require` statements.',
+  },
 };
 
 export type BuildConfig = InferArgumentsIn<typeof buildArguments>;
@@ -45,6 +51,7 @@ export const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
     include: argv.include,
     staticDependencies: argv.staticDependencies,
     clean: argv.clean,
+    staticAssets: argv.staticAssets,
   },
 });
 

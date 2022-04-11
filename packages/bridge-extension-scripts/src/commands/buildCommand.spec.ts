@@ -56,6 +56,10 @@ describe.each(COMMAND_ALIASES)('buildCommand %s', () => {
         'dep1',
         '--staticDependencies',
         'dep2',
+        '--staticAssets',
+        'test/staticAssets/glob1',
+        '--staticAssets',
+        'test/staticAssets/glob2',
       ])
         .command(createBuildCommand(mockCreateBuildService))
         .parse()

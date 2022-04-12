@@ -9,11 +9,51 @@ import type {
   InferArgumentsOut,
 } from '../types';
 import { buildEnvironmentVariables } from '../utils';
-import {
-  argvToBuildArgs,
-  BuildArguments,
-  buildArguments,
-} from './buildCommand';
+
+const buildArguments = {
+  src: {
+    type: 'string' as 'string',
+    default: 'src',
+    description: 'Root directory of all source files.',
+  },
+  out: {
+    type: 'string' as 'string',
+    default: 'lib',
+    description: 'Root directory of all outputted files.',
+  },
+  clean: {
+    type: 'boolean' as 'boolean',
+    default: true,
+    description:
+      'Clean `out` folder before building. Run with `--no-clean` to prevent `out` folder from being deleted before build.',
+  },
+  // include,
+  // exclude,
+  staticDependencies: {
+    type: 'array' as 'array',
+    default: [] as string[],
+    description:
+      'Names of dependencies to be bundled with Extension code as-is unprocessed by the bundling tool.',
+  },
+  staticAssets: {
+    type: 'array' as 'array',
+    default: [] as string[],
+    description:
+      'Glob patterns for static files to be bundled with Extension code. Use to include files not referenced via `require` statements.',
+  },
+};
+
+const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
+  src: argv.src,
+  out: argv.out,
+  options: {
+    // exclude: argv.exclude,
+    // include: argv.include,
+    staticDependencies: argv.staticDependencies,
+    clean: argv.clean,
+    staticAssets: argv.staticAssets,
+  },
+});
 
 const deployArguments = {
   url,
@@ -41,6 +81,9 @@ const deployArguments = {
   },
   out: buildArguments.out,
 };
+
+export type BuildConfig = InferArgumentsIn<typeof buildArguments>;
+type BuildArguments = InferArgumentsOut<typeof buildArguments>;
 
 export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
 type DeployArguments = InferArgumentsOut<typeof deployArguments>;

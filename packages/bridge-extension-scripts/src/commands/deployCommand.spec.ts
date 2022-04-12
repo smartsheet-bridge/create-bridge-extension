@@ -45,8 +45,8 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
       src: 'src',
       out: 'lib',
       options: {
-        exclude: [],
-        include: '**/**',
+        staticAssets: [],
+        staticDependencies: [],
         clean: true,
       },
     });
@@ -56,7 +56,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
     expect(mockCreateDeployService).toBeCalledWith({
       host: 'https://extension.example.com',
       auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      lib: 'lib',
+      out: 'lib',
       options: {
         exclude: [],
         include: '**/**',
@@ -101,8 +101,8 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
       src: 'testSrcDir',
       out: 'testOutDir',
       options: {
-        exclude: ['*.ts'],
-        include: '*.js',
+        staticAssets: [],
+        staticDependencies: [],
         clean: false,
       },
     });
@@ -112,7 +112,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
     expect(mockCreateDeployService).toBeCalledWith({
       host: 'https://extension.example.com',
       auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      lib: 'testOutDir',
+      out: 'testOutDir',
       options: {
         exclude: ['*.ts'],
         include: '*.js',

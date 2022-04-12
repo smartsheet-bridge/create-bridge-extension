@@ -4,7 +4,6 @@ import { Logger } from '@smartsheet-bridge/extension-cli-logger';
 import { cosmiconfigSync as sync } from 'cosmiconfig';
 import yargs from 'yargs';
 import { createAccountCommand } from './commands/accountCommand';
-import { createBuildCommand } from './commands/buildCommand';
 import { createDeployCommand } from './commands/deployCommand';
 import { createRevokeCommand } from './commands/revokeCommand';
 import { middlewareLogger } from './middleware/middlewareLogger';
@@ -53,8 +52,6 @@ yargs
   .middleware(middlewareVersionCheck)
   .options(options)
   .command(createAccountCommand(createAccountService))
-  // TODO - Deprecated - Remove build command
-  .command(createBuildCommand(createBuildService))
   .command(createDeployCommand(createDeployService, createBuildService))
   .command(createRevokeCommand(createRevokeService))
   .demandCommand()

@@ -6,6 +6,13 @@ jest.mock('fs', () => ({
 }));
 
 describe('buildService', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   it('does not break', () => {
     expect(() =>
       createBuildService({
@@ -14,8 +21,6 @@ describe('buildService', () => {
         options: {
           staticDependencies: [],
           staticAssets: [],
-          exclude: [],
-          include: '**/**',
           clean: true,
         },
       })

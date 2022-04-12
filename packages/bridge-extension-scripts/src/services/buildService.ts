@@ -11,11 +11,9 @@ export interface CreateBuildServiceArgs {
   src: string;
   out: string;
   options: {
-    include: string;
-    exclude: string[];
     staticDependencies: string[];
-    clean?: boolean;
     staticAssets: string[];
+    clean?: boolean;
   };
 }
 
@@ -26,7 +24,7 @@ const isSafePath = (path: string): boolean => {
 export const createBuildService = ({
   src,
   out,
-  options: { include, exclude, staticDependencies, clean = true, staticAssets },
+  options: { staticDependencies, staticAssets, clean = true },
 }: CreateBuildServiceArgs) => {
   /**
    * Disable Browserslist old data warning as otherwise with every release we'd need to update this dependency
@@ -40,11 +38,9 @@ export const createBuildService = ({
   debug('src', src);
   debug('out', out);
   debug('options', {
-    include,
-    exclude,
     staticDependencies,
-    clean,
     staticAssets,
+    clean,
   });
 
   const cwd = process.cwd();
@@ -52,10 +48,14 @@ export const createBuildService = ({
   const outDir = resolve(cwd, out);
   Logger.verbose(`Found ${Chalk.green('src')} directory`, Chalk.cyan(srcDir));
   Logger.verbose(`Found ${Chalk.green('out')} directory`, Chalk.cyan(outDir));
-  debug('Include', Chalk.cyan(include));
-  debug('Exclude', exclude.map(excl => `\n  - ${Chalk.cyan(excl)}`).join(''));
-  debug('Static Dependencies', staticDependencies);
-  debug('Static Assets', staticAssets);
+  debug(
+    'Static Dependencies',
+    staticDependencies.map(d => `\n  - ${Chalk.cyan(d)}`).join('')
+  );
+  debug(
+    'Static Assets',
+    staticAssets.map(a => `\n  - ${Chalk.cyan(a)}`).join('')
+  );
   Logger.end();
 
   if (clean) {

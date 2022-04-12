@@ -1,8 +1,8 @@
 import { createBuildService } from './buildService';
 
-jest.mock('fs', () => ({
+jest.mock('fs-extra', () => ({
   emptyDirSync: jest.fn(),
-  readdirSync: jest.fn(),
+  readdirSync: jest.fn().mockReturnValue(['index.ts']),
 }));
 
 describe('buildService', () => {

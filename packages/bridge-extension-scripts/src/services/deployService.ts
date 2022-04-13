@@ -17,8 +17,8 @@ export interface CreateDeployServiceArgs {
   auth: string;
   out: string;
   options: {
-    include: string;
-    exclude: string[];
+    // include: string;
+    // exclude: string[];
     symlinks: boolean;
     specFile?: string;
     env?: { [key: string]: string };
@@ -26,14 +26,16 @@ export interface CreateDeployServiceArgs {
 }
 
 const VIRTUAL_FILE = '/extension.zip';
+const INCLUDE = '**/**';
+const EXCLUDE = '';
 
 export const createDeployService = ({
   host,
   auth,
   out,
-  options: { include, exclude, symlinks, specFile },
+  options: { symlinks, specFile },
 }: CreateDeployServiceArgs) => {
-  debug('options', { include, exclude, symlinks, specFile });
+  debug('options', { symlinks, specFile });
   debug('build-out', out);
 
   const cwd = process.cwd();
@@ -80,15 +82,15 @@ export const createDeployService = ({
 
       archive.pipe(output);
 
-      debug('include', include);
-      debug('exclude', exclude);
+      debug('include', INCLUDE);
+      debug('exclude', EXCLUDE);
 
       archive.glob(
-        include,
+        INCLUDE,
         {
           cwd: buildOutDir,
           dot: false,
-          ignore: exclude,
+          ignore: EXCLUDE,
           follow: symlinks,
         },
         {}

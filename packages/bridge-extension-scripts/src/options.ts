@@ -68,16 +68,18 @@ export const extension = {
   type: 'string' as 'string',
 };
 
-export const include = {
-  type: 'string' as 'string',
-  default: '**/**',
-  description: 'Pattern to include filenames when packaging extension.',
-};
+// TODO - Deprecated
+// export const include = {
+//   type: 'string' as 'string',
+//   default: '**/**',
+//   description: 'Pattern to include filenames when packaging extension.',
+// };
 
-export const exclude = {
-  type: 'string' as 'string',
-  description:
-    'Pattern or array of patterns to exclude filenames when packaging extension.',
-  default: '',
-  coerce: (excl: string | string[]) => ([] as string[]).concat(excl || []),
-};
+// TODO - Deprecated
+// export const exclude = {
+//   type: 'string' as 'string',
+//   description:
+//     'Pattern or array of patterns to exclude filenames when packaging extension.',
+//   default: '',
+//   coerce: (excl: string | string[]) => ([] as string[]).concat(excl || []),
+// };

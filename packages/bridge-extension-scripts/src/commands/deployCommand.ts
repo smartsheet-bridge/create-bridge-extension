@@ -1,6 +1,6 @@
 import { CommandBuilder, CommandModule } from 'yargs';
 import { middlewareAuth } from '../middleware/middlewareAuth';
-import { alias, exclude, include, key, specFile, url } from '../options';
+import { alias, key, specFile, url } from '../options';
 import { CreateBuildServiceFn } from '../services/buildService';
 import { CreateDeployServiceFn } from '../services/deployService';
 import type {
@@ -65,8 +65,8 @@ const deployArguments = {
     description: 'Set environment variables on deployed extension.',
     coerce: buildEnvironmentVariables,
   },
-  include,
-  exclude,
+  // include,
+  // exclude,
   symlinks: {
     type: 'boolean' as 'boolean',
     description: 'Follow symlinks when packaging extension for deployment.',
@@ -100,8 +100,8 @@ const argvToDeployArgs = (argv: CLIArguments<DeployArguments>) => ({
   auth: argv.key,
   out: argv.out,
   options: {
-    exclude: argv.exclude,
-    include: argv.include,
+    // exclude: argv.exclude,
+    // include: argv.include,
     symlinks: argv.symlinks,
     specFile: argv.specFile,
     env: argv.env,

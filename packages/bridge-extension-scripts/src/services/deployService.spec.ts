@@ -8,8 +8,8 @@ describe('deployService', () => {
         auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
         out: 'lib',
         options: {
-          exclude: [],
-          include: '**/**',
+          // exclude: [],
+          // include: '**/**',
           symlinks: false,
           specFile: 'extension.json',
           env: undefined,

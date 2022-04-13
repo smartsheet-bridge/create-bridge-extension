@@ -85,13 +85,13 @@ describe('handleBigPayLoad', () => {
     mockedAxios.get.mockResolvedValueOnce(MOCKED_GET_RESPONSE);
     const extensibleHandler = createExtensionHandler(enhancer);
     extensibleHandler(TEST_PAYLOAD_S3, () => {
+      expect(enhancer1Fn).toHaveBeenCalledTimes(1);
+      expect(enhancer1Fn).toHaveBeenCalledWith(
+        MOCKED_S3_GET_RESPONSE,
+        expect.anything()
+      );
       done();
     });
-    expect(enhancer1Fn).toHaveBeenCalledTimes(1);
-    expect(enhancer1Fn).toHaveBeenCalledWith(
-      MOCKED_S3_GET_RESPONSE,
-      expect.anything()
-    );
   });
 
   it('callback result should be the post result for s3 execution ', done => {

@@ -8,7 +8,6 @@ import type {
   InferArgumentsIn,
   InferArgumentsOut,
 } from '../types';
-import { buildEnvironmentVariables } from '../utils';
 
 const buildArguments = {
   src: {
@@ -59,12 +58,6 @@ const deployArguments = {
   url,
   key,
   specFile,
-  env: {
-    type: 'array' as 'array',
-    string: true as true,
-    description: 'Set environment variables on deployed extension.',
-    coerce: buildEnvironmentVariables,
-  },
   // include,
   // exclude,
   symlinks: {
@@ -104,7 +97,6 @@ const argvToDeployArgs = (argv: CLIArguments<DeployArguments>) => ({
     // include: argv.include,
     symlinks: argv.symlinks,
     specFile: argv.specFile,
-    env: argv.env,
   },
 });
 

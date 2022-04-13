@@ -21,7 +21,6 @@ export interface CreateDeployServiceArgs {
     // exclude: string[];
     symlinks: boolean;
     specFile?: string;
-    env?: { [key: string]: string };
   };
 }
 

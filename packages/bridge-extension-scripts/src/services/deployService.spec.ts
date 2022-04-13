@@ -12,7 +12,6 @@ describe('deployService', () => {
           // include: '**/**',
           symlinks: false,
           specFile: 'extension.json',
-          env: undefined,
         },
       })
     ).not.toThrow();

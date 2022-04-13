@@ -126,7 +126,6 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         // include: '*.js',
         symlinks: true,
         specFile: 'abc.txt',
-        env: undefined,
       },
     });
     expect(mockDeploy).toBeCalledTimes(1);

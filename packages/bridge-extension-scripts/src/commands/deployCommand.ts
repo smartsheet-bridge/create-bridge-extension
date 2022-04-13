@@ -83,10 +83,10 @@ const deployArguments = {
 };
 
 export type BuildConfig = InferArgumentsIn<typeof buildArguments>;
-type BuildArguments = InferArgumentsOut<typeof buildArguments>;
+export type BuildArguments = InferArgumentsOut<typeof buildArguments>;
 
 export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
-type DeployArguments = InferArgumentsOut<typeof deployArguments>;
+export type DeployArguments = InferArgumentsOut<typeof deployArguments>;
 
 const builder: CommandBuilder = yargs => {
   return yargs
@@ -108,7 +108,7 @@ const argvToDeployArgs = (argv: CLIArguments<DeployArguments>) => ({
   },
 });
 
-const createDeployHandler = (
+export const createDeployHandler = (
   createDeployService: CreateDeployServiceFn,
   createBuildService?: CreateBuildServiceFn
 ) => async (argv: CLIArguments<DeployArguments & BuildArguments>) => {

@@ -4,7 +4,13 @@ import { KeyNotFoundError } from '../errors/KeyNotFoundError';
 import { URLNotFoundError } from '../errors/URLNotFoundError';
 import { CreateBuildServiceFn } from '../services/buildService';
 import { CreateDeployServiceFn } from '../services/deployService';
-import { createDeployCommand } from './deployCommand';
+import { CLIArguments } from '../types';
+import {
+  BuildArguments,
+  createDeployCommand,
+  createDeployHandler,
+  DeployArguments,
+} from './deployCommand';
 
 const COMMAND_ALIASES = ['deploy', 'd', 'publish'];
 const spyError = jest.spyOn(Logger, 'error');
@@ -23,22 +29,24 @@ afterEach(() => {
 afterAll(() => {
   jest.restoreAllMocks();
 });
+
 describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
-  it('Will deploy successfully w/ defaults', () => {
-    expect(() =>
-      yargs([
-        cmd,
-        '--url',
-        'https://extension.example.com',
-        '--key',
-        'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      ])
-        .command(
-          createDeployCommand(mockCreateDeployService, mockCreateBuildService)
-        )
-        .exitProcess(false)
-        .parse()
-    ).not.toThrow();
+  it('Will deploy successfully w/ defaults', async () => {
+    const argv = getArgv([
+      cmd,
+      '--url',
+      'https://extension.example.com',
+      '--key',
+      'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+    ]);
+
+    const sut = createDeployHandler(
+      mockCreateDeployService,
+      mockCreateBuildService
+    );
+
+    await sut(argv);
+
     expect(spyError).not.toHaveBeenCalled();
     expect(mockCreateBuildService).toBeCalledTimes(1);
     expect(mockCreateBuildService).toBeCalledWith({
@@ -62,39 +70,39 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         include: '**/**',
         symlinks: false,
         specFile: 'extension.json',
-        env: undefined,
       },
     });
     expect(mockDeploy).toBeCalledTimes(1);
   });
 
-  it('Will deploy successfully w/ args', () => {
-    expect(() =>
-      yargs([
-        cmd,
-        '--url',
-        'https://extension.example.com',
-        '--key',
-        'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-        '--include',
-        '*.js',
-        '--exclude',
-        '*.ts',
-        '--specFile',
-        'abc.txt',
-        '--symlinks',
-        '--src',
-        'testSrcDir',
-        '--out',
-        'testOutDir',
-        '--no-clean',
-      ])
-        .command(
-          createDeployCommand(mockCreateDeployService, mockCreateBuildService)
-        )
-        .exitProcess(false)
-        .parse()
-    ).not.toThrow();
+  it('Will deploy successfully w/ args', async () => {
+    const argv = getArgv([
+      COMMAND_ALIASES[0],
+      '--url',
+      'https://extension.example.com',
+      '--key',
+      'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      '--include',
+      '*.js',
+      '--exclude',
+      '*.ts',
+      '--specFile',
+      'abc.txt',
+      '--symlinks',
+      '--src',
+      'testSrcDir',
+      '--out',
+      'testOutDir',
+      '--no-clean',
+    ]);
+
+    const sut = createDeployHandler(
+      mockCreateDeployService,
+      mockCreateBuildService
+    );
+
+    await sut(argv);
+
     expect(spyError).not.toHaveBeenCalled();
     expect(mockCreateBuildService).toBeCalledTimes(1);
     expect(mockCreateBuildService).toBeCalledWith({
@@ -124,6 +132,99 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
     expect(mockDeploy).toBeCalledTimes(1);
   });
 
+  it('Will not build w/ --no-build', async () => {
+    const argv = getArgv([
+      cmd,
+      '--url',
+      'https://extension.example.com',
+      '--key',
+      'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      '--no-build',
+    ]);
+
+    const sut = createDeployHandler(
+      mockCreateDeployService,
+      mockCreateBuildService
+    );
+
+    await sut(argv);
+
+    expect(spyError).not.toHaveBeenCalled();
+    expect(mockCreateBuildService).not.toHaveBeenCalled();
+    expect(mockBuild).not.toHaveBeenCalled();
+    expect(mockCreateDeployService).toBeCalledTimes(1);
+    expect(mockDeploy).toBeCalledTimes(1);
+  });
+
+  it('Will not build w/o buildService', async () => {
+    const argv = getArgv([
+      cmd,
+      '--url',
+      'https://extension.example.com',
+      '--key',
+      'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      '--no-build',
+    ]);
+
+    const sut = createDeployHandler(mockCreateDeployService);
+
+    await sut(argv);
+
+    expect(spyError).not.toHaveBeenCalled();
+    expect(mockCreateBuildService).not.toHaveBeenCalled();
+    expect(mockBuild).not.toHaveBeenCalled();
+    expect(mockCreateDeployService).toBeCalledTimes(1);
+    expect(mockDeploy).toBeCalledTimes(1);
+  });
+});
+
+describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
+  it('Will deploy successfully w/ defaults', () => {
+    expect(() => {
+      yargs([
+        cmd,
+        '--url',
+        'https://extension.example.com',
+        '--key',
+        'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      ])
+        .command(
+          createDeployCommand(mockCreateDeployService, mockCreateBuildService)
+        )
+        .exitProcess(false)
+        .parse();
+    }).not.toThrow();
+  });
+
+  it('Will deploy successfully w/ args', () => {
+    expect(() => {
+      yargs([
+        cmd,
+        '--url',
+        'https://extension.example.com',
+        '--key',
+        'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+        '--include',
+        '*.js',
+        '--exclude',
+        '*.ts',
+        '--specFile',
+        'abc.txt',
+        '--symlinks',
+        '--src',
+        'testSrcDir',
+        '--out',
+        'testOutDir',
+        '--no-clean',
+      ])
+        .command(
+          createDeployCommand(mockCreateDeployService, mockCreateBuildService)
+        )
+        .exitProcess(false)
+        .parse();
+    }).not.toThrow();
+  });
+
   it('Will not build w/ --no-build', () => {
     expect(() =>
       yargs([
@@ -140,11 +241,6 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         .exitProcess(false)
         .parse()
     ).not.toThrow();
-    expect(spyError).not.toHaveBeenCalled();
-    expect(mockCreateBuildService).not.toHaveBeenCalled();
-    expect(mockBuild).not.toHaveBeenCalled();
-    expect(mockCreateDeployService).toBeCalledTimes(1);
-    expect(mockDeploy).toBeCalledTimes(1);
   });
 
   it('Will not build w/o buildService', () => {
@@ -161,11 +257,6 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         .exitProcess(false)
         .parse()
     ).not.toThrow();
-    expect(spyError).not.toHaveBeenCalled();
-    expect(mockCreateBuildService).not.toHaveBeenCalled();
-    expect(mockBuild).not.toHaveBeenCalled();
-    expect(mockCreateDeployService).toBeCalledTimes(1);
-    expect(mockDeploy).toBeCalledTimes(1);
   });
 
   it('Will fail to deploy when no url given', () => {
@@ -190,3 +281,19 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
     ).toThrowError(new KeyNotFoundError('account abc'));
   });
 });
+
+function getArgv(args: string[]) {
+  const stubCreateDeployService: CreateDeployServiceFn = jest.fn(() => {
+    return jest.fn(() => Promise.resolve()) as ReturnType<
+      CreateDeployServiceFn
+    >;
+  });
+
+  const stubCreateBuildService: CreateBuildServiceFn = jest.fn(() => {
+    return jest.fn(() => Promise.resolve()) as ReturnType<CreateBuildServiceFn>;
+  });
+
+  return yargs(args).command(
+    createDeployCommand(stubCreateDeployService, stubCreateBuildService)
+  ).argv as CLIArguments<DeployArguments & BuildArguments>;
+}

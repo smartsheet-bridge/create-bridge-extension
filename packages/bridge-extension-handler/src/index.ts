@@ -48,6 +48,7 @@ import {
 
 export {
   ErrorResponse,
+  ExtensionError,
   ExtensionResponse,
   ExtensionStatus,
   SerializableArray,

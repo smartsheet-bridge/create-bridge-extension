@@ -55,26 +55,22 @@ const isS3Execution = (payload: any): payload is S3Execution => {
 export const handleBigPayLoad: ExtensionHandlerEnhancer = create => {
   return () => {
     const handler = create();
-    return async (payload, callback) => {
-      let payloadNext;
+    return (payload, callback) => {
       if (isS3Execution(payload)) {
-        payloadNext = await getPayloadFromS3(payload.body.getUrl);
+        getPayloadFromS3(payload.body.getUrl)
+          .then(resultFromS3 => {
+            handler(resultFromS3, (err, result: any) => {
+              putPayloadToS3(payload.body.postUrl, result)
+                .then(resultNext => callback(err, resultNext))
+                .catch(callback);
+            });
+          })
+          .catch(callback);
       } else if (isStreamExecution(payload)) {
-        payloadNext = payload.body.payload;
+        handler(payload.body.payload, callback);
       } else {
-        payloadNext = payload;
+        handler(payload, callback);
       }
-      handler(payloadNext, (err, result: any) => {
-        if (isStreamExecution(payload)) {
-          callback(err, result);
-        } else if (isS3Execution(payload)) {
-          putPayloadToS3(payload.body.postUrl, result)
-            .then(resultNext => callback(err, resultNext))
-            .catch(callback);
-        } else {
-          callback(err, result);
-        }
-      });
     };
   };
 };

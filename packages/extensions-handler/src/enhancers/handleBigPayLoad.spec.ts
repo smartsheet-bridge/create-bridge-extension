@@ -72,7 +72,7 @@ describe('handleBigPayLoad', () => {
     expect(cb).toHaveBeenCalledWith(null, STREAM_PAYLOAD);
   });
 
-  it('should have payload from the S3 presigned url ', async () => {
+  it('should have payload from the S3 presigned url ', async done => {
     const enhancer1Fn = jest.fn();
     const enhancerA: ExtensionHandlerEnhancer = create => () => {
       const h = create();
@@ -84,8 +84,9 @@ describe('handleBigPayLoad', () => {
     const enhancer = compose(handleBigPayLoad, enhancerA);
     mockedAxios.get.mockResolvedValueOnce(MOCKED_GET_RESPONSE);
     const extensibleHandler = createExtensionHandler(enhancer);
-    const cb = jest.fn();
-    await extensibleHandler(TEST_PAYLOAD_S3, cb);
+    extensibleHandler(TEST_PAYLOAD_S3, () => {
+      done();
+    });
     expect(enhancer1Fn).toHaveBeenCalledTimes(1);
     expect(enhancer1Fn).toHaveBeenCalledWith(
       MOCKED_S3_GET_RESPONSE,
@@ -105,13 +106,14 @@ describe('handleBigPayLoad', () => {
     });
   });
 
-  it('should result in error if not able to get payload from s3', async () => {
+  it('should result in error if not able to get payload from s3', async done => {
     const expectedError = new Error('cant read from s3');
     mockedAxios.get.mockRejectedValueOnce(expectedError);
     const extensibleHandler = createExtensionHandler(handleBigPayLoad);
-    await expect(() =>
-      extensibleHandler(TEST_PAYLOAD_S3, () => {})
-    ).rejects.toThrowError(expectedError);
+    extensibleHandler(TEST_PAYLOAD_S3, err => {
+      expect(err).toEqual(expectedError);
+      done();
+    });
   });
 
   it('should result in error if not able to put payload into s3', async done => {

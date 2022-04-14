@@ -46,6 +46,11 @@ const buildArguments = {
     default: false,
     coerce: (ln?: boolean) => (ln !== undefined ? ln : false),
   },
+  entrypoint: {
+    type: 'string' as 'string',
+    default: 'src/index.ts',
+    description: 'Entrypoint for main extension function.',
+  },
 };
 
 const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
@@ -58,6 +63,7 @@ const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
     clean: argv.clean,
     staticAssets: argv.staticAssets,
     symlinks: argv.symlinks,
+    entrypoint: argv.entrypoint,
   },
 });
 

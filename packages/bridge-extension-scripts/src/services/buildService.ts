@@ -15,6 +15,7 @@ export interface CreateBuildServiceArgs {
     staticAssets: string[];
     clean?: boolean;
     symlinks?: boolean;
+    entrypoint: string;
   };
 }
 
@@ -25,7 +26,13 @@ const isSafePath = (path: string): boolean => {
 export const createBuildService = ({
   src,
   out,
-  options: { staticDependencies, staticAssets, clean = true, symlinks = false },
+  options: {
+    staticDependencies,
+    staticAssets,
+    clean = true,
+    symlinks = false,
+    entrypoint,
+  },
 }: CreateBuildServiceArgs) => {
   /**
    * Disable Browserslist old data warning as otherwise with every release we'd need to update this dependency
@@ -67,14 +74,19 @@ export const createBuildService = ({
   }
 
   // TODO - Detect entrypoint
-  let entrypoint = '';
-  const srcContents = readdirSync(srcDir);
-  if (srcContents.includes('index.ts')) {
-    entrypoint = resolve(srcDir, 'index.ts');
-  } else if (srcContents.includes('index.js')) {
-    entrypoint = resolve(srcDir, 'index.js');
+  debug(entrypoint);
+  let script = '';
+  if (entrypoint && isSafePath(entrypoint)) {
+    script = entrypoint;
   } else {
-    throw new Error('No suitable entrypoint found!');
+    const srcContents = readdirSync(srcDir);
+    if (srcContents.includes('index.ts')) {
+      script = resolve(srcDir, 'index.ts');
+    } else if (srcContents.includes('index.js')) {
+      script = resolve(srcDir, 'index.js');
+    } else {
+      throw new Error('No suitable entrypoint found!');
+    }
   }
 
   const build = async () => {
@@ -107,7 +119,7 @@ export const createBuildService = ({
       );
 
     const result = await builder.build({
-      entryPoints: [entrypoint],
+      entryPoints: [script],
       bundle: true,
       platform: 'node',
       target: ['node12'],

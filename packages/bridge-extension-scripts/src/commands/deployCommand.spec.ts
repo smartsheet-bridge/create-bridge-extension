@@ -57,6 +57,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         staticDependencies: [],
         clean: true,
         symlinks: false,
+        entrypoint: 'src/index.ts',
       },
     });
     expect(mockBuild).toBeCalledTimes(1);
@@ -96,6 +97,8 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
       'testOutDir',
       '--no-clean',
       '--no-symlinks',
+      '--entrypoint',
+      'abc',
     ]);
 
     const sut = createDeployHandler(
@@ -115,6 +118,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         staticDependencies: [],
         clean: false,
         symlinks: false,
+        entrypoint: 'abc',
       },
     });
     expect(mockBuild).toBeCalledTimes(1);

@@ -23,6 +23,7 @@ describe('createBuildService', () => {
           staticAssets: [],
           clean: true,
           symlinks: false,
+          entrypoint: 'src/index.ts',
         },
       })
     ).not.toThrow();

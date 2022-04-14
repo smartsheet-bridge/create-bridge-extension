@@ -14,6 +14,7 @@ export interface CreateBuildServiceArgs {
     staticDependencies: string[];
     staticAssets: string[];
     clean?: boolean;
+    symlinks?: boolean;
   };
 }
 
@@ -24,7 +25,7 @@ const isSafePath = (path: string): boolean => {
 export const createBuildService = ({
   src,
   out,
-  options: { staticDependencies, staticAssets, clean = true },
+  options: { staticDependencies, staticAssets, clean = true, symlinks = false },
 }: CreateBuildServiceArgs) => {
   /**
    * Disable Browserslist old data warning as otherwise with every release we'd need to update this dependency
@@ -41,6 +42,7 @@ export const createBuildService = ({
     staticDependencies,
     staticAssets,
     clean,
+    symlinks,
   });
 
   const cwd = process.cwd();
@@ -84,7 +86,7 @@ export const createBuildService = ({
         copyStaticFiles({
           src: resolve('node_modules', dep),
           dest: resolve(outDir, 'node_modules', dep),
-          dereference: true,
+          dereference: symlinks,
           errorOnExist: true,
           recursive: true,
         })
@@ -98,7 +100,7 @@ export const createBuildService = ({
         copyStaticFiles({
           src: path,
           dest: resolve(outDir, path),
-          dereference: true,
+          dereference: symlinks,
           errorOnExist: true,
           recursive: true,
         })

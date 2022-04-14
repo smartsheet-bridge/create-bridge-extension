@@ -5,7 +5,7 @@ jest.mock('fs-extra', () => ({
   readdirSync: jest.fn().mockReturnValue(['index.ts']),
 }));
 
-describe('buildService', () => {
+describe('createBuildService', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -22,6 +22,7 @@ describe('buildService', () => {
           staticDependencies: [],
           staticAssets: [],
           clean: true,
+          symlinks: false,
         },
       })
     ).not.toThrow();

@@ -56,6 +56,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         staticAssets: [],
         staticDependencies: [],
         clean: true,
+        symlinks: false,
       },
     });
     expect(mockBuild).toBeCalledTimes(1);
@@ -94,6 +95,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
       '--out',
       'testOutDir',
       '--no-clean',
+      '--no-symlinks',
     ]);
 
     const sut = createDeployHandler(
@@ -112,6 +114,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         staticAssets: [],
         staticDependencies: [],
         clean: false,
+        symlinks: false,
       },
     });
     expect(mockBuild).toBeCalledTimes(1);
@@ -124,7 +127,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
       options: {
         // exclude: ['*.ts'],
         // include: '*.js',
-        symlinks: true,
+        symlinks: false,
         specFile: 'abc.txt',
       },
     });
@@ -215,6 +218,7 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
         '--out',
         'testOutDir',
         '--no-clean',
+        '--symlinks',
       ])
         .command(
           createDeployCommand(mockCreateDeployService, mockCreateBuildService)

@@ -40,6 +40,12 @@ const buildArguments = {
     description:
       'Glob patterns for static files to be bundled with Extension code. Use to include files not referenced via `require` statements.',
   },
+  symlinks: {
+    type: 'boolean' as 'boolean',
+    description: 'Follow symlinks when packaging extension for deployment.',
+    default: false,
+    coerce: (ln?: boolean) => (ln !== undefined ? ln : false),
+  },
 };
 
 const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
@@ -51,6 +57,7 @@ const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
     staticDependencies: argv.staticDependencies,
     clean: argv.clean,
     staticAssets: argv.staticAssets,
+    symlinks: argv.symlinks,
   },
 });
 
@@ -60,12 +67,6 @@ const deployArguments = {
   specFile,
   // include,
   // exclude,
-  symlinks: {
-    type: 'boolean' as 'boolean',
-    description: 'Follow symlinks when packaging extension for deployment.',
-    default: false,
-    coerce: (ln?: boolean) => (ln !== undefined ? ln : false),
-  },
   build: {
     type: 'boolean' as 'boolean',
     description:
@@ -73,6 +74,7 @@ const deployArguments = {
     default: true,
   },
   out: buildArguments.out,
+  symlinks: buildArguments.symlinks,
 };
 
 export type BuildConfig = InferArgumentsIn<typeof buildArguments>;

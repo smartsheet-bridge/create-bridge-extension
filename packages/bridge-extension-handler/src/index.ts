@@ -8,6 +8,7 @@ import {
   lambdaTransport,
   toSerializableObject,
   xorHandler,
+  handleBigPayLoad,
 } from '@smartsheet-extensions/handler';
 import {
   ExternalsConfig,
@@ -115,6 +116,7 @@ export const createBridgeHandler = (config: BridgeConfiguration) => {
 
   const enhancer = compose(
     lambdaTransport,
+    handleBigPayLoad,
     toSerializableObject,
     handleHasProperty('event'),
     payloadHandler,

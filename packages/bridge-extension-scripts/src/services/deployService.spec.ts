@@ -1,16 +1,62 @@
+import Axios, { AxiosStatic } from 'axios';
 import mockFs from 'mock-fs';
 import { createBridgeService } from './bridgeService';
 import { createDeployService } from './deployService';
+import * as httpExtension from './http/extension';
+import { activateRevision, uploadSpec } from './http/extension';
+import { get } from './http/platform';
+import { BridgeHTTPInstance } from './http/types';
 
-jest.mock('./bridgeService', () => {
-  const originalModule = jest.requireActual('./bridgeService');
+jest.mock('axios', () => {
+  const originalModule = jest.requireActual('axios') as AxiosStatic;
+  const instance = jest.fn();
+  return {
+    __esModule: true,
+    default: {
+      ...originalModule,
+      create: jest.fn().mockReturnValue(instance),
+    },
+  };
+});
+jest.mock('./http/httpService', () => ({
+  __esModule: true,
+  createHTTPClient: jest.fn().mockReturnValue(Axios.create()),
+}));
+jest.mock('./http/createBridgeHttpInstance', () => ({
+  __esModule: true,
+  isBridgeHTTPInstance: jest.fn().mockReturnValue(true),
+  default: jest.fn(() => Axios.create() as BridgeHTTPInstance),
+}));
+jest.mock('./http/extension', () => {
+  const originalModule = jest.requireActual('./http/extension');
   return {
     __esModule: true,
     ...originalModule,
-    createBridgeService: jest.fn((host, auth) => ({
-      instance: { host, auth },
-      extension: { uploadSpec: jest.fn() },
-      platform: { get: jest.fn() },
+    activateRevision: jest.fn(() => Promise.resolve()),
+    uploadSpec: jest.fn(() =>
+      Promise.resolve({
+        data: {
+          data: {
+            uploadTo: { uri: 'https://upload.example.com', method: 'PIGEON' },
+          },
+          meta: { requestID: '', version: '' },
+        },
+      })
+    ),
+  };
+});
+jest.mock('./http/platform');
+jest.mock('./bridgeService', () => {
+  const mockInstance = jest.fn();
+  return {
+    __esModule: true,
+    createBridgeService: jest.fn(() => ({
+      instance: mockInstance,
+      extension: {
+        uploadSpec,
+        activateRevision,
+      },
+      platform: { get },
     })),
   };
 });
@@ -70,7 +116,7 @@ describe('deploy', () => {
     jest.restoreAllMocks();
   });
 
-  it.skip('authenticates by calling sdk.platform.get()', async () => {
+  it('authenticates by calling sdk.platform.get()', async () => {
     const sut = createDeployService({
       host: 'https://extension.example.com',
       auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
@@ -82,25 +128,89 @@ describe('deploy', () => {
 
     await expect(
       sut().then(() => {
-        expect(
-          createBridgeService(
-            'https://extension.example.com',
-            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx'
-          ).platform.get
-        ).toBeCalledTimes(1);
+        expect(get).toBeCalledTimes(1);
       })
       // .catch(e => console.log(e))
     ).resolves.not.toThrow();
   });
 
-  it.todo('creates an instance of archiver with right options');
-  it.todo('calls archiver.glob with right options');
-  it.todo('throws if archiver raises warning');
-  it.todo('throws if archiver raises error');
+  it('uploads spec by calling sdk.extension.uploadSpec()', async () => {
+    const sut = createDeployService({
+      host: 'https://extension.example.com',
+      auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      out: 'lib',
+      options: {
+        specFile: 'extension.json',
+      },
+    });
 
-  it.todo('uploads spec by calling sdk.extension.uploadSpec()');
-  it.todo('uploads by calling sdk.instance() to uploadTo destination');
-  it.todo('skips upload if uploadTo absent from response');
+    await expect(
+      sut().then(() => {
+        expect(uploadSpec).toBeCalledTimes(1);
+      })
+      // .catch(e => console.log(e))
+    ).resolves.not.toThrow();
+  });
 
-  it.todo('activates revision by calling sdk.extension.activateRevision()');
+  it('uploads by calling sdk.instance() to uploadTo destination', async () => {
+    const sut = createDeployService({
+      host: 'https://extension.example.com',
+      auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      out: 'lib',
+      options: {
+        specFile: 'extension.json',
+      },
+    });
+
+    const { instance } = createBridgeService('', '');
+    await expect(
+      sut().then(() => {
+        expect(instance).toBeCalledTimes(1);
+        expect(instance).toBeCalledWith(
+          'https://upload.example.com',
+          expect.objectContaining({ method: 'PIGEON' })
+        );
+      })
+      // .catch(e => console.log(e))
+    ).resolves.not.toThrow();
+  });
+
+  it('skips upload if uploadTo absent from response', async () => {
+    jest.spyOn(httpExtension, 'uploadSpec').mockResolvedValue({
+      status: 0,
+      statusText: '',
+      headers: '',
+      config: {},
+      data: {
+        links: {},
+        meta: { requestID: '', version: '' },
+        data: {
+          accountID: '',
+          createdAt: '',
+          id: '',
+          modifiedAt: '',
+          revisionID: '',
+          uploadTo: undefined,
+        },
+      },
+    });
+
+    const sut = createDeployService({
+      host: 'https://extension.example.com',
+      auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
+      out: 'lib',
+      options: {
+        specFile: 'extension.json',
+      },
+    });
+
+    const { instance } = createBridgeService('', '');
+    await expect(
+      sut().then(() => {
+        expect(instance).toBeCalledTimes(0);
+      })
+      // .catch(e => console.log(e))
+    ).resolves.not.toThrow();
+  });
+
 });

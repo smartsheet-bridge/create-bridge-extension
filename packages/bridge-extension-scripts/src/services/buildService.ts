@@ -11,11 +11,11 @@ export interface CreateBuildServiceArgs {
   src: string;
   out: string;
   options: {
-    staticDependencies: string[];
-    staticAssets: string[];
+    staticDependencies?: string[];
+    staticAssets?: string[];
     clean?: boolean;
     symlinks?: boolean;
-    entrypoint: string;
+    entrypoint?: string;
   };
 }
 
@@ -27,11 +27,11 @@ export const createBuildService = ({
   src,
   out,
   options: {
-    staticDependencies,
-    staticAssets,
+    staticDependencies = [],
+    staticAssets = [],
     clean = true,
     symlinks = false,
-    entrypoint,
+    entrypoint = '',
   },
 }: CreateBuildServiceArgs) => {
   /**
@@ -88,6 +88,7 @@ export const createBuildService = ({
       throw new Error('No suitable entrypoint found!');
     }
   }
+  Logger.verbose(`Found ${Chalk.green('entrypoint')}`, Chalk.cyan(script));
 
   const build = async () => {
     Logger.start('Bundling files');
@@ -107,7 +108,7 @@ export const createBuildService = ({
     const copyStaticAssetsConfigs: builder.Plugin[] = staticAssets
       .filter(isSafePath)
       .map(pattern => glob.sync(pattern, { dot: true }))
-      .reduce((list, sublist) => list.concat(sublist))
+      .reduce((list, sublist) => list.concat(sublist), [])
       .map(path =>
         copyStaticFiles({
           src: path,

@@ -17,9 +17,7 @@ export interface CreateDeployServiceArgs {
   auth: string;
   out: string;
   options: {
-    // include: string;
-    // exclude: string[];
-    symlinks: boolean;
+    symlinks?: boolean;
     specFile?: string;
   };
 }
@@ -32,7 +30,7 @@ export const createDeployService = ({
   host,
   auth,
   out,
-  options: { symlinks, specFile },
+  options: { symlinks = false, specFile = 'extension.json' },
 }: CreateDeployServiceArgs) => {
   debug('options', { symlinks, specFile });
   debug('build-out', out);

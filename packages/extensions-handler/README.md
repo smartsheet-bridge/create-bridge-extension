@@ -31,7 +31,7 @@ This will export a function that:
 
 # Enhancers
 
-The handler by itself can't do much, but enhancers can be used to extend the functionality of the handler from defining the transport interface to applying middleware and handling business logic. The library comes with some useful enhancers built in.
+The handler by itself can't do much, but enhancers can be used to extend the functionality of the handler from defining the transport interface to applying middleware and handling business logic. The library comes with some useful enhancers built in. 
 
 ### `httpTransport`
 
@@ -89,3 +89,4 @@ return () => respond => {
   // execute after handler responds
 };
 ```
+   

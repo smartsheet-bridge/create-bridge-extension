@@ -86,7 +86,7 @@ describe('handleExternals', () => {
         },
       },
     ],
-  ] as any[])('returns when output response is %s', async result => {
+  ] as any[])('returns  when output response is %s', async result => {
     const config: ExternalsConfig = {
       externals: {
         abc: () => result,

@@ -26,8 +26,6 @@ const buildArguments = {
     description:
       'Clean `out` folder before building. Run with `--no-clean` to prevent `out` folder from being deleted before build.',
   },
-  // include,
-  // exclude,
   staticDependencies: {
     type: 'array' as 'array',
     default: [] as string[],
@@ -57,8 +55,6 @@ const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
   src: argv.src,
   out: argv.out,
   options: {
-    // exclude: argv.exclude,
-    // include: argv.include,
     staticDependencies: argv.staticDependencies,
     clean: argv.clean,
     staticAssets: argv.staticAssets,
@@ -71,8 +67,6 @@ const deployArguments = {
   url,
   key,
   specFile,
-  // include,
-  // exclude,
   build: {
     type: 'boolean' as 'boolean',
     description:
@@ -101,8 +95,6 @@ const argvToDeployArgs = (argv: CLIArguments<DeployArguments>) => ({
   auth: argv.key,
   out: argv.out,
   options: {
-    // exclude: argv.exclude,
-    // include: argv.include,
     symlinks: argv.symlinks,
     specFile: argv.specFile,
   },

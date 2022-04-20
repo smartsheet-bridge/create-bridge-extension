@@ -68,8 +68,6 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
       auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
       out: 'lib',
       options: {
-        // exclude: [],
-        // include: '**/**',
         symlinks: false,
         specFile: 'extension.json',
       },
@@ -84,10 +82,6 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
       'https://extension.example.com',
       '--key',
       'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
-      // '--include',
-      // '*.js',
-      // '--exclude',
-      // '*.ts',
       '--specFile',
       'abc.txt',
       '--symlinks',
@@ -129,8 +123,6 @@ describe.each(COMMAND_ALIASES)('deployCommand %s', cmd => {
       auth: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxx-xxxxxx',
       out: 'testOutDir',
       options: {
-        // exclude: ['*.ts'],
-        // include: '*.js',
         symlinks: false,
         specFile: 'abc.txt',
       },

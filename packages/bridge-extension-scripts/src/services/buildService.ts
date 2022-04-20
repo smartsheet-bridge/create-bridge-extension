@@ -73,7 +73,6 @@ export const createBuildService = ({
     Logger.end();
   }
 
-  // TODO - Detect entrypoint
   debug(entrypoint);
   let script = '';
   if (entrypoint && isSafePath(entrypoint)) {

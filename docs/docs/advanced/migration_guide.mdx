@@ -137,4 +137,201 @@ Although the root commands are similar in function, the overall tooling has a fe
 - The `extension-scripts` tool is designed to work perfectly out of the box with CI systems and therefore lacks many of the interactive elements you may have become accustomed to with the `converse-cli` tool.
 - The `extension-scripts` tool does not require authentication until it's needed. Unlike the `converse-cli` tool that required authentication with exactly one account at all times the new tooling only requires authentication when you actually need to interact with the platform. This means that you can be authenticated with zero, one, or many accounts at the same time by using aliases. See [here for more information on aliases](/api/extension-scripts#account-aliases).
 
-<!-- ## From `plugins-sdk` to `extension-handler@0.x` -->
+## From `@converseai/plugins-sdk` to `@smartsheet-bridge/extension-handler@0.x`
+
+The `plugins-sdk` library supply the function handler/router for legacy extensions within the previously auto-generated plugin.js file, as well as various objects that supply methods to aid generating a properly formatted response. The `extension-handler` library supplies the same functionality with improved methods, documentation and type support.
+
+### What is different
+
+For those that are familiar with the `plugins-sdk` and creating legacy extensions there are a few key differences you need to be aware of while refactoring your code to use the `extension-handler` format.
+
+#### Request payloads
+
+The legacy functions all took the same request arguments `app` and `body`, app supplying various helper functions and body the main request payload which is poorly documented but differs for each function type.
+
+The `extension-handler` function requests have far better documentation and are clearly defined in the library, with each function type having its own clear signature. Generally each function will still have two arguments, a `params` object defining function specific arguments, and `context`, an object that describes extension wide variables and metadata. Using the module function as an example, some of the main differences you will need to make during the migration include:
+
+```javascript
+// Changing the module export from this
+module.exports = (app, body) => {
+...
+// To something more like this:
+const moduleFunction = (params, context) => {
+...
+```
+
+```javascript
+// Instead of referencing module params like this:
+const { param1, param2 } = body.payload.moduleParam;
+// You would instead do this:
+const { param1, param2 } = params;
+```
+
+```javascript
+// To reference your registration data, instead of this:
+const registrationData = body.payload.registrationData;
+// You would use the new settings object
+const registrationData = context.settings;
+```
+
+```javascript
+// To reference OAuth2 data you used to use either:
+const access_token = app.getAccessTokenForPlugin();
+const access_token = body.payload.providerOAuth.access_token;
+// Which is now part of the context:
+const access_token = context.oAuthData.access_token;
+```
+
+#### Function response
+
+The legacy functions required the developer to use `app.Send()` and `app.Fail()` to return a response back to Bridge. This has been replaced with the the more intuitive function of returning the function response with the standard `return` keyword.
+
+The main thing to note is if you use promises then you must be careful that you are returning the promise from the function to ensure that the handler waits for the promise to return your desired response.
+
+The response types are named the same or similar between the legacy and new libraries, including the getter and setter functions:
+
+```javascript
+// For modules, this
+const ModuleResponse = require('@converseai/plugins-sdk').Payloads.Module.ModuleResponse;
+...
+const response = new ModuleResponse();
+response.setValue({...});
+app.send(Status.SUCCESS, response);
+// Will become
+const { ModuleResponse } = require('@smartsheet-bridge/extension-handler');
+...
+const response = new ModuleResponse();
+response.setValue({...});
+return response;
+```
+
+For those times when you want to fail a function call:
+
+```javascript
+// If you wanted to fail the function due to a user not specifying required information you would have:
+app.fail({
+  httpStatus: 400,
+  code: 'REQUIRED_PARAMS_UNDEFINED',
+  description: 'Required parameter "Name" is undefined.',
+});
+// Now you will throw an error
+...
+const { ExtensionError } = require('@smartsheet-bridge/extension-handler');
+...
+throw new ExtensionError({
+  description: 'Required parameter "Name" is undefined.',
+  code: 'REQUIRED_PARAMS_UNDEFINED',
+  httpStatus: 400,
+});
+```
+
+By using the `ExtensionError` it allows you to specify what type of error has occurred, generally a 4XX error is a failure of the module user, whereas 5XX is a failure in the extension code or with any third-party you are integrating with.
+
+It is also possible to simply throw any error from a function. All other error types will be wrapped as an ExtensionError with `code: EXTENSION_ERROR` and a `httpStatus` of 500 with the original error as the description.
+
+### Gradual migration
+
+Depending on the size and complexity of your extension, you may not want to rewrite the whole implementation in one go.
+It is possible to use the new `extension-handler` within the existing plugin.js main function to route function requests to functions defined using the newer library, allowing for the gradual migration of the whole code base.
+
+The technique is to define a function that will invoke the handle returned by `createBridgeHandler` inside the main function that was previously auto-generated by the converse-cli which you would have modified when following the ["Form `converse-cli` to `extension-scripts@0.x`" ](/advanced/migration_guide#from-converseaiplugins-sdk-to-smartsheet-bridgeextension-handler0x) instructions above, and pass that function to the app function for setting event handlers.
+
+In this example we redefine the `onRegister` and `unRegister` functions using the new tooling and create the override function in plugin.js to link the legacy event handler to the new Bridge handler
+
+```javascript
+// plugin.js
+const ConversePluginsSDK = require('@converseai/plugins-sdk');
+const OAuth              = require('./converseai_oauth');
+const { createBridgeHandler } = require('@smartsheet-bridge/extension-handler');
+const { onRegister, onUnregister } = require('./registration')
+...
+exports.main = function (request, response) {
+  var app = new ConversePluginsSDK.http({ request, response });
+
+  if (request && request.headers && request.headers['x_converse_app_token'] && request.headers['x_converse_app_token'] === require('./app-token')) {
+
+    const override = () =>{
+      createBridgeHandler(
+        {
+          onRegister,
+          onUnregister,
+          modules: {
+            ...
+          },
+        })(request, response)
+    }
+
+    app.setOnProviderRegister(override);
+    app.setOnProviderUnregister(override);
+
+    ...
+
+    app.handleRequest();
+  } else {
+    app._handleError(403, 'FORBIDDEN_APP_TOKEN', 'Forbidden app token set.');
+  }
+};
+```
+
+```javascript
+// registration.js
+const {
+  RegisterResponse,
+} = require('@smartsheet-bridge/extension-handler/lib/responses/RegisterResponse');
+const { ExtensionStatus } = require('@smartsheet-bridge/extension-handler');
+
+function onRegister(params) {
+  return RegisterResponse.create({
+    status: ExtensionStatus.SUCCESS,
+    settings: params.Settings,
+  });
+}
+
+function onUnregister() {
+  return RegisterResponse.create({ status: ExtensionStatus.SUCCESS });
+}
+
+module.exports = {
+  onRegister,
+  onUnregister,
+};
+```
+
+To override a module or external function/webhook, you would keep the existing legacy handler setter, but use the override function in place of the legacy function import
+
+```javascript
+...
+app.setModules({
+    staying_put: require('./converseai_modules/staying_put'),
+    migrating: override,
+});
+...
+```
+
+Eventually when all functions have been successfully migrated, the plugin.js file can be converted into the the [entry point](concepts/entry) format detailed within the documentation.
+
+### Migrating tests
+
+When migrating from `plugins-sdk` to `extension-handler@0.x` you should not need to rewrite your tests. The handler returned by `createBridgeHandler` should be able to take the existing test case requests, and then return the response in the same format as was returned before your migration as long as you updated your `test/lib/express.js` file as suggested above.
+
+There may be some differences between the objects returned by `plugins-sdk` functions and `extension-handler` functions due to how they are marshaled and processed, mainly omit empty fields, but some careful manipulation of your tests should help them still pass without losing the intention of the tests.
+
+An example of this is with the external functions/webhook response type, which includes a list of workflows that should be ran. The stock webhook response for the `plugins-sdk` would return the array of `channelOutput` even if it was empty, whereas the `extension-handler` will omit the empty array, meaning that you would need to refactor any test such as this
+
+```javascript
+expect(res.body).to.have.property('channelOutput').to.have.length(0);
+```
+
+to be like the following
+
+```javascript
+expect(res.body).to.not.have.property('channelOutput');
+```
+
+The intention of the test, to ensure that no workflows have been requested, has been maintained even though it has been modified to support the change in the response.
+
+#### Beyond version 0.x
+
+The auto-generated test format will not be compatible with `extension-handler@1.x` and beyond, this is due to a breaking change within the event handler. This change will not force any changes to your functions but it fundamentally changes how the request and response are parsed by the handler, making the existing `converse-cli` auto-generated tests difficult to execute and validate.
+
+After you have successfully migrated from `plugins-sdk` to `extension-handler`, and validated your refactoring has not broken any functionality through the existing tests, the best solution is to rewrite the tests themselves, calling the functions directly instead of going through the test express server. Testing this way gives you a great deal more control over the test data as well as reduces a lot of "insider knowledge" which may have been required before to ensure that all the features supported by the `plugins-sdk` could be tested, a problem that you will not have with the more straight forward `extension-handler` implementations.

@@ -212,5 +212,4 @@ describe('deploy', () => {
       // .catch(e => console.log(e))
     ).resolves.not.toThrow();
   });
-
 });

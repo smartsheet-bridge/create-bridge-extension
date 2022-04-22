@@ -57,14 +57,8 @@ export const createBuildService = ({
   const outDir = resolve(cwd, out);
   Logger.verbose(`Found ${Chalk.green('src')} directory`, Chalk.cyan(srcDir));
   Logger.verbose(`Found ${Chalk.green('out')} directory`, Chalk.cyan(outDir));
-  debug(
-    'Static Dependencies',
-    staticDependencies.map(d => `\n  - ${Chalk.cyan(d)}`).join('')
-  );
-  debug(
-    'Static Assets',
-    staticAssets.map(a => `\n  - ${Chalk.cyan(a)}`).join('')
-  );
+  debug('Static Dependencies', staticDependencies);
+  debug('Static Assets', staticAssets);
   Logger.end();
 
   if (clean) {
@@ -131,8 +125,8 @@ export const createBuildService = ({
       external: staticDependencies,
       plugins: [...copyStaticDependenciesConfigs, ...copyStaticAssetsConfigs],
     });
-    debug(`${Chalk.red('Errors')}`, result.errors);
-    debug(`${Chalk.yellow('Warnings')}`, result.warnings);
+    debug('Errors', result.errors);
+    debug('Warnings', result.warnings);
     Logger.end();
   };
 

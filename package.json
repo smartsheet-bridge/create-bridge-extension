@@ -15,6 +15,7 @@
     "build": "yarn run clean && tsc --build tsconfig.build.json",
     "build:watch": "tsc --build tsconfig.build.json --watch ",
     "clean": "yarn workspaces foreach --topological-dev --exclude 'docs' exec 'rm -rf lib'",
+    "deep-clean": "yarn workspaces foreach --topological-dev --exclude 'docs' exec 'rm -rf lib node_modules' && rm -rf node_modules",
     "release": "yarn workspaces foreach --topological-dev --exclude 'docs' exec 'semantic-release'",
     "docs": "yarn workspace docs",
     "prepare": "husky install"

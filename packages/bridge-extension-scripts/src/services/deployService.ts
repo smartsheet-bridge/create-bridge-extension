@@ -1,6 +1,3 @@
-/* eslint-disable import/no-dynamic-require */
-/* eslint-disable global-require */
-
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
 import archiver from 'archiver';
 import { Method } from 'axios';
@@ -8,6 +5,7 @@ import { createHash } from 'crypto';
 import { createReadStream } from 'fs-extra';
 import { vol } from 'memfs';
 import { obj as multistream } from 'multistream';
+import { resolve as resolvePath } from 'path';
 import { getSpec } from '../utils';
 import { createBridgeService } from './bridgeService';
 import { Caller } from './http/extension';
@@ -17,23 +15,29 @@ const debug = Logger.debug('deployService');
 export interface CreateDeployServiceArgs {
   host: string;
   auth: string;
+  out: string;
   options: {
-    include: string;
-    exclude: string[];
-    symlinks: boolean;
+    symlinks?: boolean;
     specFile?: string;
-    env?: { [key: string]: string };
   };
 }
 
 const VIRTUAL_FILE = '/extension.zip';
+const INCLUDE = '**/**';
+const EXCLUDE = '';
 
 export const createDeployService = ({
   host,
   auth,
-  options: { include, exclude, symlinks, specFile },
+  out,
+  options: { symlinks = false, specFile = 'extension.json' },
 }: CreateDeployServiceArgs) => {
-  debug('options', { include, exclude, symlinks, specFile });
+  debug('options', { symlinks, specFile });
+  debug('build-out', out);
+
+  const cwd = process.cwd();
+  const buildOutDir = resolvePath(cwd, out);
+
   const sdk = createBridgeService(host, auth);
 
   const archivePkg = async (): Promise<string> => {
@@ -75,15 +79,15 @@ export const createDeployService = ({
 
       archive.pipe(output);
 
-      debug('include', include);
-      debug('exclude', exclude);
+      debug('include', INCLUDE);
+      debug('exclude', EXCLUDE);
 
       archive.glob(
-        include,
+        INCLUDE,
         {
-          cwd: process.cwd(),
+          cwd: buildOutDir,
           dot: false,
-          ignore: exclude,
+          ignore: EXCLUDE,
           follow: symlinks,
         },
         {}

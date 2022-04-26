@@ -37,12 +37,7 @@ This package exports a configuration object that can be extended and read by [`@
 ```js
 {
   specFile: 'plugin.json',
-  exclude: [
-    '**/.*',
-    '**/*.log',
-    '**/plugin.json',
-    '**/node_modules/**',
-    '**/test/**',
-  ],
+  clean: false,
+  build: false,
 }
 ```

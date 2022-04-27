@@ -29,7 +29,7 @@ const TEST_PAYLOAD_STREAM = {
   },
   body: {
     getUrl: 'google.com',
-    ***REMOVED***: 'google.com',
+    postUrl: 'google.com',
     payload: STREAM_PAYLOAD,
   },
 };
@@ -39,7 +39,7 @@ const TEST_PAYLOAD_S3 = {
   },
   body: {
     getUrl: 'google.com',
-    ***REMOVED***: 'https://google.com',
+    postUrl: 'https://google.com',
     payload: { s3: 'payload' },
   },
 };

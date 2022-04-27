@@ -39,8 +39,7 @@ const TEST_PAYLOAD_S3 = {
   },
   body: {
     getUrl: 'google.com',
-    ***REMOVED***:
-      '***REMOVED***/***REMOVED***/?Content-Type=application%2Fx-www-form-urlencoded&bucket=***REMOVED***&***REMOVED***&***REMOVED***&x-amz-algorithm=AWS4-HMAC-SHA256&***REMOVED***%2F20220421%2Fus-west-2%2Fs3%2Faws4_request&x-amz-date=20220421T133317Z&***REMOVED***',
+    ***REMOVED***: 'https://google.com',
     payload: { s3: 'payload' },
   },
 };

@@ -1,6 +1,7 @@
 // @ts-ignore
 
 import axios from 'axios';
+import FormData from 'form-data';
 import { ExtensionHandlerEnhancer } from '../handler';
 
 const S3_EXECUTION = 's3Execution';
@@ -12,11 +13,18 @@ const getPayloadFromS3 = async (url: string) => {
 };
 
 const putPayloadToS3 = async (url: string, payload: any) => {
-  const headers = new Headers({ 'Content-Type': 'application/json' });
-  const resp = await axios.post(url, {
-    method: 'POST',
-    headers,
-    body: payload,
+  const urlObj = new URL(decodeURI(url));
+  const formData = new FormData();
+  const urlVal = urlObj.origin + urlObj.pathname;
+  urlObj.searchParams.forEach(function (value, key) {
+    formData.append(key, value);
+  });
+  formData.append('file', JSON.stringify(payload));
+  const resp = await axios.post(urlVal, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Content-Length': formData.getLengthSync(),
+    },
   });
   return resp.data;
 };

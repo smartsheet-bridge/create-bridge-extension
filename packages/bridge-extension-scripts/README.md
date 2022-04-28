@@ -28,9 +28,9 @@ This tool is designed to be installed as a devDependency and interacted with thr
 {
   // ...
   "scripts": {
-    "account": "extension-scripts account",
+    "revoke": "extension-scripts revoke",
     "deploy": "extension-scripts deploy",
-    "revoke": "extension-scripts revoke"
+    "build": "extension-scripts build"
   }
 }
 ```

@@ -14,6 +14,7 @@ This tool is designed to be installed as a devDependency and interacted with thr
   // ...
   "scripts": {
     "account": "extension-scripts account",
+    "build": "extension-scripts build",
     "deploy": "extension-scripts deploy",
     "revoke": "extension-scripts revoke"
   }
@@ -84,6 +85,22 @@ This command will remove the given account alias on the current machine.
 $ extension-scripts account add [alias]
 ```
 
+### `build`
+
+This command will build your extension code into Bridge compatible source code for deploying.
+
+```bash
+$ extension-scripts build [options]
+```
+
+| option       | description                                                            |
+| ------------ | ---------------------------------------------------------------------- |
+| `--src`      | Root directory of all source files.                                    |
+| `--out`      | Root directory of all outputted files.                                 |
+| `--include`  | Pattern to include filenames when building.                            |
+| `--exclude`  | Pattern or array of patterns to exclude filenames when building.       |
+| `--no-clean` | Prevent the command from cleaning the `out` directory before building. |
+
 ### `deploy`
 
 This command will deploy your extension to your Bridge by Smartsheet account for use with the platform.
@@ -92,19 +109,15 @@ This command will deploy your extension to your Bridge by Smartsheet account for
 $ extension-scripts deploy [alias] [options]
 ```
 
-| option, alias          | description                                                                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `alias`                | Account alias to use. See [Account Aliases](#account-aliases).                                                                  |
-| `--url`                | Account URL to access. See [Authentication](#authentication).                                                                   |
-| `--key`                | Authorized API Key for given account URL. See [Authentication](#authentication).                                                |
-| `--symlinks`           | Follow symlinks when packaging extension for deployment.                                                                        |
-| `--no-build`           | Prevent the command from running the `build` command first.                                                                     |
-| `--src`                | Root directory of all source files.                                                                                             |
-| `--out`                | Root directory of all outputted files.                                                                                          |
-| `--no-clean`           | Prevent the command from cleaning the `out` directory before building.                                                          |
-| `--staticDependencies` | Names of dependencies to be bundled with Extension code as-is unprocessed by the bundling tool.                                 |
-| `--staticAssets`       | Glob patterns for static files to be bundled with Extension code. Use to include files not referenced via `require` statements. |
-| `--entrypoint`         | Entrypoint for main extension function.                                                                                         |
+| option, alias | description                                                                      |
+| ------------- | -------------------------------------------------------------------------------- |
+| `alias`       | Account alias to use. See [Account Aliases](#account-aliases).                   |
+| `--url`       | Account URL to access. See [Authentication](#authentication).                    |
+| `--key`       | Authorized API Key for given account URL. See [Authentication](#authentication). |
+| `--include`   | Pattern to include filenames when packaging for deployment.                      |
+| `--exclude`   | Pattern or array of patterns to exclude filenames when packaging for deployment. |
+| `--symlinks`  | Follow symlinks when packaging extension for deployment.                         |
+| `--no-build`  | Prevent the command from running the `build` command first.                      |
 
 ### `revoke`
 
@@ -132,7 +145,6 @@ These options can be appended to all commands.
 | `--version`        | Show version of the tool.                                         |
 | `--loglevel`, `-l` | Level of output logs to print. See [Output Logs](#output-logs).   |
 | `--debug`, `-d`    | Regex pattern to match debug logs. See [Debug Logs](#debug-logs). |
-| `--specFile`       | Filename of extension specification file.                         |
 
 All options, global or not, can be provided [inline](#inline), as [environment variables](#environment-variables), in a [configuration file](#configuration-files), or as part of the `extension` property in the [`package.json`](#packagejson) file and are prioritized in the following order:
 
@@ -150,7 +162,7 @@ All options, global or not, can be provided [inline](#inline), as [environment v
 
 Inline options take priority over other methods and come directly after the `[command]` formatted like `--[option]=[value]`.
 
-Some inline options have an alias that shortens the format to `-[alias] [value]`. E.g. `--minutes=5` becomes `-m 5`.
+Some inline options have an alias that shorten the format to `-[alias] [value]`. E.g. `--minutes=5` becomes `-m 5`.
 
 :::tip
 
@@ -164,9 +176,13 @@ extensions-scripts deploy --help
 
 ### Environment Variables
 
+:::note
+
+this section describes ENV variables for supplying options in your development environment.
+
 :::
 
-Options can be configured via environment variables (in your development environment) and come in the format of uppercase and prepended with `EXTENSION_`. E.g. `--url=[account url]` becomes `EXTENSION_URL:[url]`. Environment variables take priority over all but inline options.
+Options can be configured via environment variables and come in the format of uppercase and prepended with `EXTENSION_`. E.g. `--url=[account url]` becomes `EXTENSION_URL:[url]`. Environment variables take priority over all but inline options.
 
 ### Configuration files
 

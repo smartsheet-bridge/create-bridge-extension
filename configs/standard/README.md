@@ -1,6 +1,6 @@
 # @smartsheet-bridge/extensionrc-standard
 
-Shareable configuration file for standard JavaScript and TypeScript extensions using Bridge by Smartsheet tooling.
+Shareable configuration file for standard JavaScript and TypeScript extensions using Bridge by Smartsheet tooling. 
 
 _This configuration is installed by default with [@smartsheet-bridge/extension-scripts](https://www.npmjs.com/package/@smartsheet-bridge/extension-scripts)._
 
@@ -10,7 +10,7 @@ _This configuration is installed by default with [@smartsheet-bridge/extension-s
 
 ## Why do I need this?
 
-This sharable configuration file defines a basic config for [@smartsheet-bridge/extension-scripts](https://www.npmjs.com/package/@smartsheet-bridge/extension-scripts).
+This sharable configuration file defines a basic config for [@smartsheet-bridge/extension-scripts](https://www.npmjs.com/package/@smartsheet-bridge/extension-scripts). 
 
 ## How do I use this?
 
@@ -37,5 +37,12 @@ This package exports a configuration object that can be extended and read by [`@
 ```js
 {
   specFile: 'extension.json',
+  exclude: [
+    '**/.*',
+    '**/*.log',
+    '**/node_modules/**',
+    '**/{test,tests,mock,mocks,__test__,__tests__,__mock__,__mocks__}/**',
+    '**/*.{spec,test}.{js,ts}',
+  ],
 }
 ```

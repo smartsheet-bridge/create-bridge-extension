@@ -5,7 +5,8 @@ import {
   PositionalOptions,
 } from 'yargs';
 import type { AccountConfig } from './commands/accountCommand';
-import type { BuildConfig, DeployConfig } from './commands/deployCommand';
+import type { BuildConfig } from './commands/buildCommand';
+import type { DeployConfig } from './commands/deployCommand';
 import type { LogsConfig } from './commands/logsCommand';
 import type { RevokeConfig } from './commands/revokeCommand';
 import type { CLICommonArguments } from './options';

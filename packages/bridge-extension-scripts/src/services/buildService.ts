@@ -1,10 +1,9 @@
-/* eslint-disable global-require */
-
-import { transformFileSync, TransformOptions } from '@babel/core';
 import { Chalk, Logger } from '@smartsheet-bridge/extension-cli-logger';
-import { emptyDirSync, outputFileSync } from 'fs-extra';
+import builder from 'esbuild';
+import copyStaticFiles from 'esbuild-copy-static-files';
+import { emptyDirSync, readdirSync } from 'fs-extra';
 import { glob } from 'glob';
-import { format, parse, resolve } from 'path';
+import { resolve } from 'path';
 
 const debug = Logger.debug('buildService');
 
@@ -12,16 +11,28 @@ export interface CreateBuildServiceArgs {
   src: string;
   out: string;
   options: {
-    include: string;
-    exclude: string[];
+    staticDependencies?: string[];
+    staticAssets?: string[];
     clean?: boolean;
+    symlinks?: boolean;
+    entrypoint?: string;
   };
 }
+
+const isSafePath = (path: string): boolean => {
+  return !path.startsWith('/') && path.indexOf('..') < 0;
+};
 
 export const createBuildService = ({
   src,
   out,
-  options: { include, exclude, clean = true },
+  options: {
+    staticDependencies = [],
+    staticAssets = [],
+    clean = true,
+    symlinks = false,
+    entrypoint = '',
+  },
 }: CreateBuildServiceArgs) => {
   /**
    * Disable Browserslist old data warning as otherwise with every release we'd need to update this dependency
@@ -34,15 +45,20 @@ export const createBuildService = ({
   Logger.start('Reading configuration');
   debug('src', src);
   debug('out', out);
-  debug('options', { include, exclude, clean });
+  debug('options', {
+    staticDependencies,
+    staticAssets,
+    clean,
+    symlinks,
+  });
 
   const cwd = process.cwd();
   const srcDir = resolve(cwd, src);
   const outDir = resolve(cwd, out);
   Logger.verbose(`Found ${Chalk.green('src')} directory`, Chalk.cyan(srcDir));
   Logger.verbose(`Found ${Chalk.green('out')} directory`, Chalk.cyan(outDir));
-  debug('Include', Chalk.cyan(include));
-  debug('Exclude', exclude.map(excl => `\n  - ${Chalk.cyan(excl)}`).join(''));
+  debug('Static Dependencies', staticDependencies);
+  debug('Static Assets', staticAssets);
   Logger.end();
 
   if (clean) {
@@ -51,40 +67,66 @@ export const createBuildService = ({
     Logger.end();
   }
 
-  const build = () => {
-    const allFiles = glob.sync(include, {
-      ignore: exclude,
-      cwd: srcDir,
-      nodir: true,
+  debug(entrypoint);
+  let script = '';
+  if (entrypoint && isSafePath(entrypoint)) {
+    script = entrypoint;
+  } else {
+    const srcContents = readdirSync(srcDir);
+    if (srcContents.includes('index.ts')) {
+      script = resolve(srcDir, 'index.ts');
+    } else if (srcContents.includes('index.js')) {
+      script = resolve(srcDir, 'index.js');
+    } else {
+      throw new Error('No suitable entrypoint found!');
+    }
+  }
+  Logger.verbose(`Found ${Chalk.green('entrypoint')}`, Chalk.cyan(script));
+
+  const build = async () => {
+    Logger.start('Bundling files');
+
+    const copyStaticDependenciesConfigs: builder.Plugin[] = staticDependencies
+      .filter(isSafePath)
+      .map(dep =>
+        copyStaticFiles({
+          src: resolve('node_modules', dep),
+          dest: resolve(outDir, 'node_modules', dep),
+          dereference: symlinks,
+          errorOnExist: true,
+          recursive: true,
+        })
+      );
+
+    const copyStaticAssetsConfigs: builder.Plugin[] = staticAssets
+      .filter(isSafePath)
+      .map(pattern => glob.sync(pattern, { dot: true }))
+      .reduce((list, sublist) => list.concat(sublist), [])
+      .map(path =>
+        copyStaticFiles({
+          src: path,
+          dest: resolve(outDir, path),
+          dereference: symlinks,
+          errorOnExist: true,
+          recursive: true,
+        })
+      );
+
+    const result = await builder.build({
+      entryPoints: [script],
+      bundle: true,
+      platform: 'node',
+      target: ['node12'],
+      splitting: false,
+      outdir: outDir,
+      format: 'cjs',
+      minify: true,
+      sourcemap: true,
+      external: staticDependencies,
+      plugins: [...copyStaticDependenciesConfigs, ...copyStaticAssetsConfigs],
     });
-    debug('allFiles', allFiles);
-
-    Logger.start(`Building ${Chalk.cyan(allFiles.length)} files`);
-    allFiles.forEach(fileName => {
-      Logger.verbose(`Building ${Chalk.cyan(fileName)}`);
-      const absSrcPath = resolve(srcDir, fileName);
-      const { name, ext, dir } = parse(fileName);
-      const absOutDir = resolve(outDir, dir);
-      const absOutPath = format({
-        ext: '.js',
-        dir: absOutDir,
-        name,
-      });
-
-      const babelOpts: TransformOptions = {
-        presets: [[require('@babel/preset-env'), { targets: { node: '12' } }]],
-      };
-
-      if (ext === '.ts') {
-        babelOpts.presets.push(require('@babel/preset-typescript'));
-      }
-
-      debug(`Transforming ${Chalk.cyan(name)}`, absSrcPath);
-      const { code } = transformFileSync(absSrcPath, babelOpts);
-
-      debug(`Writing ${Chalk.cyan(name)}`, absOutPath);
-      outputFileSync(absOutPath, code, { encoding: 'utf8' });
-    });
+    debug('Errors', result.errors);
+    debug('Warnings', result.warnings);
     Logger.end();
   };
 

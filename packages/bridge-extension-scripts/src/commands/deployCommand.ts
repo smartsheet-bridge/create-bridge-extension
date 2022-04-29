@@ -1,6 +1,6 @@
 import { CommandBuilder, CommandModule } from 'yargs';
 import { middlewareAuth } from '../middleware/middlewareAuth';
-import { alias, key, specFile, url } from '../options';
+import { alias, exclude, include, key, specFile, url } from '../options';
 import { CreateBuildServiceFn } from '../services/buildService';
 import { CreateDeployServiceFn } from '../services/deployService';
 import type {
@@ -8,80 +8,41 @@ import type {
   InferArgumentsIn,
   InferArgumentsOut,
 } from '../types';
+import { buildEnvironmentVariables } from '../utils';
+import {
+  argvToBuildArgs,
+  BuildArguments,
+  buildArguments,
+} from './buildCommand';
 
-const buildArguments = {
-  src: {
-    type: 'string' as 'string',
-    default: 'src',
-    description: 'Root directory of all source files.',
-  },
-  out: {
-    type: 'string' as 'string',
-    default: 'lib',
-    description: 'Root directory of all outputted files.',
-  },
-  clean: {
-    type: 'boolean' as 'boolean',
-    default: true,
-    description:
-      'Clean `out` folder before building. Run with `--no-clean` to prevent `out` folder from being deleted before build.',
-  },
-  staticDependencies: {
+const deployArguments = {
+  url,
+  key,
+  specFile,
+  env: {
     type: 'array' as 'array',
-    default: [] as string[],
-    description:
-      'Names of dependencies to be bundled with Extension code as-is unprocessed by the bundling tool.',
+    string: true as true,
+    description: 'Set environment variables on deployed extension.',
+    coerce: buildEnvironmentVariables,
   },
-  staticAssets: {
-    type: 'array' as 'array',
-    default: [] as string[],
-    description:
-      'Glob patterns for static files to be bundled with Extension code. Use to include files not referenced via `require` statements.',
-  },
+  include,
+  exclude,
   symlinks: {
     type: 'boolean' as 'boolean',
     description: 'Follow symlinks when packaging extension for deployment.',
     default: false,
     coerce: (ln?: boolean) => (ln !== undefined ? ln : false),
   },
-  entrypoint: {
-    type: 'string' as 'string',
-    default: 'src/index.ts',
-    description: 'Entrypoint for main extension function.',
-  },
-};
-
-const argvToBuildArgs = (argv: CLIArguments<BuildArguments>) => ({
-  src: argv.src,
-  out: argv.out,
-  options: {
-    staticDependencies: argv.staticDependencies,
-    clean: argv.clean,
-    staticAssets: argv.staticAssets,
-    symlinks: argv.symlinks,
-    entrypoint: argv.entrypoint,
-  },
-});
-
-const deployArguments = {
-  url,
-  key,
-  specFile,
   build: {
     type: 'boolean' as 'boolean',
     description:
       'Build code on deployment. Use `--no-build` to disable this feature.',
     default: true,
   },
-  out: buildArguments.out,
-  symlinks: buildArguments.symlinks,
 };
 
-export type BuildConfig = InferArgumentsIn<typeof buildArguments>;
-export type BuildArguments = InferArgumentsOut<typeof buildArguments>;
-
 export type DeployConfig = InferArgumentsIn<typeof deployArguments>;
-export type DeployArguments = InferArgumentsOut<typeof deployArguments>;
+type DeployArguments = InferArgumentsOut<typeof deployArguments>;
 
 const builder: CommandBuilder = yargs => {
   return yargs
@@ -90,26 +51,26 @@ const builder: CommandBuilder = yargs => {
     .options({ ...buildArguments, ...deployArguments });
 };
 
-const argvToDeployArgs = (argv: CLIArguments<DeployArguments>) => ({
-  host: argv.url,
-  auth: argv.key,
-  out: argv.out,
-  options: {
-    symlinks: argv.symlinks,
-    specFile: argv.specFile,
-  },
-});
-
-export const createDeployHandler = (
+const createDeployHandler = (
   createDeployService: CreateDeployServiceFn,
   createBuildService?: CreateBuildServiceFn
 ) => async (argv: CLIArguments<DeployArguments & BuildArguments>) => {
   if (argv.build && createBuildService) {
     const build = createBuildService(argvToBuildArgs(argv));
-    await build();
+    build();
   }
 
-  const deploy = createDeployService(argvToDeployArgs(argv));
+  const deploy = createDeployService({
+    host: argv.url,
+    auth: argv.key,
+    options: {
+      exclude: argv.exclude,
+      include: argv.include,
+      symlinks: argv.symlinks,
+      specFile: argv.specFile,
+      env: argv.env,
+    },
+  });
   await deploy();
 };
 

@@ -197,7 +197,9 @@ And add a file called `tsconfig.json` in the root folder populated like so.
     "moduleResolution": "node",
     "esModuleInterop": true,
     "noUnusedLocals": false,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "emitDeclarationOnly": true,
+    "declaration": true
   },
   "include": ["./src/**/*.tsx", "./src/**/*.ts"],
   "exclude": [

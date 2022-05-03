@@ -34,8 +34,8 @@ type S3Execution = {
     type: typeof S3_EXECUTION;
   };
   body: {
-    getUrl: string;
-    postUrl: string;
+    getURL: string;
+    postURL: string;
     payload: unknown;
   };
 };
@@ -44,8 +44,8 @@ type StreamExecution = {
     type: typeof STREAM_EXECUTION;
   };
   body: {
-    getUrl: string;
-    postUrl: string;
+    getURL: string;
+    postURL: string;
     payload: unknown;
   };
 };
@@ -65,10 +65,10 @@ export const handleBigPayLoad: ExtensionHandlerEnhancer = create => {
     const handler = create();
     return (payload, callback) => {
       if (isS3Execution(payload)) {
-        getPayloadFromS3(payload.body.getUrl)
+        getPayloadFromS3(payload.body.getURL)
           .then(resultFromS3 => {
             handler(resultFromS3, (err, result: any) => {
-              putPayloadToS3(payload.body.postUrl, result)
+              putPayloadToS3(payload.body.postURL, result)
                 .then(resultNext => callback(err, resultNext))
                 .catch(callback);
             });

@@ -28,8 +28,8 @@ const TEST_PAYLOAD_STREAM = {
     type: 'streamExecution',
   },
   body: {
-    getUrl: 'google.com',
-    postUrl: 'google.com',
+    getURL: 'google.com',
+    postURL: 'google.com',
     payload: STREAM_PAYLOAD,
   },
 };
@@ -38,8 +38,8 @@ const TEST_PAYLOAD_S3 = {
     type: 's3Execution',
   },
   body: {
-    getUrl: 'google.com',
-    postUrl: 'https://google.com',
+    getURL: 'google.com',
+    postURL: 'https://google.com',
     payload: { s3: 'payload' },
   },
 };

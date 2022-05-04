@@ -205,7 +205,7 @@ https://app.smartsheet.com/b/authorize?response_type=code&client_id=123456789&sc
 If the third-party your integrating with needs to know the OAuth callback URI in advance, as Smartsheet OAuth does, then you would use:
 
 ```url
-https://system.converse.ai/api/settings/oauth/oauth2callback
+https://oauth.bridge.smartsheet.com/api/settings/oauth/oauth2callback
 ```
 
 The same callback URI is used by all extensions OAuth callback, Bridge uses the values in the generated state query parameter to determine which extension should handle the callback event.

@@ -9,7 +9,10 @@ import {
 type ReadonlySome<T, K extends keyof T> = Omit<T, K> & Readonly<Pick<T, K>>;
 
 export interface BridgeHTTPRequestConfig
-  extends ReadonlySome<AxiosRequestConfig, 'url' | 'method'> {
+  extends ReadonlySome<
+    AxiosRequestConfig,
+    'url' | 'method' | 'maxContentLength' | 'maxBodyLength'
+  > {
   token?: string;
 }
 

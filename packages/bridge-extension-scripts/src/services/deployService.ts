@@ -114,6 +114,8 @@ export const createDeployService = ({
     const response = sdk.instance(uri, {
       method: method as Method,
       data: stream,
+      maxContentLength: 52428800,
+      maxBodyLength: 52428800,
     });
     return response;
   };
